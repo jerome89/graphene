@@ -57,7 +57,7 @@ public class RenderHandler implements DistheneReaderHandler {
     public FullHttpResponse handle(final HttpRequest request) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
         final RenderParameters parameters = RenderParameters.parse(request);
 
-        logger.debug("Got request: " + parameters + " / parameters: " + parameters.toString());
+        logger.debug("Redner Got request: " + parameters + " / parameters: " + parameters.toString());
         Stopwatch timer = Stopwatch.createStarted();
 
         double throttled = throttlingService.throttle(parameters.getTenant());
