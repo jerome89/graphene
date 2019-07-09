@@ -120,7 +120,9 @@ public class RenderHandler implements DistheneReaderHandler {
         List<TimeSeries> results = new ArrayList<>();
 
         for(Target target : targets) {
-            results.addAll(evaluator.eval(target));
+            List<TimeSeries> eval = evaluator.eval(target);
+            logger.info("TimeSeries : " + eval);
+            results.addAll(eval);
         }
 
         return ResponseFormatter.formatResponse(results, parameters);
