@@ -190,7 +190,8 @@ public class RenderParameters {
             parameters.setUntil(System.currentTimeMillis() / 1000L);
         }
 
-        // parse format defaulting to PNG
+        // TODO change the default JSON to PNG
+        // parse format defaulting to JSON
         if (queryStringDecoder.parameters().get("format") != null) {
             try {
                 parameters.setFormat(Format.valueOf(queryStringDecoder.parameters().get("format").get(0).toUpperCase()));
@@ -199,7 +200,7 @@ public class RenderParameters {
             }
         } else {
             // default to now
-            parameters.setFormat(Format.PNG);
+            parameters.setFormat(Format.JSON);
         }
 
         if (queryStringDecoder.parameters().get("maxDataPoints") != null) {
