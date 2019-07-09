@@ -10,7 +10,9 @@ import net.iponweb.disthene.reader.exceptions.LogarithmicScaleNotAllowed;
 import net.iponweb.disthene.reader.graph.DecoratedTimeSeries;
 import net.iponweb.disthene.reader.graph.Graph;
 import net.iponweb.disthene.reader.graphite.utils.GraphiteUtils;
+import net.iponweb.disthene.reader.handler.RenderHandler;
 import net.iponweb.disthene.reader.handler.parameters.RenderParameters;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -23,19 +25,20 @@ import java.util.List;
  */
 public class ResponseFormatter {
 
-
     public static FullHttpResponse formatResponse(List<TimeSeries> timeSeriesList, RenderParameters parameters) throws NotImplementedException, LogarithmicScaleNotAllowed {
         // Let's remove empty series
         List<TimeSeries> filtered = filterAllNulls(timeSeriesList);
 
-        switch (parameters.getFormat()) {
-            case JSON: return formatResponseAsJson(filtered, parameters);
-            case RAW: return formatResponseAsRaw(filtered);
-            case CSV: return formatResponseAsCSV(filtered, parameters);
-            case PNG: return formatResponseAsPng(filtered, parameters);
-            case GRAPHPLOT_JSON: return formatResponseAsGraphplotJson(filtered, parameters);
-            default:throw new NotImplementedException();
-        }
+        // TODO 원복시키기
+//        switch (parameters.getFormat()) {
+//            case JSON:
+//            case RAW: return formatResponseAsRaw(filtered);
+//            case CSV: return formatResponseAsCSV(filtered, parameters);
+//            case PNG: return formatResponseAsPng(filtered, parameters);
+//            case GRAPHPLOT_JSON: return formatResponseAsGraphplotJson(filtered, parameters);
+//            default:throw new NotImplementedException();
+//        }
+        return formatResponseAsJson(filtered, parameters);
     }
 
     private static FullHttpResponse formatResponseAsCSV(List<TimeSeries> timeSeriesList, RenderParameters renderParameters) {
