@@ -112,6 +112,7 @@ public class RenderHandler implements DistheneReaderHandler {
         timer.stop();
         logger.debug("Request took " + timer.elapsed(TimeUnit.MILLISECONDS) + " milliseconds (" + parameters + ")");
 
+        logger.info("Response status : " + response.getStatus() + " Response Body : " + response.content().toString());
         return response;
     }
     private FullHttpResponse handleInternal(List<Target> targets, RenderParameters parameters) throws EvaluationException, LogarithmicScaleNotAllowed {
