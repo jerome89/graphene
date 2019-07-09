@@ -32,6 +32,7 @@ public class DistheneReader {
 
     private static final String METRICS_PATH = "^/metrics\\/?$";
     private static final String PATHS_PATH = "^/paths\\/?$";
+    private static final String METRICS_FIND_PATH = "^/paths/find\\/?$";
     private static final String PING_PATH = "^/ping\\/?$";
     private static final String RENDER_PATH = "^/render\\/?$";
     private static final String SEARCH_PATH = "^/search\\/?$";
@@ -98,6 +99,7 @@ public class DistheneReader {
             logger.info("Creating metrics handler");
             MetricsHandler metricsHandler = new MetricsHandler(metricService);
             readerServer.registerHandler(METRICS_PATH, metricsHandler);
+            readerServer.registerHandler(METRICS_FIND_PATH, new MetricsHandler(metricService));
 
             logger.info("Creating ping handler");
             PingHandler pingHandler = new PingHandler();
