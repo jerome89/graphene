@@ -90,6 +90,7 @@ public class RenderHandler implements DistheneReaderHandler {
             }
         }
 
+        logger.info("targets : " + targets);
         FullHttpResponse response;
         try {
             response = timeLimiter.callWithTimeout(new Callable<FullHttpResponse>() {
