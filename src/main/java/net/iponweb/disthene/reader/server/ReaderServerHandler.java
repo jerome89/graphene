@@ -58,7 +58,9 @@ public class ReaderServerHandler extends ChannelInboundHandlerAdapter {
 
 
             if (handler != null) {
+                logger.debug("Prepare received the request to handler");
                 response = handler.handle(request);
+                logger.debug("response : " + response);
             } else {
                 response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
             }
@@ -72,6 +74,7 @@ public class ReaderServerHandler extends ChannelInboundHandlerAdapter {
             }
         } catch (EvaluationException e) {
             FullHttpResponse response;
+            logger.error("EvaluationException : " + e.getMessage(), e);
             if (e.getCause() != null) {
                 response = new DefaultFullHttpResponse(HTTP_1_1, REQUEST_ENTITY_TOO_LARGE, Unpooled.wrappedBuffer(("Ohoho.. We have a problem: " + e.getCause().getMessage()).getBytes()));
             } else {
