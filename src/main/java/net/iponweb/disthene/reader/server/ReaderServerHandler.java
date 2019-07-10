@@ -33,6 +33,7 @@ public class ReaderServerHandler extends ChannelInboundHandlerAdapter {
 
         try {
             HttpRequest request = (HttpRequest) message;
+            logger.info("Http Header : " + ((HttpRequest) message).headers());
             boolean keepAlive = HttpHeaders.isKeepAlive(request);
 
             FullHttpResponse response;
@@ -67,9 +68,11 @@ public class ReaderServerHandler extends ChannelInboundHandlerAdapter {
             ctx.write(response).addListener(ChannelFutureListener.CLOSE);
 
             if (keepAlive) {
+                logger.debug("This request is enable about keep alive");
                 response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
                 ctx.write(response);
             } else {
+                logger.debug("This request is not enable about keep alive");
                 ctx.write(response).addListener(ChannelFutureListener.CLOSE);
             }
         } catch (EvaluationException e) {
