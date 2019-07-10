@@ -62,6 +62,7 @@ public class ReaderServerHandler extends ChannelInboundHandlerAdapter {
                 logger.debug("Prepare received the request to handler");
                 response = handler.handle(request);
                 logger.debug("response : " + response);
+                logger.debug("response content : " + response.content().readableBytes());
             } else {
                 response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
             }

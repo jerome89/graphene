@@ -9,6 +9,9 @@ public class PingHandler implements DistheneReaderHandler {
 
     @Override
     public FullHttpResponse handle(HttpRequest request) {
-        return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+        DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
+        response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
+        return response;
     }
 }
