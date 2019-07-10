@@ -73,6 +73,7 @@ public class ReaderServerHandler extends ChannelInboundHandlerAdapter {
                 ctx.write(response);
             } else {
                 logger.debug("This request is not enable about keep alive");
+                response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
                 ctx.write(response).addListener(ChannelFutureListener.CLOSE);
             }
         } catch (EvaluationException e) {
