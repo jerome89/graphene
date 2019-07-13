@@ -99,7 +99,9 @@ public class DistheneReader {
             logger.info("Creating metrics handler");
             MetricsHandler metricsHandler = new MetricsHandler(metricService);
             readerServer.registerHandler(METRICS_PATH, metricsHandler);
-            readerServer.registerHandler(METRICS_FIND_PATH, new MetricsHandler(metricService));
+
+            logger.info("Creating metrics/find handler");
+            readerServer.registerHandler(METRICS_FIND_PATH, new MetricsFindHandler(indexService));
 
             logger.info("Creating ping handler");
             PingHandler pingHandler = new PingHandler();
