@@ -111,15 +111,6 @@ public class DistheneReader {
               distheneReaderConfiguration.getReader());
       readerServer.registerHandler(RENDER_PATH, renderHandler);
 
-      logger.info("Creating search handler");
-      SearchHandler searchHandler = new SearchHandler(elasticsearchIndexService, statsService);
-      readerServer.registerHandler(SEARCH_PATH, searchHandler);
-
-      logger.info("Creating path stats handler");
-      PathStatsHandler pathStatsHandler =
-          new PathStatsHandler(elasticsearchIndexService, statsService);
-      readerServer.registerHandler(PATHS_STATS_PATH, pathStatsHandler);
-
       logger.info("Starting Graphene Reader");
       readerServer.run();
       logger.info("Started Graphene Reader");
