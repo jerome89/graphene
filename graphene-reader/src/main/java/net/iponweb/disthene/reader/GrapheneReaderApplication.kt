@@ -1,8 +1,6 @@
 package net.iponweb.disthene.reader
 
-import net.iponweb.disthene.reader.config.DistheneReaderConfiguration
-import net.iponweb.disthene.reader.config.IndexConfiguration
-import net.iponweb.disthene.reader.config.StoreConfiguration
+import net.iponweb.disthene.reader.config.*
 import org.apache.log4j.BasicConfigurator
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -19,7 +17,8 @@ import org.springframework.boot.runApplication
 @EnableConfigurationProperties(
   IndexConfiguration::class,
   StoreConfiguration::class,
-  DistheneReaderConfiguration::class
+  DistheneReaderConfiguration::class,
+  ThrottlingConfiguration::class
 )
 open class GrapheneReaderApplication
 

@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.TimeLimiter;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import io.netty.handler.codec.http.*;
 import net.iponweb.disthene.reader.beans.TimeSeries;
+import net.iponweb.disthene.reader.config.DistheneReaderConfiguration;
 import net.iponweb.disthene.reader.config.ReaderConfiguration;
 import net.iponweb.disthene.reader.exceptions.*;
 import net.iponweb.disthene.reader.format.ResponseFormatter;
@@ -26,6 +27,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,8 @@ import java.util.concurrent.*;
 /**
  * @author Andrei Ivanov
  */
-public class RenderHandler implements DistheneReaderHandler {
+@Component
+public class RenderHandler {
 
     final static Logger logger = Logger.getLogger(RenderHandler.class);
 
@@ -47,17 +50,14 @@ public class RenderHandler implements DistheneReaderHandler {
     private TimeLimiter timeLimiter = new SimpleTimeLimiter(executor);
 
 
-    public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchIndexService elasticsearchIndexService, StatsService statsService, ThrottlingService throttlingService, ReaderConfiguration readerConfiguration) {
+    public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchIndexService elasticsearchIndexService, StatsService statsService, ThrottlingService throttlingService, DistheneReaderConfiguration distheneReaderConfiguration) {
         this.evaluator = new TargetEvaluator(cassandraMetricService, elasticsearchIndexService);
         this.statsService = statsService;
         this.throttlingService = throttlingService;
-        this.readerConfiguration = readerConfiguration;
+        this.readerConfiguration = distheneReaderConfiguration.getReader();
     }
 
-    @Override
-    public FullHttpResponse handle(final HttpRequest request) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
-        final RenderParameters parameters = RenderParameters.parse(request);
-
+    public FullHttpResponse handle(RenderParameters parameters) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
         logger.debug("Redner Got request: " + parameters + " / parameters: " + parameters.toString());
         Stopwatch timer = Stopwatch.createStarted();
 

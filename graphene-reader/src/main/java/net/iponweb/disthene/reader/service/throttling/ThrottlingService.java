@@ -3,6 +3,7 @@ package net.iponweb.disthene.reader.service.throttling;
 import com.google.common.util.concurrent.RateLimiter;
 import net.iponweb.disthene.reader.config.ThrottlingConfiguration;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Map;
 /**
  * @author Andrei Ivanov
  */
+@Component
 public class ThrottlingService {
     final static Logger logger = Logger.getLogger(ThrottlingService.class);
 

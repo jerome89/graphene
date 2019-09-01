@@ -30,13 +30,6 @@ public class DistheneReader {
   private static final String DEFAULT_THROTTLING_CONFIG_LOCATION =
       "/etc/disthene-reader/throttling.yaml";
 
-  private static final String METRICS_PATH = "^/metrics\\/?$";
-  private static final String METRICS_FIND_PATH = "^/metrics/find\\/?$";
-  private static final String PING_PATH = "^/ping\\/?$";
-  private static final String RENDER_PATH = "^/render\\/?$";
-  private static final String SEARCH_PATH = "^/search\\/?$";
-  private static final String PATHS_STATS_PATH = "^/path_stats\\/?$";
-
   private static Logger logger;
 
   private String configLocation;
@@ -100,16 +93,6 @@ public class DistheneReader {
               cassandraService,
               statsService,
               distheneReaderConfiguration);
-
-      logger.info("Creating render handler");
-      RenderHandler renderHandler =
-          new RenderHandler(
-              cassandraMetricService,
-              elasticsearchIndexService,
-              statsService,
-              throttlingService,
-              distheneReaderConfiguration.getReader());
-      readerServer.registerHandler(RENDER_PATH, renderHandler);
 
       logger.info("Starting Graphene Reader");
       readerServer.run();
