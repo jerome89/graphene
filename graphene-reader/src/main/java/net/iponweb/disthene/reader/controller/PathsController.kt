@@ -1,18 +1,34 @@
 package net.iponweb.disthene.reader.controller
 
-import io.netty.handler.codec.http.FullHttpResponse
-import io.netty.handler.codec.http.HttpRequest
-import net.iponweb.disthene.reader.handler.PathsHandler
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService
+import net.iponweb.disthene.reader.service.stats.StatsService
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class PathsController(
-  private val pathsHandler: PathsHandler
+  private val elasticsearchIndexService: ElasticsearchIndexService,
+  private val statsService: StatsService
 ) {
 
-  @RequestMapping("/paths")
-  fun paths(request: HttpRequest): FullHttpResponse {
-    return pathsHandler.handle(request)
+  @PostMapping("/paths")
+  fun postPaths(@RequestBody parameters: PathsParameters): String {
+
+    statsService.incPathsRequests(parameters.tenant)
+    return elasticsearchIndexService.getPathsAsJsonArray(parameters.tenant, parameters.query)
   }
+
+  @GetMapping("/paths")
+  fun getPaths(
+    @RequestParam(defaultValue = "NONE") tenant: String,
+    @RequestParam query: String
+    ): String {
+
+    statsService.incPathsRequests(tenant)
+    return elasticsearchIndexService.getPathsAsJsonArray(tenant, query)
+  }
+
+  data class PathsParameters(
+    var tenant: String? = "NONE",
+    var query: String
+  )
 }

@@ -22,6 +22,10 @@
         <level value="info"/>
     </logger>
 
+    <logger name="com.datastax">
+        <level value="info"/>
+    </logger>
+
     <!-- Root Logger -->
     <root>
         <priority value="info"/>
