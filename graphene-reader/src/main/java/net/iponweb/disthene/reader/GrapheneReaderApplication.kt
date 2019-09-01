@@ -1,5 +1,6 @@
 package net.iponweb.disthene.reader
 
+import net.iponweb.disthene.reader.config.DistheneReaderConfiguration
 import net.iponweb.disthene.reader.config.IndexConfiguration
 import net.iponweb.disthene.reader.config.StoreConfiguration
 import org.apache.log4j.BasicConfigurator
@@ -16,7 +17,9 @@ import org.springframework.boot.runApplication
     GsonAutoConfiguration::class
 ])
 @EnableConfigurationProperties(
-  IndexConfiguration::class
+  IndexConfiguration::class,
+  StoreConfiguration::class,
+  DistheneReaderConfiguration::class
 )
 open class GrapheneReaderApplication
 

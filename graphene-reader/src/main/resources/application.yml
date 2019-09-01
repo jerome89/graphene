@@ -17,3 +17,22 @@ graphene:
       scroll: 50000
       timeout: 120000
       maxPaths: 50000
+    store:
+      cluster:
+        - "127.0.0.1"
+      port: 9042
+      userName: 'cassandra'
+      userPassword: 'cassandra'
+      keyspace: 'metric'
+      columnFamily: 'metric'
+      maxConnections: 2048
+      readTimeout: 10
+      connectTimeout: 10
+      maxRequests: 128
+      loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
+      protocolVersion: "V2"
+
+spring:
+  data:
+    cassandra:
+      jmx-enabled: false

@@ -1,6 +1,8 @@
 package net.iponweb.disthene.reader.config;
 
 import net.iponweb.disthene.reader.utils.CassandraLoadBalancingPolicies;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import java.util.List;
 /**
  * @author Andrei Ivanov
  */
+@ConfigurationProperties("graphene.reader.store")
 public class StoreConfiguration {
     private List<String> cluster = new ArrayList<>();
     private String keyspace;
