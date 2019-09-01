@@ -1,11 +1,17 @@
 package net.iponweb.disthene.reader.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Andrei Ivanov
+ * @author Dark
+ *
+ * @since 1.0.0
  */
+@ConfigurationProperties("graphene.reader.index")
 public class IndexConfiguration {
     private String name;
     private String index;

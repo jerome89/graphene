@@ -5,12 +5,14 @@ import com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy;
 import net.iponweb.disthene.reader.config.StoreConfiguration;
 import net.iponweb.disthene.reader.utils.CassandraLoadBalancingPolicies;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
 /**
  * @author Andrei Ivanov
  */
+@Component
 public class CassandraService {
 
     private Logger logger = Logger.getLogger(CassandraService.class);
@@ -45,6 +47,8 @@ public class CassandraService {
                 .withPoolingOptions(poolingOptions)
                 .withQueryOptions(new QueryOptions().setConsistencyLevel(ConsistencyLevel.valueOf(storeConfiguration.getConsistency())))
                 .withProtocolVersion(ProtocolVersion.valueOf(storeConfiguration.getProtocolVersion()))
+                // TODO enable jmx reporting
+                .withoutJMXReporting()
                 .withPort(storeConfiguration.getPort());
 
         if ( storeConfiguration.getUserName() != null && storeConfiguration.getUserPassword() != null) {

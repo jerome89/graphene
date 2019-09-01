@@ -19,6 +19,7 @@ import net.iponweb.disthene.reader.service.stats.StatsService;
 import net.iponweb.disthene.reader.service.store.CassandraService;
 import net.iponweb.disthene.reader.utils.CollectionUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -28,7 +29,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Andrei Ivanov
+ * @author dark
  */
+@Component
 public class CassandraMetricService implements MetricService {
     final static Logger logger = Logger.getLogger(CassandraMetricService.class);
 

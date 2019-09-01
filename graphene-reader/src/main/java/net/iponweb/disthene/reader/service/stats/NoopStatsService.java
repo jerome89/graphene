@@ -1,5 +1,8 @@
 package net.iponweb.disthene.reader.service.stats;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class NoopStatsService implements StatsService {
 
   @Override

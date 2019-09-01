@@ -2,7 +2,6 @@ package net.iponweb.disthene.reader.format;
 
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 import net.iponweb.disthene.reader.beans.TimeSeries;
@@ -10,9 +9,8 @@ import net.iponweb.disthene.reader.exceptions.LogarithmicScaleNotAllowed;
 import net.iponweb.disthene.reader.graph.DecoratedTimeSeries;
 import net.iponweb.disthene.reader.graphite.utils.GraphiteUtils;
 import net.iponweb.disthene.reader.handler.parameters.RenderParameters;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.NotImplementedException;
 import org.joda.time.DateTime;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
