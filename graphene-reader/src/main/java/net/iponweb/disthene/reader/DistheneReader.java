@@ -31,7 +31,6 @@ public class DistheneReader {
       "/etc/disthene-reader/throttling.yaml";
 
   private static final String METRICS_PATH = "^/metrics\\/?$";
-  private static final String PATHS_PATH = "^/paths\\/?$";
   private static final String METRICS_FIND_PATH = "^/metrics/find\\/?$";
   private static final String PING_PATH = "^/ping\\/?$";
   private static final String RENDER_PATH = "^/render\\/?$";
@@ -109,14 +108,6 @@ public class DistheneReader {
       logger.info("Creating metrics handler");
       MetricsHandler metricsHandler = new MetricsHandler(cassandraMetricService);
       readerServer.registerHandler(METRICS_PATH, metricsHandler);
-
-      logger.info("Creating metrics/find handler");
-      readerServer.registerHandler(
-          METRICS_FIND_PATH, new MetricsFindHandler(elasticsearchIndexService));
-
-      logger.info("Creating ping handler");
-      PingHandler pingHandler = new PingHandler();
-      readerServer.registerHandler(PING_PATH, pingHandler);
 
       logger.info("Creating render handler");
       RenderHandler renderHandler =

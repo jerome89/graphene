@@ -19,7 +19,7 @@ class PathsController(
 
   @GetMapping("/paths")
   fun getPaths(
-    @RequestParam(defaultValue = "NONE") tenant: String,
+    @RequestParam(required = false, defaultValue = "NONE") tenant: String,
     @RequestParam query: String
     ): String {
 
