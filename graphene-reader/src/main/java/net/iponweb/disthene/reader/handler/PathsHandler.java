@@ -10,12 +10,14 @@ import net.iponweb.disthene.reader.exceptions.UnsupportedMethodException;
 import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService;
 import net.iponweb.disthene.reader.service.stats.StatsService;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
 
 /**
  * @author Andrei Ivanov
  */
+@Component
 public class PathsHandler implements DistheneReaderHandler {
 
     final static Logger logger = Logger.getLogger(PathsHandler.class);

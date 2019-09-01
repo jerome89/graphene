@@ -5,7 +5,6 @@ import net.iponweb.disthene.reader.config.IndexConfiguration;
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException;
 import net.iponweb.disthene.reader.handler.response.HierarchyMetricPath;
 import net.iponweb.disthene.reader.utils.WildcardUtil;
-import org.apache.log4j.Logger;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -17,12 +16,16 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 /** @author Andrei Ivanov */
+@Component
 public class ElasticsearchIndexService implements IndexService {
-  static final Logger logger = Logger.getLogger(ElasticsearchIndexService.class);
+  static final Logger logger = LoggerFactory.getLogger(ElasticsearchIndexService.class);
 
   private IndexConfiguration indexConfiguration;
   private TransportClient client;
@@ -30,6 +33,8 @@ public class ElasticsearchIndexService implements IndexService {
 
   public ElasticsearchIndexService(IndexConfiguration indexConfiguration) {
     this.indexConfiguration = indexConfiguration;
+
+    logger.info("indexConfiguration : " + indexConfiguration.toString());
 
     // https://www.elastic.co/guide/en/elasticsearch/client/java-api/2.0/transport-client.html
     Settings settings =

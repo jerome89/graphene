@@ -1,0 +1,19 @@
+debug: true
+
+logging:
+  level:
+    org.springframework: DEBUG
+    net.iponweb.disthene: DEBUG
+
+graphene:
+  reader:
+    index:
+      name: "metric"
+      cluster:
+        - "127.0.0.1"
+      port: 9300
+      index: "metric"
+      type: "path"
+      scroll: 50000
+      timeout: 120000
+      maxPaths: 50000
