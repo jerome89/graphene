@@ -12,20 +12,6 @@ repositories {
     mavenCentral()
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'net.iponweb.disthene.reader.GrapheneReaderApplication'
-    }
-    from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-}
-
-springBoot {
-    mainClassName = 'net.iponweb.disthene.reader.GrapheneReaderApplication'
-}
 
 dependencies {
     compile project(':graphene-common')
