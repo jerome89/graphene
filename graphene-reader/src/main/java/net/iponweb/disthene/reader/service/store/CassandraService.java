@@ -7,6 +7,7 @@ import net.iponweb.disthene.reader.utils.CassandraLoadBalancingPolicies;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.Collection;
 
 /**
@@ -77,7 +78,9 @@ public class CassandraService {
         return session.executeAsync(statement.bind(path, tenant, period, rollup, from, to));
     }
 
+    @PreDestroy
     public void shutdown() {
+        logger.info("Shutting down C* service");
         logger.info("Closing C* session");
         logger.info("Waiting for C* queries to be completed");
         while (getInFlightQueries(session.getState()) > 0) {

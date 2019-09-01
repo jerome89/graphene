@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import javax.annotation.PreDestroy;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
@@ -137,7 +138,9 @@ public class GraphiteStatsService implements StatsService {
     }
 
     @Override
+    @PreDestroy
     public synchronized void shutdown() {
+        logger.info("Shutting down stats service");
         scheduler.shutdown();
     }
 

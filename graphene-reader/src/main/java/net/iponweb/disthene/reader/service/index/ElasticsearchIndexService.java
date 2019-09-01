@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.*;
 
 /** @author Andrei Ivanov */
@@ -219,6 +220,12 @@ public class ElasticsearchIndexService implements IndexService {
     return Joiner.on(",").skipNulls().join(paths);
   }
 
+  @PreDestroy
+  public void shutdown() {
+    logger.info("Shutting down index service");
+    client.close();
+  }
+
   public String getPathsWithStats(String tenant, String wildcard)
       throws TooMuchDataExpectedException {
     String regEx = WildcardUtil.getPathsRegExFromWildcard(wildcard);
@@ -281,9 +288,5 @@ public class ElasticsearchIndexService implements IndexService {
     }
 
     return "[" + joiner.join(result) + "]";
-  }
-
-  public void shutdown() {
-    client.close();
   }
 }

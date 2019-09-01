@@ -14,13 +14,17 @@ repositories {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'net.iponweb.disthene.reader.DistheneReader'
+        attributes 'Main-Class': 'net.iponweb.disthene.reader.GrapheneReaderApplication'
     }
     from {
         configurations.compile.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
+}
+
+springBoot {
+    mainClassName = 'net.iponweb.disthene.reader.GrapheneReaderApplication'
 }
 
 dependencies {
@@ -51,3 +55,5 @@ group = 'net.iponweb.disthene.reader'
 version = '1.0.9'
 description = 'disthene-reader'
 sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
