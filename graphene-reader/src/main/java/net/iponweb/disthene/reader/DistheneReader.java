@@ -101,14 +101,6 @@ public class DistheneReader {
               statsService,
               distheneReaderConfiguration);
 
-      logger.info("Creating paths handler");
-//      PathsHandler pathsHandler = new PathsHandler(elasticsearchIndexService, statsService);
-//      readerServer.registerHandler(PATHS_PATH, pathsHandler);
-
-      logger.info("Creating metrics handler");
-      MetricsHandler metricsHandler = new MetricsHandler(cassandraMetricService);
-      readerServer.registerHandler(METRICS_PATH, metricsHandler);
-
       logger.info("Creating render handler");
       RenderHandler renderHandler =
           new RenderHandler(
