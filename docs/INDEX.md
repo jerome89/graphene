@@ -4,22 +4,31 @@ You can set index mapping information using by below command.
 
 ```
 curl -XPUT 'http://localhost:9200/metric' -d '{
-  "path": {
-    "properties": {
-      "path": {
-        "index": "not_analyzed",
-        "type": "string"
+  "mappings": {
+    "path": {
+      "_source": {
+        "enabled": false
       },
-      "depth": {
-        "type": "long"
-      },
-      "leaf": {
-        "type": "boolean"
-      },
-      "tenant": {
-        "type": "string"
+      "properties": {
+        "path": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "depth": {
+          "type": "long"
+        },
+        "leaf": {
+          "type": "boolean"
+        },
+        "tenant": {
+          "type": "string"
+        }
       }
     }
+  },
+  "settings": {
+    "number_of_replicas": 1,
+    "number_of_shards": 5
   }
 }'
 ```
