@@ -6,9 +6,6 @@ You can set index mapping information using by below command.
 curl -XPUT 'http://localhost:9200/metric' -d '{
   "mappings": {
     "path": {
-      "_source": {
-        "enabled": false
-      },
       "properties": {
         "path": {
           "index": "not_analyzed",
