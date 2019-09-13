@@ -1,4 +1,4 @@
-package net.iponweb.disthene
+package net.iponweb.disthene.config
 
 import net.engio.mbassy.bus.MBassador
 import net.engio.mbassy.bus.config.BusConfiguration
