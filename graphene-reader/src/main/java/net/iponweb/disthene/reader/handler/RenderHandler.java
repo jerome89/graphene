@@ -6,7 +6,7 @@ import com.google.common.util.concurrent.TimeLimiter;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import io.netty.handler.codec.http.*;
 import net.iponweb.disthene.reader.beans.TimeSeries;
-import net.iponweb.disthene.reader.config.DistheneReaderConfiguration;
+import net.iponweb.disthene.reader.config.GrapheneReaderProperties;
 import net.iponweb.disthene.reader.config.ReaderConfiguration;
 import net.iponweb.disthene.reader.exceptions.*;
 import net.iponweb.disthene.reader.format.ResponseFormatter;
@@ -50,11 +50,11 @@ public class RenderHandler {
     private TimeLimiter timeLimiter = new SimpleTimeLimiter(executor);
 
 
-    public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchIndexService elasticsearchIndexService, StatsService statsService, ThrottlingService throttlingService, DistheneReaderConfiguration distheneReaderConfiguration) {
+    public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchIndexService elasticsearchIndexService, StatsService statsService, ThrottlingService throttlingService, GrapheneReaderProperties grapheneReaderProperties) {
         this.evaluator = new TargetEvaluator(cassandraMetricService, elasticsearchIndexService);
         this.statsService = statsService;
         this.throttlingService = throttlingService;
-        this.readerConfiguration = distheneReaderConfiguration.getReader();
+        this.readerConfiguration = grapheneReaderProperties.getReader();
     }
 
     public FullHttpResponse handle(RenderParameters parameters) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {

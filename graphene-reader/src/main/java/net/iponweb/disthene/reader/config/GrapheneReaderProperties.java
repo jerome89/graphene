@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Andrei Ivanov
  */
 @ConfigurationProperties("graphene.reader")
-public class DistheneReaderConfiguration {
+public class GrapheneReaderProperties {
     private ReaderConfiguration reader;
     private StoreConfiguration store;
     private IndexConfiguration index;
