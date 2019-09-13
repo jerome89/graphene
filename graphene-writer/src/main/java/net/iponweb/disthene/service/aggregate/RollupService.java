@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -169,6 +170,7 @@ public class RollupService {
         }
     }
 
+    @PreDestroy
     public synchronized void shutdown() {
         // disable rate limiters
         shuttingDown = true;

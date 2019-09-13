@@ -14,6 +14,7 @@ import net.iponweb.disthene.util.CassandraLoadBalancingPolicies;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -124,6 +125,7 @@ public class CassandraService {
         metrics.offer(metricStoreEvent.getMetric());
     }
 
+    @PreDestroy
     public void shutdown() {
         for (WriterThread writerThread : writerThreads) {
             writerThread.shutdown();

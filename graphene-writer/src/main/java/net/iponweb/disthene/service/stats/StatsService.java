@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -211,6 +212,7 @@ public class StatsService implements StatsServiceMBean {
         }
     }
 
+    @PreDestroy
     public synchronized void shutdown() {
         scheduler.shutdown();
     }

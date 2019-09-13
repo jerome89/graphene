@@ -16,6 +16,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
@@ -142,6 +143,7 @@ public class IndexService {
         cache = new ConcurrentHashMap<>();
     }
 
+    @PreDestroy
     public void shutdown() {
         scheduler.shutdown();
         indexThread.shutdown();
