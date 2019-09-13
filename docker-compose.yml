@@ -19,3 +19,11 @@ services:
       - 9200:9200
       - 9300:9300
     container_name: elasticsearch
+  grafana:
+    image: grafana/grafana:6.3.5
+    ports:
+      - 80:3000
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+    container_name: grafana
+
