@@ -28,7 +28,7 @@ graphene:
       port: 9300
       index: "metric"
       type: "path"
-      cache: true
+      cache: false
       expire: 3600
       bulk:
         actions: 10000
@@ -42,6 +42,7 @@ graphene:
       keyspace: 'metric'
       columnFamily: 'metric'
       maxConnections: 2048
+      pool: 1
       readTimeout: 10
       connectTimeout: 10
       maxRequests: 128
