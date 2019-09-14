@@ -41,6 +41,6 @@ dependencies {
 }
 
 group = 'net.iponweb.disthene'
-version = '0.1.13'
+version = '1.0.0'
 description = 'disthene'
 sourceCompatibility = '1.8'
