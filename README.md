@@ -332,6 +332,7 @@ Thanks, this project is useless without their work on **cyanite**, **graphite-ap
 Many people helped with the Graphene project.
 
 - jerome89 ([https://github.com/jerome89]) : He found the grammar of Graphite functions in the disthene project. This helped us to create a better metric system. Additionally, he helped develop the faulty function of the graphene itself and the overall system development.
+- drunkencoding : He developed and maintained the entire metric core system like Elasticsearch indexing logic and time life cycle in the metric key (path). Without him, the metric system would only be able to handle simple traffic.
 
 ## License
 
