@@ -7,17 +7,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties("graphene.reader")
 public class GrapheneReaderProperties {
-    private ReaderConfiguration reader;
+    private ReaderConfiguration render;
     private StoreConfiguration store;
     private IndexConfiguration index;
     private StatsConfiguration stats;
 
-    public ReaderConfiguration getReader() {
-        return reader;
+    public ReaderConfiguration getRender() {
+        return render;
     }
 
-    public void setReader(ReaderConfiguration reader) {
-        this.reader = reader;
+    public void setRender(ReaderConfiguration render) {
+        this.render = render;
     }
 
     public StoreConfiguration getStore() {
@@ -47,7 +47,7 @@ public class GrapheneReaderProperties {
     @Override
     public String toString() {
         return "DistheneReaderConfiguration{" +
-                "reader=" + reader +
+                "reader=" + render +
                 ", store=" + store +
                 ", index=" + index +
                 ", stats=" + stats +

@@ -17,7 +17,7 @@ import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
 import net.iponweb.disthene.reader.graphite.grammar.GraphiteLexer;
 import net.iponweb.disthene.reader.graphite.grammar.GraphiteParser;
 import net.iponweb.disthene.reader.graphite.utils.ValueFormatter;
-import net.iponweb.disthene.reader.handler.parameters.RenderParameters;
+import net.iponweb.disthene.reader.handler.parameters.RenderParameter;
 import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService;
 import net.iponweb.disthene.reader.service.metric.CassandraMetricService;
 import net.iponweb.disthene.reader.service.stats.StatsService;
@@ -50,14 +50,14 @@ public class RenderHandler {
     private TimeLimiter timeLimiter = new SimpleTimeLimiter(executor);
 
 
-    public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchIndexService elasticsearchIndexService, StatsService statsService, ThrottlingService throttlingService, GrapheneReaderProperties grapheneReaderProperties) {
+    public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchIndexService elasticsearchIndexService, StatsService statsService, ThrottlingService throttlingService, ReaderConfiguration readerConfiguration) {
         this.evaluator = new TargetEvaluator(cassandraMetricService, elasticsearchIndexService);
         this.statsService = statsService;
         this.throttlingService = throttlingService;
-        this.readerConfiguration = grapheneReaderProperties.getReader();
+        this.readerConfiguration = readerConfiguration;
     }
 
-    public FullHttpResponse handle(RenderParameters parameters) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
+    public FullHttpResponse handle(RenderParameter parameters) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
         logger.debug("Redner Got request: " + parameters + " / parameters: " + parameters.toString());
         Stopwatch timer = Stopwatch.createStarted();
 
@@ -117,7 +117,7 @@ public class RenderHandler {
         logger.info("Response status : " + response.getStatus() + " Response Body : " + response.content().toString());
         return response;
     }
-    private FullHttpResponse handleInternal(List<Target> targets, RenderParameters parameters) throws EvaluationException, LogarithmicScaleNotAllowed {
+    private FullHttpResponse handleInternal(List<Target> targets, RenderParameter parameters) throws EvaluationException, LogarithmicScaleNotAllowed {
         // now evaluate each target producing list of TimeSeries
         List<TimeSeries> results = new ArrayList<>();
 

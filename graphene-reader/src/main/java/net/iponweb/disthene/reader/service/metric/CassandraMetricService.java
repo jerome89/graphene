@@ -146,9 +146,9 @@ public class CassandraMetricService implements MetricService {
         logger.debug("Expected number of series is " + paths.size());
 
         // Fail (return empty list) right away if we exceed maximum number of points
-        if (paths.size() * length > grapheneReaderProperties.getReader().getMaxPoints()) {
+        if (paths.size() * length > grapheneReaderProperties.getRender().getMaxPoints()) {
             logger.debug("Expected total number of data points exceeds the limit: " + paths.size() * length);
-            throw new TooMuchDataExpectedException("Expected total number of data points exceeds the limit: " + paths.size() * length + " (the limit is " + grapheneReaderProperties.getReader().getMaxPoints() + ")");
+            throw new TooMuchDataExpectedException("Expected total number of data points exceeds the limit: " + paths.size() * length + " (the limit is " + grapheneReaderProperties.getRender().getMaxPoints() + ")");
         }
 
         // Now let's query C*
@@ -217,7 +217,7 @@ public class CassandraMetricService implements MetricService {
 
         // Let's find a rollup that potentially can have all the data taking retention in account
         List<Rollup> survivals = new ArrayList<>();
-        for (Rollup rollup : grapheneReaderProperties.getReader().getRollups()) {
+        for (Rollup rollup : grapheneReaderProperties.getRender().getRollups()) {
             if (now - rollup.getPeriod() * rollup.getRollup() <= from) {
                 survivals.add(rollup);
             }
@@ -225,7 +225,7 @@ public class CassandraMetricService implements MetricService {
 
         // no survivals found - take the last rollup (may be there is something there)
         if (survivals.size() == 0) {
-            return grapheneReaderProperties.getReader().getRollups().get(grapheneReaderProperties.getReader().getRollups().size() - 1);
+            return grapheneReaderProperties.getRender().getRollups().get(grapheneReaderProperties.getRender().getRollups().size() - 1);
         }
 
         return survivals.get(0);

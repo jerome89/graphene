@@ -1,112 +1,125 @@
 package net.iponweb.disthene.reader.config;
 
+import com.google.common.collect.Lists;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Andrei Ivanov
- */
+/** @author Andrei Ivanov */
+@ConfigurationProperties("graphene.reader.render")
 public class ReaderConfiguration {
-    private String bind;
-    private int port;
-    private int threads = 32;
-    private int requestTimeout = 30;
-    private int maxInitialLineLength = 4096;
-    private int maxHeaderSize = 8192;
-    private int maxChunkSize = 8192;
-    private int maxPoints = 60_000_000;
-    private boolean humanReadableNumbers = false;
-    private List<Rollup> rollups = new ArrayList<>();
+  private String bind;
+  private int port;
+  private int threads = 32;
+  private int requestTimeout = 30;
+  private int maxInitialLineLength = 4096;
+  private int maxHeaderSize = 8192;
+  private int maxChunkSize = 8192;
+  private int maxPoints = 60_000_000;
+  private boolean humanReadableNumbers = false;
+  private List<Rollup> rollups = new ArrayList<>();
 
-    public int getMaxInitialLineLength() {
-        return maxInitialLineLength;
-    }
+  public int getMaxInitialLineLength() {
+    return maxInitialLineLength;
+  }
 
-    public int getMaxHeaderSize() {
-        return maxHeaderSize;
-    }
+  public int getMaxHeaderSize() {
+    return maxHeaderSize;
+  }
 
-    public int getMaxChunkSize() {
-        return maxChunkSize;
-    }
+  public int getMaxChunkSize() {
+    return maxChunkSize;
+  }
 
-    public void setMaxInitialLineLength(int maxInitialLineLength) {
-        this.maxInitialLineLength = maxInitialLineLength;
-    }
+  public void setMaxInitialLineLength(int maxInitialLineLength) {
+    this.maxInitialLineLength = maxInitialLineLength;
+  }
 
-    public void setMaxHeaderSize(int maxHeaderSize) {
-        this.maxHeaderSize = maxHeaderSize;
-    }
+  public void setMaxHeaderSize(int maxHeaderSize) {
+    this.maxHeaderSize = maxHeaderSize;
+  }
 
-    public void setMaxChunkSize(int maxChunkSize) {
-        this.maxChunkSize = maxChunkSize;
-    }
+  public void setMaxChunkSize(int maxChunkSize) {
+    this.maxChunkSize = maxChunkSize;
+  }
 
-    public String getBind() {
-        return bind;
-    }
+  public String getBind() {
+    return bind;
+  }
 
-    public void setBind(String bind) {
-        this.bind = bind;
-    }
+  public void setBind(String bind) {
+    this.bind = bind;
+  }
 
-    public int getPort() {
-        return port;
-    }
+  public int getPort() {
+    return port;
+  }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
+  public void setPort(int port) {
+    this.port = port;
+  }
 
-    public List<Rollup> getRollups() {
-        return rollups;
-    }
+  public List<Rollup> getRollups() {
+    return rollups;
+  }
 
-    public void setRollups(List<Rollup> rollups) {
-        this.rollups = rollups;
+  public void setRollups(List<String> rollupList) {
+    List<Rollup> rollups = Lists.newArrayList();
+    for (String rollup : rollupList) {
+      rollups.add(new Rollup(rollup));
     }
+    this.rollups = rollups;
+  }
 
-    public int getThreads() {
-        return threads;
-    }
+  public int getThreads() {
+    return threads;
+  }
 
-    public void setThreads(int threads) {
-        this.threads = threads;
-    }
+  public void setThreads(int threads) {
+    this.threads = threads;
+  }
 
-    public int getRequestTimeout() {
-        return requestTimeout;
-    }
+  public int getRequestTimeout() {
+    return requestTimeout;
+  }
 
-    public void setRequestTimeout(int requestTimeout) {
-        this.requestTimeout = requestTimeout;
-    }
+  public void setRequestTimeout(int requestTimeout) {
+    this.requestTimeout = requestTimeout;
+  }
 
-    public int getMaxPoints() {
-        return maxPoints;
-    }
+  public int getMaxPoints() {
+    return maxPoints;
+  }
 
-    public void setMaxPoints(int maxPoints) {
-        this.maxPoints = maxPoints;
-    }
+  public void setMaxPoints(int maxPoints) {
+    this.maxPoints = maxPoints;
+  }
 
-    public boolean isHumanReadableNumbers() {
-        return humanReadableNumbers;
-    }
+  public boolean isHumanReadableNumbers() {
+    return humanReadableNumbers;
+  }
 
-    public void setHumanReadableNumbers(boolean humanReadableNumbers) {
-        this.humanReadableNumbers = humanReadableNumbers;
-    }
+  public void setHumanReadableNumbers(boolean humanReadableNumbers) {
+    this.humanReadableNumbers = humanReadableNumbers;
+  }
 
-    @Override
-    public String toString() {
-        return "ReaderConfiguration{" +
-                "bind='" + bind + '\'' +
-                ", port=" + port +
-                ", threads=" + threads +
-                ", requestTimeout=" + requestTimeout +
-                ", maxPoints=" + maxPoints +
-                ", rollups=" + rollups +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "ReaderConfiguration{"
+        + "bind='"
+        + bind
+        + '\''
+        + ", port="
+        + port
+        + ", threads="
+        + threads
+        + ", requestTimeout="
+        + requestTimeout
+        + ", maxPoints="
+        + maxPoints
+        + ", rollups="
+        + rollups
+        + '}';
+  }
 }

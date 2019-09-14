@@ -7,6 +7,10 @@ logging:
 
 graphene:
   reader:
+    render:
+      rollups:
+        - 60s:5356800s
+      humanReadableNumbers: true
     index:
       name: "metric"
       cluster:

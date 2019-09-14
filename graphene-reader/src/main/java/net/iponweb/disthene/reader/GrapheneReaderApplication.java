@@ -14,7 +14,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
   IndexConfiguration.class,
   StoreConfiguration.class,
   GrapheneReaderProperties.class,
-  ThrottlingConfiguration.class
+  ThrottlingConfiguration.class,
+  ReaderConfiguration.class
 })
 public class GrapheneReaderApplication {
     public static void main(String[] args) {
