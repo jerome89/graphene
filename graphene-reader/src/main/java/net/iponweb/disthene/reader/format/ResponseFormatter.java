@@ -8,7 +8,7 @@ import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.exceptions.LogarithmicScaleNotAllowed;
 import net.iponweb.disthene.reader.graph.DecoratedTimeSeries;
 import net.iponweb.disthene.reader.graphite.utils.GraphiteUtils;
-import net.iponweb.disthene.reader.handler.parameters.RenderParameters;
+import net.iponweb.disthene.reader.handler.parameters.RenderParameter;
 import org.apache.commons.lang.NotImplementedException;
 import org.joda.time.DateTime;
 
@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class ResponseFormatter {
 
-    public static FullHttpResponse formatResponse(List<TimeSeries> timeSeriesList, RenderParameters parameters) throws NotImplementedException, LogarithmicScaleNotAllowed {
+    public static FullHttpResponse formatResponse(List<TimeSeries> timeSeriesList, RenderParameter parameters) throws NotImplementedException, LogarithmicScaleNotAllowed {
         // Let's remove empty series
         List<TimeSeries> filtered = filterAllNulls(timeSeriesList);
 
@@ -37,13 +37,13 @@ public class ResponseFormatter {
         return formatResponseAsJson(filtered, parameters);
     }
 
-    private static FullHttpResponse formatResponseAsCSV(List<TimeSeries> timeSeriesList, RenderParameters renderParameters) {
+    private static FullHttpResponse formatResponseAsCSV(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
         List<String> results = new ArrayList<>();
 
         for(TimeSeries timeSeries : timeSeriesList) {
             Double[] values = timeSeries.getValues();
             for(int i = 0; i < values.length; i++) {
-                DateTime dt = new DateTime((timeSeries.getFrom() + i * timeSeries.getStep()) * 1000, renderParameters.getTz());
+                DateTime dt = new DateTime((timeSeries.getFrom() + i * timeSeries.getStep()) * 1000, renderParameter.getTz());
                 String stringValue;
                 if (values[i] == null) {
                     stringValue = "";
@@ -97,13 +97,13 @@ public class ResponseFormatter {
         return response;
     }
 
-    private static FullHttpResponse formatResponseAsJson(List<TimeSeries> timeSeriesList, RenderParameters renderParameters) {
+    private static FullHttpResponse formatResponseAsJson(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
         List<String> results = new ArrayList<>();
 
         Gson gson = new Gson();
 
         // consolidate data points
-        consolidate(timeSeriesList, renderParameters.getMaxDataPoints());
+        consolidate(timeSeriesList, renderParameter.getMaxDataPoints());
 
         for(TimeSeries timeSeries : timeSeriesList) {
             List<String> datapoints = new ArrayList<>();
@@ -131,13 +131,13 @@ public class ResponseFormatter {
         return response;
     }
 
-    private static FullHttpResponse formatResponseAsGraphplotJson(List<TimeSeries> timeSeriesList, RenderParameters renderParameters) {
+    private static FullHttpResponse formatResponseAsGraphplotJson(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
         List<String> results = new ArrayList<>();
 
         Gson gson = new Gson();
 
         // consolidate data points
-        consolidate(timeSeriesList, renderParameters.getMaxDataPoints());
+        consolidate(timeSeriesList, renderParameter.getMaxDataPoints());
 
         for(TimeSeries timeSeries : timeSeriesList) {
             List<String> datapoints = new ArrayList<>();

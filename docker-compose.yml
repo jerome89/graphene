@@ -19,6 +19,11 @@ services:
       - 9200:9200
       - 9300:9300
     container_name: elasticsearch
+  cerebro:
+    image: lmenezes/cerebro:0.8.3
+    ports:
+      - 9000:9000
+    container_name: cerebro
   grafana:
     image: grafana/grafana:6.3.5
     ports:
@@ -26,4 +31,3 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin123
     container_name: grafana
-

@@ -2,22 +2,31 @@ package net.iponweb.disthene.reader.controller
 
 import net.iponweb.disthene.reader.handler.response.HierarchyMetricPath
 import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.apache.log4j.Logger
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class MetricsFindController(
   private val elasticsearchIndexService: ElasticsearchIndexService
 ) {
 
-  @GetMapping("/metrics/find")
-  fun metricsFind(
-    @RequestParam query: String?,
-    @RequestParam(required = false) from: String?,
-    @RequestParam(required = false) until: String?
+  private val logger = Logger.getLogger(MetricsFindController::class.java)
+
+  @PostMapping("/metrics/find")
+  fun metricsFindAboutFormUrlEncoded(
+    @ModelAttribute("metricsFindRequest") metricsFindRequest: MetricsFindRequest
   ): Set<HierarchyMetricPath> {
 
-    return elasticsearchIndexService.getPathsAsHierarchyMetricPath("NONE", query)
+    return getPathsAsHierarchyMetricPath(metricsFindRequest)
   }
+
+  private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Set<HierarchyMetricPath> {
+    return elasticsearchIndexService.getPathsAsHierarchyMetricPath("NONE", metricsFindRequest.query)
+  }
+
+  data class MetricsFindRequest(
+    val query: String,
+    val from: String?,
+    val to: String?
+  )
 }

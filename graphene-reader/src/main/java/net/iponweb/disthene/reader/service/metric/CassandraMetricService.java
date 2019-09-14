@@ -11,7 +11,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.gson.Gson;
 import net.iponweb.disthene.reader.beans.TimeSeries;
-import net.iponweb.disthene.reader.config.DistheneReaderConfiguration;
+import net.iponweb.disthene.reader.config.GrapheneReaderProperties;
 import net.iponweb.disthene.reader.config.Rollup;
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException;
 import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService;
@@ -39,14 +39,14 @@ public class CassandraMetricService implements MetricService {
     private CassandraService cassandraService;
     private StatsService statsService;
 
-    private DistheneReaderConfiguration distheneReaderConfiguration;
+    private GrapheneReaderProperties grapheneReaderProperties;
 
     private ExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
-    public CassandraMetricService(ElasticsearchIndexService elasticsearchIndexService, CassandraService cassandraService, StatsService statsService, DistheneReaderConfiguration distheneReaderConfiguration) {
+    public CassandraMetricService(ElasticsearchIndexService elasticsearchIndexService, CassandraService cassandraService, StatsService statsService, GrapheneReaderProperties grapheneReaderProperties) {
         this.elasticsearchIndexService = elasticsearchIndexService;
         this.cassandraService = cassandraService;
-        this.distheneReaderConfiguration = distheneReaderConfiguration;
+        this.grapheneReaderProperties = grapheneReaderProperties;
         this.statsService = statsService;
     }
 
@@ -146,9 +146,9 @@ public class CassandraMetricService implements MetricService {
         logger.debug("Expected number of series is " + paths.size());
 
         // Fail (return empty list) right away if we exceed maximum number of points
-        if (paths.size() * length > distheneReaderConfiguration.getReader().getMaxPoints()) {
+        if (paths.size() * length > grapheneReaderProperties.getRender().getMaxPoints()) {
             logger.debug("Expected total number of data points exceeds the limit: " + paths.size() * length);
-            throw new TooMuchDataExpectedException("Expected total number of data points exceeds the limit: " + paths.size() * length + " (the limit is " + distheneReaderConfiguration.getReader().getMaxPoints() + ")");
+            throw new TooMuchDataExpectedException("Expected total number of data points exceeds the limit: " + paths.size() * length + " (the limit is " + grapheneReaderProperties.getRender().getMaxPoints() + ")");
         }
 
         // Now let's query C*
@@ -217,7 +217,7 @@ public class CassandraMetricService implements MetricService {
 
         // Let's find a rollup that potentially can have all the data taking retention in account
         List<Rollup> survivals = new ArrayList<>();
-        for (Rollup rollup : distheneReaderConfiguration.getReader().getRollups()) {
+        for (Rollup rollup : grapheneReaderProperties.getRender().getRollups()) {
             if (now - rollup.getPeriod() * rollup.getRollup() <= from) {
                 survivals.add(rollup);
             }
@@ -225,7 +225,7 @@ public class CassandraMetricService implements MetricService {
 
         // no survivals found - take the last rollup (may be there is something there)
         if (survivals.size() == 0) {
-            return distheneReaderConfiguration.getReader().getRollups().get(distheneReaderConfiguration.getReader().getRollups().size() - 1);
+            return grapheneReaderProperties.getRender().getRollups().get(grapheneReaderProperties.getRender().getRollups().size() - 1);
         }
 
         return survivals.get(0);
