@@ -10,6 +10,8 @@ Welcome to graphene's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   /configuration/graphene-reader
+   /configuration/graphene-writer
 
 
 Indices and tables
