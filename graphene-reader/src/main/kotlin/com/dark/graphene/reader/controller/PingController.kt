@@ -1,4 +1,4 @@
-package net.iponweb.disthene.reader.controller
+package com.dark.graphene.reader.controller
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController

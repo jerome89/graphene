@@ -8,7 +8,7 @@ import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.exceptions.LogarithmicScaleNotAllowed;
 import net.iponweb.disthene.reader.graph.DecoratedTimeSeries;
 import net.iponweb.disthene.reader.graphite.utils.GraphiteUtils;
-import net.iponweb.disthene.reader.handler.parameters.RenderParameter;
+import com.dark.graphene.reader.handler.RenderParameter;
 import org.apache.commons.lang.NotImplementedException;
 import org.joda.time.DateTime;
 

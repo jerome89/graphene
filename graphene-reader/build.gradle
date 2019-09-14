@@ -7,6 +7,7 @@ bootJar.enabled = true
 jar.enabled = true
 
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'kotlin'
 
 repositories {
     mavenCentral()
@@ -35,6 +36,11 @@ dependencies {
     compile 'com.rubiconproject.oss:jchronic:0.2.6'
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
+}
+
+sourceSets {
+    main.kotlin.srcDirs += 'src/main/kotlin'
+    main.java.srcDirs += 'src/main/java'
 }
 
 group = 'net.iponweb.disthene.reader'

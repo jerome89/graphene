@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfigurati
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.dark.graphene.reader", "net.iponweb.disthene.reader"})
 @EnableAutoConfiguration(exclude = {CassandraAutoConfiguration.class, GsonAutoConfiguration.class})
 @EnableConfigurationProperties({
   IndexConfiguration.class,
@@ -18,7 +18,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
   ReaderConfiguration.class
 })
 public class GrapheneReaderApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(GrapheneReaderApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(GrapheneReaderApplication.class, args);
+  }
 }
