@@ -5,4 +5,4 @@ path:
 
 network:
   bind_host: _eth0:ipv4_
-  publish_host: 0.0.0.0
+  publish_host: 127.0.0.1
