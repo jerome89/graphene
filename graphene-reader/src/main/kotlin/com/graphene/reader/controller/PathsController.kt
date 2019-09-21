@@ -1,4 +1,4 @@
-package com.dark.graphene.reader.controller
+package com.graphene.reader.controller
 
 import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService
 import net.iponweb.disthene.reader.service.stats.StatsService

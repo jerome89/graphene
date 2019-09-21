@@ -1,6 +1,6 @@
-package com.dark.graphene.reader.handler
+package com.graphene.reader.handler
 
-import com.dark.graphene.reader.controller.RenderController
+import com.graphene.reader.controller.RenderController
 import net.iponweb.disthene.reader.exceptions.InvalidParameterValueException
 import net.iponweb.disthene.reader.format.Format
 import net.iponweb.disthene.reader.utils.DateUtils

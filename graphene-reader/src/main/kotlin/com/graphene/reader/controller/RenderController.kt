@@ -1,7 +1,7 @@
-package com.dark.graphene.reader.controller
+package com.graphene.reader.controller
 
 import net.iponweb.disthene.reader.handler.RenderHandler
-import com.dark.graphene.reader.handler.RenderParameters
+import com.graphene.reader.handler.RenderParameters
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
