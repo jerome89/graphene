@@ -18,7 +18,7 @@ metrics can be maintained and managed in isolated clusters.
 This project uses the git conventional commit rule provided by [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/)
 
 ## Configuration
-Please check [this document](/docs/CONFIGURATION.md) for the graphene-reader configuration
+Please check [this document](https://github.com/graphene-monitoring/graphene/wiki/Configuration) for the Graphene configuration
 
 ## Thanks
 
