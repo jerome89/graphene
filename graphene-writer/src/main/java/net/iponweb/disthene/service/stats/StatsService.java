@@ -119,7 +119,7 @@ public class StatsService implements StatsServiceMBean {
         long totalWritten = 0;
 
         if (statsConfiguration.isLog()) {
-            logger.info("Disthene stats:");
+            logger.info("Graphene stats:");
             logger.info("=========================================================================");
             logger.info("Tenant\t\tmetrics_received\t\twrite_count");
             logger.info("=========================================================================");
