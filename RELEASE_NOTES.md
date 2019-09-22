@@ -1,4 +1,4 @@
-# 1.0.0-RC
+# 1.1.0
 
 ## Feature
 - Development environment to use docker-compose.yml
