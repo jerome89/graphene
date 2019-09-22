@@ -5,6 +5,7 @@
 - Support the /metrics/find API to use at Grafana [#1](https://github.com/Dark0096/disthene-reader/issues/1) 
 - Implement StatsService interface to be disable graphite stats service
 - Change project build tool from maven to gradle
+- Use spring framework for graphene
 
 ## Bug fix
 - Fix /render api not supported about asterisk query [#3](https://github.com/Dark0096/disthene-reader/issues/3)
