@@ -29,24 +29,15 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 @Listener(references= References.Strong)
 public class IndexService {
-    private static final String SCHEDULER_NAME = "distheneIndexCacheExpire";
 
     private Logger logger = Logger.getLogger(IndexService.class);
 
-    private IndexConfiguration indexConfiguration;
     private TransportClient client;
     private IndexThread indexThread;
 
-    // tenant -> path -> dummy
-    private ConcurrentMap<String, ConcurrentMap<String, AtomicLong>> cache = new ConcurrentHashMap<>();
     private Queue<Metric> metrics = new ConcurrentLinkedQueue<>();
 
-    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, new NamedThreadFactory(SCHEDULER_NAME));
-
-
     public IndexService(IndexConfiguration indexConfiguration, MBassador<DistheneEvent> bus) {
-        this.indexConfiguration = indexConfiguration;
-
         bus.subscribe(this);
 
         Settings settings = ImmutableSettings.settingsBuilder()
@@ -68,84 +59,15 @@ public class IndexService {
         );
 
         indexThread.start();
-
-        if (indexConfiguration.isCache()) {
-            scheduler.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    expireCache();
-                }
-            }, indexConfiguration.getExpire(), indexConfiguration.getExpire(), TimeUnit.SECONDS);
-        }
-    }
-
-    private ConcurrentMap<String, AtomicLong> getTenantPaths(String tenant) {
-        ConcurrentMap<String, AtomicLong> tenantPaths = cache.get(tenant);
-        if (tenantPaths == null) {
-            ConcurrentMap<String, AtomicLong> newTenantPaths = new ConcurrentHashMap<>();
-            tenantPaths = cache.putIfAbsent(tenant, newTenantPaths);
-            if (tenantPaths == null) {
-                tenantPaths = newTenantPaths;
-            }
-        }
-
-        return tenantPaths;
     }
 
     @Handler(rejectSubtypes = false)
     public void handle(MetricStoreEvent metricStoreEvent) {
-        if (indexConfiguration.isCache()) {
-            handleWithCache(metricStoreEvent.getMetric());
-        } else {
-            metrics.offer(metricStoreEvent.getMetric());
-        }
-    }
-
-    private void handleWithCache(Metric metric) {
-        ConcurrentMap<String, AtomicLong> tenantPaths = getTenantPaths(metric.getTenant());
-        AtomicLong lastSeen = tenantPaths.get(metric.getPath());
-
-        if (lastSeen == null) {
-            lastSeen = tenantPaths.putIfAbsent(metric.getPath(), new AtomicLong(System.currentTimeMillis() / 1000L));
-            if (lastSeen == null) {
-                metrics.offer(metric);
-            } else {
-                lastSeen.getAndSet(System.currentTimeMillis() / 1000L);
-            }
-        } else {
-            lastSeen.getAndSet(System.currentTimeMillis() / 1000L);
-        }
-    }
-
-    private synchronized void expireCache() {
-        logger.debug("Expiring index cache");
-
-        long currentTimestamp = System.currentTimeMillis() / 1000L;
-        int pathsRemoved = 0;
-        int pathsTotal = 0;
-
-        for(ConcurrentMap<String, AtomicLong> tenantMap : cache.values()) {
-            for(Iterator<Map.Entry<String, AtomicLong>> iterator = tenantMap.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry<String, AtomicLong> entry = iterator.next();
-                if (entry.getValue().get() < currentTimestamp - indexConfiguration.getExpire()) {
-                    iterator.remove();
-                    pathsRemoved++;
-                }
-
-                pathsTotal++;
-            }
-        }
-
-        logger.debug("Expired " + pathsRemoved + " paths from index cache (from " + pathsTotal + " total paths)");
-    }
-
-    public synchronized void invalidateCache() {
-        cache = new ConcurrentHashMap<>();
+        metrics.offer(metricStoreEvent.getMetric());
     }
 
     @PreDestroy
     public void shutdown() {
-        scheduler.shutdown();
         indexThread.shutdown();
         logger.info("Sleeping for 10 seconds to allow leftovers to be written");
         try {
