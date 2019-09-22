@@ -15,8 +15,11 @@ dependencies {
     compile project(':graphene-common')
     compile project(':graphene-function')
 
+    // spring
+    compile "org.springframework.boot:spring-boot-starter"
     compile "org.springframework.boot:spring-boot-starter-actuator"
     compile "org.springframework.boot:spring-boot-starter-web"
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 

@@ -66,7 +66,6 @@ subprojects {
         compile 'net.jpountz.lz4:lz4:1.2.0'
         compile 'commons-lang:commons-lang:2.6'
         compile 'com.rubiconproject.oss:jchronic:0.2.6'
-        compile 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
         compileOnly 'org.projectlombok:lombok:1.18.8'
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
@@ -78,6 +77,7 @@ subprojects {
         testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}"
         testImplementation "org.junit.jupiter:junit-jupiter-api"
         testImplementation "org.junit.jupiter:junit-jupiter-params"
+
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     }
 }
