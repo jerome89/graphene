@@ -41,7 +41,7 @@ object RenderParameters {
 
     return RenderParameter(
       getTenant(),
-      getTargets(renderRequest.target),
+      renderRequest.target,
       timeZone,
       from,
       until,
@@ -87,8 +87,6 @@ object RenderParameters {
     // default to -1d
     return System.currentTimeMillis() / 1000L - 86400
   }
-
-  private fun getTargets(target: String): MutableList<String> = mutableListOf(target)
 
   private fun getTenant(): String? = "NONE"
 

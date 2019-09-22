@@ -21,7 +21,7 @@ class RenderController(
   }
 
   data class RenderRequest(
-      val target: String,
+      val target: List<String>,
       val from: String?,
       val until: String?,
       val format: String?,
