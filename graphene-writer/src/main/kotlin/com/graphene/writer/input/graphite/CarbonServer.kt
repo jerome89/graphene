@@ -7,9 +7,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.DelimiterBasedFrameDecoder
 import io.netty.handler.codec.Delimiters
-import net.engio.mbassy.bus.MBassador
 import net.iponweb.disthene.config.DistheneConfiguration
-import net.iponweb.disthene.events.DistheneEvent
 import org.apache.log4j.Logger
 import org.springframework.stereotype.Component
 
@@ -18,9 +16,14 @@ import javax.annotation.PreDestroy
 
 /**
  * @author Andrei Ivanov
+ * @author dark
  */
 @Component
-class CarbonServer(private val configuration: DistheneConfiguration, private val bus: MBassador<DistheneEvent>) {
+class CarbonServer(
+  private val configuration: DistheneConfiguration,
+  private val carbonServerHandler: CarbonServerHandler
+) {
+
   private val logger = Logger.getLogger(CarbonServer::class.java)
 
   private val bossGroup = NioEventLoopGroup()
@@ -38,7 +41,7 @@ class CarbonServer(private val configuration: DistheneConfiguration, private val
         public override fun initChannel(ch: SocketChannel) {
           val p = ch.pipeline()
           p.addLast(DelimiterBasedFrameDecoder(MAX_FRAME_LENGTH, false, *Delimiters.lineDelimiter()))
-          p.addLast(CarbonServerHandler(bus, configuration.carbon.baseRollup))
+          p.addLast(carbonServerHandler)
         }
 
         @Throws(Exception::class)
