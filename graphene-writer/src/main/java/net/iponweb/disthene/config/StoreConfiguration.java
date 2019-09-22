@@ -1,6 +1,5 @@
 package net.iponweb.disthene.config;
 
-import net.iponweb.disthene.service.aggregate.AggregationConfiguration;
 import net.iponweb.disthene.util.CassandraLoadBalancingPolicies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

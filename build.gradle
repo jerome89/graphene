@@ -1,52 +1,83 @@
 buildscript {
-    ext.kotlin_version = '1.3.50'
+    ext {
+        kotlinVersion = "1.3.50"
+        springBootVersion = "2.1.6.RELEASE"
+    }
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion"
     }
 }
+
 plugins {
     id 'java'
+    id "io.spring.dependency-management" version "1.0.5.RELEASE"
 }
 
-apply plugin: 'kotlin'
+subprojects {
+    group = "net.iponweb.disthene"
+    apply plugin: "groovy"
+    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "kotlin"
+    apply plugin: "kotlin-spring"
+    apply plugin: "kotlin-jpa"
+    apply plugin: "kotlin-kapt"
+    apply plugin: "kotlin-allopen"
+    apply plugin: 'jacoco'
 
-repositories {
-    mavenCentral()
-}
+    group = 'net.iponweb.disthene'
+    version = '1.0.0'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
 
-dependencies {
-    compile 'log4j:log4j:1.2.17'
-    compile 'io.netty:netty-all:4.0.24.Final'
-    compile 'commons-cli:commons-cli:1.2'
-    compile 'com.google.code.gson:gson:2.3.1'
-    compile 'com.datastax.cassandra:cassandra-driver-core:3.1.0'
-    compile 'com.google.guava:guava:18.0'
-    compile 'joda-time:joda-time:2.8.2'
-    compile 'org.elasticsearch:elasticsearch:1.7.6'
-    compile 'net.jpountz.lz4:lz4:1.2.0'
-    compile 'commons-lang:commons-lang:2.6'
-    compile 'com.rubiconproject.oss:jchronic:0.2.6'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
-    compileOnly 'org.projectlombok:lombok:1.18.8'
-    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+    repositories {
+        mavenCentral()
+    }
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-}
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
 
-sourceCompatibility = '1.8'
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+    compileTestKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
+    dependencies {
+        compile 'log4j:log4j:1.2.17'
+        compile 'io.netty:netty-all:4.0.24.Final'
+        compile 'commons-cli:commons-cli:1.2'
+        compile 'com.google.code.gson:gson:2.3.1'
+        compile 'com.datastax.cassandra:cassandra-driver-core:3.1.0'
+        compile 'com.google.guava:guava:18.0'
+        compile 'joda-time:joda-time:2.8.2'
+        compile 'org.elasticsearch:elasticsearch:1.7.6'
+        compile 'net.jpountz.lz4:lz4:1.2.0'
+        compile 'commons-lang:commons-lang:2.6'
+        compile 'com.rubiconproject.oss:jchronic:0.2.6'
+        compileOnly 'org.projectlombok:lombok:1.18.8'
+        annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+        implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
+        // Test
+        testImplementation "org.jetbrains.kotlin:kotlin-test:${kotlinVersion}"
+        testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api"
+        testImplementation "org.junit.jupiter:junit-jupiter-params"
+
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     }
 }
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-

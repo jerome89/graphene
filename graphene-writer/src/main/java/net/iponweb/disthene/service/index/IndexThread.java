@@ -1,6 +1,6 @@
 package net.iponweb.disthene.service.index;
 
-import net.iponweb.disthene.bean.Metric;
+import com.graphene.writer.input.GrapheneMetric;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -28,7 +28,7 @@ public class IndexThread extends Thread {
     protected volatile boolean shutdown = false;
 
     private TransportClient client;
-    protected Queue<Metric> metrics;
+    protected Queue<GrapheneMetric> metrics;
     private String index;
     private String type;
     private int batchSize;
@@ -38,7 +38,7 @@ public class IndexThread extends Thread {
     private MetricMultiGetRequestBuilder request;
     private BulkProcessor bulkProcessor;
 
-    public IndexThread(String name, TransportClient client, Queue<Metric> metrics, String index, String type, int batchSize, int flushInterval) {
+    public IndexThread(String name, TransportClient client, Queue<GrapheneMetric> metrics, String index, String type, int batchSize, int flushInterval) {
         super(name);
         this.client = client;
         this.metrics = metrics;
@@ -76,7 +76,7 @@ public class IndexThread extends Thread {
     public void run() {
         while (!shutdown) {
             try {
-                Metric metric = metrics.poll();
+                GrapheneMetric metric = metrics.poll();
                 if (metric != null) {
                     addToBatch(metric);
                 } else {
@@ -92,7 +92,7 @@ public class IndexThread extends Thread {
         }
     }
 
-    private void addToBatch(Metric metric) {
+    private void addToBatch(GrapheneMetric metric) {
         request.add(metric);
 
         if (request.size() >= batchSize || (lastFlushTimestamp < System.currentTimeMillis() / 1000L - flushInterval)) {
@@ -109,9 +109,9 @@ public class IndexThread extends Thread {
                 logger.error("Get failed: " + response.getFailure().getMessage());
             }
 
-            Metric metric = request.metrics.get(response.getId());
+            GrapheneMetric metric = request.metrics.get(response.getId());
             if (response.isFailed() || !response.getResponse().isExists()) {
-                final String[] parts = metric.getPath().split("\\.");
+                final String[] parts = metric.getGraphiteKey().split("\\.");
                 final StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < parts.length; i++) {
@@ -149,7 +149,7 @@ public class IndexThread extends Thread {
 
         private String index;
         private String type;
-        Map<String, Metric> metrics = new HashMap<>();
+        Map<String, GrapheneMetric> metrics = new HashMap<>();
 
 
         public MetricMultiGetRequestBuilder(Client client, String index, String type) {
@@ -158,7 +158,7 @@ public class IndexThread extends Thread {
             this.type = type;
         }
 
-        public MultiGetRequestBuilder add(Metric metric) {
+        public MultiGetRequestBuilder add(GrapheneMetric metric) {
             metrics.put(metric.getId(), metric);
             return super.add(index, type, metric.getId());
         }

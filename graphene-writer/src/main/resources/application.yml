@@ -15,12 +15,6 @@ graphene:
       port: 2003
       rollups:
         - 60s:5356800s
-      aggregatorDelay: 90
-      aggregateBaseRollup: false
-    aggregations:
-      'test':
-        - 'xxx_test_server*.<data>': 'xxx_sum.<data>'
-        - 'yyy_test_server*.<data>': 'yyy_sum.<data>'
     index:
       name: "metric"
       cluster:
@@ -28,8 +22,6 @@ graphene:
       port: 9300
       index: "metric"
       type: "path"
-      cache: false
-      expire: 3600
       bulk:
         actions: 10000
         interval: 5
@@ -50,8 +42,8 @@ graphene:
       protocolVersion: "V2"
     stats:
       interval: 60
-      tenant: "test"
-      hostname: "disthene-1a"
+      tenant: "graphene"
+      hostname: "localhost"
       log: true
 server:
   port: 8081

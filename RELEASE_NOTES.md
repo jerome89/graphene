@@ -1,3 +1,10 @@
+# 1.1.1
+
+## Feature
+- Remove local aggregation and rollup feature
+
+## Bug fix
+
 # 1.1.0
 
 ## Feature
