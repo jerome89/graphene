@@ -8,15 +8,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-open class GrapheneWriterConfig {
+class GrapheneWriterConfig {
 
   @Bean
-  open fun bus(): MBassador<DistheneEvent> {
+  fun bus(): MBassador<DistheneEvent> {
     return MBassador(BusConfiguration()
       .addFeature(Feature.SyncPubSub.Default())
       .addFeature(Feature.AsynchronousHandlerInvocation.Default())
       .addFeature(Feature.AsynchronousMessageDispatch.Default())
     )
   }
-
 }

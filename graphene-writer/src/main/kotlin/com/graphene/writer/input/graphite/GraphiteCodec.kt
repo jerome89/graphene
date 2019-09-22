@@ -20,7 +20,6 @@ class GraphiteCodec : Codec<GraphiteMetric> {
     val separatedMetricKey = metric.key.split(DELIMITER)
 
     val tags = mutableMapOf<String, String>()
-
     for ((index, key) in separatedMetricKey.withIndex()) {
       tags["$index"] = MetricRule.generate(key)
     }
