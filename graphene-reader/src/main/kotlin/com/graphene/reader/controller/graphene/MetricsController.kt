@@ -1,4 +1,4 @@
-package com.graphene.reader.controller
+package com.graphene.reader.controller.graphene
 
 import net.iponweb.disthene.reader.service.metric.CassandraMetricService
 import org.springframework.web.bind.annotation.*

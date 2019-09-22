@@ -1,6 +1,6 @@
 package com.graphene.reader.handler
 
-import com.graphene.reader.controller.RenderController
+import com.graphene.reader.controller.graphite.request.RenderRequest
 import net.iponweb.disthene.reader.exceptions.InvalidParameterValueException
 import net.iponweb.disthene.reader.format.Format
 import net.iponweb.disthene.reader.utils.DateUtils
@@ -21,7 +21,7 @@ data class RenderParameter(
 object RenderParameters {
   internal val logger = Logger.getLogger(RenderParameter::class.java)
 
-  fun from(renderRequest: RenderController.RenderRequest): RenderParameter {
+  fun from(renderRequest: RenderRequest): RenderParameter {
 
     var timeZone: DateTimeZone = DateTimeZone.UTC
 
