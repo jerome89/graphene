@@ -4,18 +4,23 @@ import com.google.common.base.Strings
 
 object MetricRule {
 
-  private const val DEFAULT_UNKNOWN_KEY = "unknown"
+  private const val UNKNOWN = "unknown"
+  private const val NONE = "NONE"
 
   fun generate(key: String): String {
     if (Strings.isNullOrEmpty(key)) {
-      return DEFAULT_UNKNOWN_KEY
+      return UNKNOWN
     }
 
     return key
   }
 
   fun unknownKey(): String {
-    return DEFAULT_UNKNOWN_KEY
+    return UNKNOWN
   }
 
+  @JvmStatic
+  fun defaultTenant(): String {
+    return NONE
+  }
 }

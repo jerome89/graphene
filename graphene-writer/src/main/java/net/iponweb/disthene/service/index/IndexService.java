@@ -1,14 +1,10 @@
 package net.iponweb.disthene.service.index;
 
+import com.graphene.writer.input.GrapheneMetric;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Listener;
-import net.engio.mbassy.listener.References;
 import net.iponweb.disthene.bean.Metric;
 import net.iponweb.disthene.config.IndexConfiguration;
 import net.iponweb.disthene.events.DistheneEvent;
-import net.iponweb.disthene.events.MetricStoreEvent;
-import net.iponweb.disthene.util.NamedThreadFactory;
 import org.apache.log4j.Logger;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -17,17 +13,13 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author Andrei Ivanov
  */
 @Component
-@Listener(references= References.Strong)
 public class IndexService {
 
     private Logger logger = Logger.getLogger(IndexService.class);
@@ -35,7 +27,7 @@ public class IndexService {
     private TransportClient client;
     private IndexThread indexThread;
 
-    private Queue<Metric> metrics = new ConcurrentLinkedQueue<>();
+    private Queue<GrapheneMetric> metrics = new ConcurrentLinkedQueue<>();
 
     public IndexService(IndexConfiguration indexConfiguration, MBassador<DistheneEvent> bus) {
         bus.subscribe(this);
@@ -61,9 +53,8 @@ public class IndexService {
         indexThread.start();
     }
 
-    @Handler(rejectSubtypes = false)
-    public void handle(MetricStoreEvent metricStoreEvent) {
-        metrics.offer(metricStoreEvent.getMetric());
+    public void handle(GrapheneMetric grapheneMetric) {
+        metrics.offer(grapheneMetric);
     }
 
     @PreDestroy

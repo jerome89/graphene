@@ -1,6 +1,7 @@
 package net.iponweb.disthene.bean;
 
 import net.iponweb.disthene.config.Rollup;
+import net.iponweb.disthene.reader.utils.MetricRule;
 
 /**
  * @author Andrei Ivanov
@@ -16,7 +17,7 @@ public class Metric {
         // In fact this also work for a moderate metrics stream. Once we start receiving 10s of millions different metrics, it tends to degrade quite a bit
         // So, leaving this only for tenant
         this.key = new MetricKey(
-                splitInput.length >=4 ? splitInput[3].intern() : "NONE",
+                splitInput.length >=4 ? splitInput[3].intern() : MetricRule.defaultTenant(),
                 splitInput[0],
                 rollup.getRollup(),
                 rollup.getPeriod(),

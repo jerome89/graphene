@@ -2,14 +2,11 @@ package net.iponweb.disthene.service.store;
 
 import com.datastax.driver.core.*;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.graphene.writer.input.GrapheneMetric;
 import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Listener;
-import net.engio.mbassy.listener.References;
-import net.iponweb.disthene.bean.Metric;
 import net.iponweb.disthene.config.StoreConfiguration;
 import net.iponweb.disthene.events.DistheneEvent;
-import net.iponweb.disthene.events.MetricStoreEvent;
+import net.iponweb.disthene.service.aggregate.CarbonConfiguration;
 import net.iponweb.disthene.util.CassandraLoadBalancingPolicies;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -26,17 +23,16 @@ import java.util.concurrent.Executors;
  * @author Andrei Ivanov
  */
 @Component
-@Listener(references = References.Strong)
 public class CassandraService {
     private Logger logger = Logger.getLogger(CassandraService.class);
 
     private Cluster cluster;
     private Session session;
 
-    private Queue<Metric> metrics = new ConcurrentLinkedQueue<>();
+    private Queue<GrapheneMetric> metrics = new ConcurrentLinkedQueue<>();
     private List<WriterThread> writerThreads = new ArrayList<>();
 
-    public CassandraService(StoreConfiguration storeConfiguration, MBassador<DistheneEvent> bus) {
+    public CassandraService(CarbonConfiguration carbonConfiguration, StoreConfiguration storeConfiguration, MBassador<DistheneEvent> bus) {
         bus.subscribe(this);
 
         String query = "UPDATE " +
@@ -97,7 +93,8 @@ public class CassandraService {
                         statement,
                         metrics,
                         MoreExecutors.listeningDecorator(Executors.newCachedThreadPool()),
-                        storeConfiguration.getBatchSize()
+                        storeConfiguration,
+                        carbonConfiguration
                 );
 
                 writerThreads.add(writerThread);
@@ -111,7 +108,9 @@ public class CassandraService {
                         session,
                         statement,
                         metrics,
-                        MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())
+                        MoreExecutors.listeningDecorator(Executors.newCachedThreadPool()),
+                  storeConfiguration,
+                        carbonConfiguration
                 );
 
                 writerThreads.add(writerThread);
@@ -120,9 +119,8 @@ public class CassandraService {
         }
     }
 
-    @Handler(rejectSubtypes = false)
-    public void handle(MetricStoreEvent metricStoreEvent) {
-        metrics.offer(metricStoreEvent.getMetric());
+    public void handle(GrapheneMetric grapheneMetric) {
+        metrics.offer(grapheneMetric);
     }
 
     @PreDestroy
@@ -154,5 +152,3 @@ public class CassandraService {
         return result;
     }
 }
-
-

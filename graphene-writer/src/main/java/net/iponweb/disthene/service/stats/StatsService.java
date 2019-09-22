@@ -1,10 +1,10 @@
 package net.iponweb.disthene.service.stats;
 
+import com.graphene.writer.event.MetricStoreEvent;
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.listener.Handler;
 import net.engio.mbassy.listener.Listener;
 import net.engio.mbassy.listener.References;
-import net.iponweb.disthene.bean.Metric;
 import net.iponweb.disthene.config.Rollup;
 import net.iponweb.disthene.config.StatsConfiguration;
 import net.iponweb.disthene.events.*;
@@ -83,9 +83,8 @@ public class StatsService implements StatsServiceMBean {
         getStatsRecord(metricReceivedEvent.getMetric().getTenant()).incMetricsReceived();
     }
 
-    @Handler(rejectSubtypes = false)
     public void handle(MetricStoreEvent metricStoreEvent) {
-        getStatsRecord(metricStoreEvent.getMetric().getTenant()).incMetricsWritten();
+        getStatsRecord(metricStoreEvent.getTenant()).incMetricsWritten();
     }
 
     @Handler(rejectSubtypes = false)
@@ -132,26 +131,8 @@ public class StatsService implements StatsServiceMBean {
             totalReceived += statsRecord.getMetricsReceived();
             totalWritten += statsRecord.getMetricsWritten();
 
-            Metric metric = new Metric(
-                    statsConfiguration.getTenant(),
-                    statsConfiguration.getHostname() + ".disthene.tenants." + tenant + ".metrics_received",
-                    rollup.getRollup(),
-                    rollup.getPeriod(),
-                    statsRecord.getMetricsReceived(),
-                    timestamp
-            );
-            bus.post(new MetricStoreEvent(metric)).now();
             lastMetricsReceivedPerTenant.put(tenant, statsRecord.getMetricsReceived());
 
-            metric = new Metric(
-                    statsConfiguration.getTenant(),
-                    statsConfiguration.getHostname() + ".disthene.tenants." + tenant + ".write_count",
-                    rollup.getRollup(),
-                    rollup.getPeriod(),
-                    statsRecord.getMetricsWritten(),
-                    timestamp
-            );
-            bus.post(new MetricStoreEvent(metric)).now();
             lastMetricsReceivedPerTenant.put(tenant, statsRecord.getMetricsWritten());
 
             if (statsConfiguration.isLog()) {
@@ -159,48 +140,9 @@ public class StatsService implements StatsServiceMBean {
             }
         }
 
-        Metric metric = new Metric(
-                statsConfiguration.getTenant(),
-                statsConfiguration.getHostname() + ".disthene.metrics_received",
-                rollup.getRollup(),
-                rollup.getPeriod(),
-                totalReceived,
-                timestamp
-        );
-        bus.post(new MetricStoreEvent(metric)).now();
         lastMetricsReceived = totalReceived;
-
-        metric = new Metric(
-                statsConfiguration.getTenant(),
-                statsConfiguration.getHostname() + ".disthene.write_count",
-                rollup.getRollup(),
-                rollup.getPeriod(),
-                totalWritten,
-                timestamp
-        );
-        bus.post(new MetricStoreEvent(metric)).now();
         lastWriteCount = totalWritten;
-
-        metric = new Metric(
-                statsConfiguration.getTenant(),
-                statsConfiguration.getHostname() + ".disthene.store.success",
-                rollup.getRollup(),
-                rollup.getPeriod(),
-                storeSuccess,
-                timestamp
-        );
-        bus.post(new MetricStoreEvent(metric)).now();
         lastStoreSuccess = storeSuccess;
-
-        metric = new Metric(
-                statsConfiguration.getTenant(),
-                statsConfiguration.getHostname() + ".disthene.store.error",
-                rollup.getRollup(),
-                rollup.getPeriod(),
-                storeError,
-                timestamp
-        );
-        bus.post(new MetricStoreEvent(metric)).now();
         lastStoreError = storeError;
 
         if (statsConfiguration.isLog()) {
