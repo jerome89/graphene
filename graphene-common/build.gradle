@@ -1,12 +1,9 @@
-plugins {
-    id 'java'
-}
+bootJar.enabled = false
+jar.enabled = true
 
 repositories {
     mavenCentral()
 }
-
-sourceCompatibility = '1.8'
 
 dependencies {
     compile 'log4j:log4j:1.2.17'

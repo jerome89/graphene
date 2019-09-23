@@ -20,7 +20,6 @@ plugins {
 }
 
 subprojects {
-    group = "net.iponweb.disthene"
     apply plugin: "groovy"
     apply plugin: "org.springframework.boot"
     apply plugin: "io.spring.dependency-management"
@@ -30,6 +29,7 @@ subprojects {
     apply plugin: "kotlin-kapt"
     apply plugin: "kotlin-allopen"
     apply plugin: 'jacoco'
+    apply plugin: 'antlr'
 
     group = 'net.iponweb.disthene'
     version = '1.0.0'
