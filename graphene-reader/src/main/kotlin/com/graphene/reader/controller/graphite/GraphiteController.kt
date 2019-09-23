@@ -6,10 +6,9 @@ import com.graphene.reader.handler.RenderParameters
 import net.iponweb.disthene.reader.handler.RenderHandler
 import net.iponweb.disthene.reader.handler.response.HierarchyMetricPath
 import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService
+import net.iponweb.disthene.reader.utils.MetricRule
 import org.apache.log4j.Logger
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.nio.charset.StandardCharsets
 
 /**
@@ -36,7 +35,7 @@ class GraphiteController(
     return String(response.content().array(), StandardCharsets.UTF_8)
   }
 
-  @PostMapping("/metrics/find")
+  @RequestMapping("/metrics/find", "/find", method = [RequestMethod.POST, RequestMethod.GET])
   fun metricsFindAboutFormUrlEncoded(
     @ModelAttribute("metricsFindRequest") metricsFindRequest: MetricsFindRequest
   ): Set<HierarchyMetricPath> {
@@ -45,6 +44,6 @@ class GraphiteController(
   }
 
   private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Set<HierarchyMetricPath> {
-    return elasticsearchIndexService.getPathsAsHierarchyMetricPath("NONE", metricsFindRequest.query)
+    return elasticsearchIndexService.getPathsAsHierarchyMetricPath(MetricRule.defaultTenant(), metricsFindRequest.query)
   }
 }
