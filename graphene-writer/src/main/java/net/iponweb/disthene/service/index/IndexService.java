@@ -1,10 +1,7 @@
 package net.iponweb.disthene.service.index;
 
 import com.graphene.writer.input.GrapheneMetric;
-import net.engio.mbassy.bus.MBassador;
-import net.iponweb.disthene.bean.Metric;
 import net.iponweb.disthene.config.IndexConfiguration;
-import net.iponweb.disthene.events.DistheneEvent;
 import org.apache.log4j.Logger;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -29,9 +26,7 @@ public class IndexService {
 
     private Queue<GrapheneMetric> metrics = new ConcurrentLinkedQueue<>();
 
-    public IndexService(IndexConfiguration indexConfiguration, MBassador<DistheneEvent> bus) {
-        bus.subscribe(this);
-
+    public IndexService(IndexConfiguration indexConfiguration) {
         Settings settings = ImmutableSettings.settingsBuilder()
                 .put("cluster.name", indexConfiguration.getName())
                 .build();
@@ -41,7 +36,7 @@ public class IndexService {
         }
 
         indexThread = new IndexThread(
-                "distheneIndexThread",
+                "grapheneIndexThread",
                 client,
                 metrics,
                 indexConfiguration.getIndex(),
