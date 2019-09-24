@@ -1,10 +1,6 @@
 package net.iponweb.disthene.service.stats;
 
 import com.graphene.writer.event.MetricStoreEvent;
-import net.engio.mbassy.bus.MBassador;
-import net.engio.mbassy.listener.Handler;
-import net.engio.mbassy.listener.Listener;
-import net.engio.mbassy.listener.References;
 import net.iponweb.disthene.config.Rollup;
 import net.iponweb.disthene.config.StatsConfiguration;
 import net.iponweb.disthene.events.*;
@@ -25,7 +21,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Andrei Ivanov
  */
 @Component
-@Listener(references = References.Strong)
 public class StatsService implements StatsServiceMBean {
     private static final String SCHEDULER_NAME = "distheneStatsFlusher";
 
@@ -33,7 +28,6 @@ public class StatsService implements StatsServiceMBean {
 
     private StatsConfiguration statsConfiguration;
 
-    private MBassador<DistheneEvent> bus;
     private Rollup rollup;
     private AtomicLong storeSuccess = new AtomicLong(0);
     private AtomicLong storeError = new AtomicLong(0);
@@ -50,11 +44,9 @@ public class StatsService implements StatsServiceMBean {
 
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, new NamedThreadFactory(SCHEDULER_NAME));
 
-    public StatsService(MBassador<DistheneEvent> bus, StatsConfiguration statsConfiguration, CarbonConfiguration carbonConfiguration) {
+    public StatsService(StatsConfiguration statsConfiguration, CarbonConfiguration carbonConfiguration) {
         this.statsConfiguration = statsConfiguration;
-        this.bus = bus;
         this.rollup = carbonConfiguration.getBaseRollup();
-        bus.subscribe(this);
 
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -78,7 +70,6 @@ public class StatsService implements StatsServiceMBean {
         return statsRecord;
     }
 
-    @Handler(rejectSubtypes = false)
     public void handle(MetricReceivedEvent metricReceivedEvent) {
         getStatsRecord(metricReceivedEvent.getMetric().getTenant()).incMetricsReceived();
     }
@@ -87,12 +78,10 @@ public class StatsService implements StatsServiceMBean {
         getStatsRecord(metricStoreEvent.getTenant()).incMetricsWritten();
     }
 
-    @Handler(rejectSubtypes = false)
     public void handle(StoreSuccessEvent storeSuccessEvent) {
         storeSuccess.addAndGet(storeSuccessEvent.getCount());
     }
 
-    @Handler(rejectSubtypes = false)
     public void handle(StoreErrorEvent storeErrorEvent) {
         storeError.addAndGet(storeErrorEvent.getCount());
     }

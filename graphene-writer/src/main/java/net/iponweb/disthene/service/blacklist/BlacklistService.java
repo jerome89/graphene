@@ -1,7 +1,7 @@
 package net.iponweb.disthene.service.blacklist;
 
 import com.google.common.base.Joiner;
-import net.iponweb.disthene.bean.Metric;
+import com.graphene.writer.input.GrapheneMetric;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -24,10 +24,10 @@ public class BlacklistService {
         }
     }
 
-    public boolean isBlackListed(Metric metric) {
-        Pattern pattern = rules.get(metric.getTenant());
+    public boolean isBlackListed(GrapheneMetric grapheneMetric) {
+        Pattern pattern = rules.get(grapheneMetric.getTenant());
         if (pattern != null) {
-            Matcher matcher = pattern.matcher(metric.getPath());
+            Matcher matcher = pattern.matcher(grapheneMetric.getGraphiteKey());
             return matcher.matches();
         } else {
             return false;
