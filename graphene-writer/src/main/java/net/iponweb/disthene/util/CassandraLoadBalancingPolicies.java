@@ -9,21 +9,16 @@ public class CassandraLoadBalancingPolicies {
     public static final String tokenLatencyAwarePolicy = "TokenLatencyAwarePolicy";
 
     public static LoadBalancingPolicy getLoadBalancingPolicy(String policy) {
-        LoadBalancingPolicy loadBalancingPolicy;
         switch (policy) {
             case tokenAwarePolicy:
-                loadBalancingPolicy = new TokenAwarePolicy(new RoundRobinPolicy());
-                break;
+                return new TokenAwarePolicy(new RoundRobinPolicy());
             case tokenDcAwareRoundRobinPolicy:
-                loadBalancingPolicy = new TokenAwarePolicy(DCAwareRoundRobinPolicy.builder().build());
-                break;
+                return new TokenAwarePolicy(DCAwareRoundRobinPolicy.builder().build());
             case tokenLatencyAwarePolicy:
-                loadBalancingPolicy = new TokenAwarePolicy(LatencyAwarePolicy.builder(new RoundRobinPolicy()).build());
-                break;
+                return new TokenAwarePolicy(LatencyAwarePolicy.builder(new RoundRobinPolicy()).build());
             default:
                 throw new IllegalArgumentException("Cassandra load balancing policy can be " + tokenAwarePolicy + " ," + tokenLatencyAwarePolicy
                        + " ," + tokenDcAwareRoundRobinPolicy);
         }
-        return loadBalancingPolicy;
     }
 }
