@@ -3,11 +3,9 @@ package net.iponweb.disthene.service.store;
 import com.datastax.driver.core.*;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.graphene.writer.input.GrapheneMetric;
-import net.engio.mbassy.bus.MBassador;
+import com.graphene.writer.storage.CassandraFactory;
 import net.iponweb.disthene.config.StoreConfiguration;
-import net.iponweb.disthene.events.DistheneEvent;
 import net.iponweb.disthene.service.aggregate.CarbonConfiguration;
-import net.iponweb.disthene.util.CassandraLoadBalancingPolicies;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -32,63 +30,26 @@ public class CassandraService {
     private Queue<GrapheneMetric> metrics = new ConcurrentLinkedQueue<>();
     private List<WriterThread> writerThreads = new ArrayList<>();
 
-    public CassandraService(CarbonConfiguration carbonConfiguration, StoreConfiguration storeConfiguration, MBassador<DistheneEvent> bus) {
-        bus.subscribe(this);
-
-        String query = "UPDATE " +
-                storeConfiguration.getKeyspace() + "." + storeConfiguration.getColumnFamily() +
-                " USING TTL ? SET data = data + ? WHERE tenant = ? AND rollup = ? AND period = ? AND path = ? AND time = ?;";
-
-        logger.debug("Dark CassandraService init query : " + query);
-        SocketOptions socketOptions = new SocketOptions()
-                .setReceiveBufferSize(1024 * 1024)
-                .setSendBufferSize(1024 * 1024)
-                .setTcpNoDelay(false)
-                .setReadTimeoutMillis(storeConfiguration.getReadTimeout() * 1000)
-                .setConnectTimeoutMillis(storeConfiguration.getConnectTimeout() * 1000);
-
-        PoolingOptions poolingOptions = new PoolingOptions();
-        poolingOptions.setMaxConnectionsPerHost(HostDistance.LOCAL, storeConfiguration.getMaxConnections());
-        poolingOptions.setMaxConnectionsPerHost(HostDistance.REMOTE, storeConfiguration.getMaxConnections());
-        poolingOptions.setMaxRequestsPerConnection(HostDistance.REMOTE, storeConfiguration.getMaxRequests());
-        poolingOptions.setMaxRequestsPerConnection(HostDistance.LOCAL, storeConfiguration.getMaxRequests());
-
-        Cluster.Builder builder = Cluster.builder()
-                .withSocketOptions(socketOptions)
-                .withCompression(ProtocolOptions.Compression.LZ4)
-                .withLoadBalancingPolicy(CassandraLoadBalancingPolicies.getLoadBalancingPolicy(storeConfiguration.getLoadBalancingPolicyName()))
-                .withPoolingOptions(poolingOptions)
-                .withQueryOptions(new QueryOptions().setConsistencyLevel(ConsistencyLevel.ONE))
-                .withProtocolVersion(ProtocolVersion.valueOf(storeConfiguration.getProtocolVersion()))
-                // TODO Enable jmx reporting
-                .withoutJMXReporting()
-                .withPort(storeConfiguration.getPort());
-
-        if ( storeConfiguration.getUserName() != null && storeConfiguration.getUserPassword() != null ) {
-            builder = builder.withCredentials(storeConfiguration.getUserName(), storeConfiguration.getUserPassword());
-        }
-
-        for (String cp : storeConfiguration.getCluster()) {
-            builder.addContactPoint(cp);
-        }
-
-        cluster = builder.build();
-        Metadata metadata = cluster.getMetadata();
-        logger.debug("Connected to cluster: " + metadata.getClusterName());
-        for (Host host : metadata.getAllHosts()) {
-            logger.debug(String.format("Datacenter: %s; Host: %s; Rack: %s", host.getDatacenter(), host.getAddress(), host.getRack()));
-        }
+    public CassandraService(CarbonConfiguration carbonConfiguration, StoreConfiguration storeConfiguration, CassandraFactory cassandraFactory) {
+        cluster = cassandraFactory.createCluster(storeConfiguration);
 
         session = cluster.connect();
+
+        String query = "UPDATE " +
+          storeConfiguration.getKeyspace() + "." + storeConfiguration.getColumnFamily() +
+          " USING TTL ? SET data = data + ? WHERE tenant = ? AND rollup = ? AND period = ? AND path = ? AND time = ?;";
+
         PreparedStatement statement = session.prepare(query);
 
         // Creating writers
+        createThread(carbonConfiguration, storeConfiguration, statement);
+    }
 
+    private void createThread(CarbonConfiguration carbonConfiguration, StoreConfiguration storeConfiguration, PreparedStatement statement) {
         if (storeConfiguration.isBatch()) {
             for (int i = 0; i < storeConfiguration.getPool(); i++) {
                 WriterThread writerThread = new BatchWriterThread(
-                        "distheneCassandraBatchWriter" + i,
-                        bus,
+                        "grapheneCassandraBatchWriter" + i,
                         session,
                         statement,
                         metrics,
@@ -103,8 +64,7 @@ public class CassandraService {
         } else {
             for (int i = 0; i < storeConfiguration.getPool(); i++) {
                 WriterThread writerThread = new SingleWriterThread(
-                        "distheneCassandraSingleWriter" + i,
-                        bus,
+                        "grapheneCassandraSingleWriter" + i,
                         session,
                         statement,
                         metrics,

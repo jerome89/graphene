@@ -32,14 +32,13 @@ class BatchWriterThread extends WriterThread {
 
   BatchWriterThread(
       String name,
-      MBassador<DistheneEvent> bus,
       Session session,
       PreparedStatement statement,
       Queue<GrapheneMetric> metrics,
       Executor executor,
       StoreConfiguration storeConfiguration,
       CarbonConfiguration carbonConfiguration) {
-    super(name, bus, session, statement, metrics, executor);
+    super(name, session, statement, metrics, executor);
     this.batchSize = storeConfiguration.getBatchSize();
     this.rollup = carbonConfiguration.getBaseRollup().getRollup();
     this.period = carbonConfiguration.getBaseRollup().getPeriod();

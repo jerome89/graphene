@@ -4,7 +4,6 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import com.graphene.writer.input.GrapheneMetric;
 import net.engio.mbassy.bus.MBassador;
-import net.iponweb.disthene.bean.Metric;
 import net.iponweb.disthene.events.DistheneEvent;
 
 import java.util.Queue;
@@ -25,9 +24,8 @@ public abstract class WriterThread extends Thread {
 
     protected Executor executor;
 
-    public WriterThread(String name, MBassador<DistheneEvent> bus, Session session, PreparedStatement statement, Queue<GrapheneMetric> metrics, Executor executor) {
+    public WriterThread(String name, Session session, PreparedStatement statement, Queue<GrapheneMetric> metrics, Executor executor) {
         super(name);
-        this.bus = bus;
         this.session = session;
         this.statement = statement;
         this.metrics = metrics;

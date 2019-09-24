@@ -25,14 +25,13 @@ public class SingleWriterThread extends WriterThread {
 
   public SingleWriterThread(
       String name,
-      MBassador<DistheneEvent> bus,
       Session session,
       PreparedStatement statement,
       Queue<GrapheneMetric> metrics,
       Executor executor,
       StoreConfiguration storeConfiguration,
       CarbonConfiguration carbonConfiguration) {
-    super(name, bus, session, statement, metrics, executor);
+    super(name, session, statement, metrics, executor);
 
     this.rollup = carbonConfiguration.getBaseRollup().getRollup();
     this.period = carbonConfiguration.getBaseRollup().getPeriod();
