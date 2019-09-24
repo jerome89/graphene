@@ -2,7 +2,7 @@ package net.iponweb.disthene;
 
 import net.iponweb.disthene.config.*;
 import net.iponweb.disthene.service.aggregate.CarbonConfiguration;
-import net.iponweb.disthene.service.blacklist.BlacklistConfiguration;
+import com.graphene.writer.blacklist.BlacklistConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

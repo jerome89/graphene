@@ -2,7 +2,7 @@ package com.graphene.writer.processor
 
 import com.graphene.writer.event.MetricStoreEvent
 import com.graphene.writer.input.GrapheneMetric
-import net.iponweb.disthene.service.blacklist.BlacklistService
+import com.graphene.writer.blacklist.BlacklistService
 import net.iponweb.disthene.service.index.IndexService
 import net.iponweb.disthene.service.stats.StatsService
 import net.iponweb.disthene.service.store.CassandraService
