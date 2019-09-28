@@ -30,8 +30,11 @@ Thanks, this project is useless without their work on **cyanite**, **graphite-ap
 
 Many people helped with the Graphene project.
 
-- drunkencoding / panda84 : He developed and maintained the entire metric core system like Elasticsearch indexing logic and time life cycle in the metric key (path). Without him, the metric system would only be able to handle simple traffic.
-- jerome89 ([https://github.com/jerome89]) : He found the grammar of Graphite functions in the disthene project. This helped us to create a better metric system. Additionally, he helped develop the faulty function of the graphene itself and the overall system development.
+- Keyn : Keyn has provided a lot of insights to improve Graphene system. Without Keyn, this project could not grow.    
+- Tiger : Tiger showed how to modify the open source and apply it to the production environment in order to improve the Graphite system operated by one server. This led to an understanding of the metric system and the ability to continue to expand the current system.      
+- El : El provided continuous insight based on superior technology than others. Based on this, the system can be viewed from various points of view instead of just one part.   
+- drunkencoding / panda84 : They developed and maintained the entire metric core system like Elasticsearch indexing logic and time life cycle in the metric key (path). Without them, the metric system would only be able to handle simple traffic.   
+- jerome89 ([https://github.com/jerome89]) : He found the grammar of Graphite functions in the disthene project. This helped us to create a better metric system. Additionally, he helped develop the faulty function of the graphene itself and the overall system development.   
 
 ## License
 
