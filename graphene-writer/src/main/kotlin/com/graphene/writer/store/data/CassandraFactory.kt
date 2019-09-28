@@ -4,9 +4,7 @@ import com.datastax.driver.core.*
 import com.graphene.writer.config.StoreConfiguration
 import net.iponweb.disthene.util.CassandraLoadBalancingPolicies
 import org.apache.log4j.Logger
-import org.springframework.stereotype.Component
 
-@Component
 class CassandraFactory {
 
   private val logger = Logger.getLogger(CassandraFactory::class.java)

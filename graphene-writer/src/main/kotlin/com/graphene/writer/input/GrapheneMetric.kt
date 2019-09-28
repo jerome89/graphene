@@ -2,7 +2,6 @@ package com.graphene.writer.input
 
 import net.iponweb.disthene.reader.utils.MetricRule
 import java.util.*
-import java.util.function.IntConsumer
 import java.util.stream.IntStream
 
 /***
@@ -21,9 +20,9 @@ data class GrapheneMetric(
     val stringJoiner = StringJoiner(DOT)
 
     IntStream.range(0, tags.size)
-      .forEach(IntConsumer {
+      .forEach {
         stringJoiner.add(tags[it.toString()])
-      })
+      }
 
     return stringJoiner.toString()
   }

@@ -9,7 +9,6 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
 import net.iponweb.disthene.service.aggregate.CarbonConfiguration
 import org.apache.log4j.Logger
-import org.springframework.stereotype.Component
 
 import javax.annotation.PreDestroy
 import java.util.concurrent.Executor
@@ -22,11 +21,10 @@ import javax.annotation.PostConstruct
  *
  * @since 1.0.0
  */
-@Component
 class CassandraDataStoreHandler(
   carbonConfiguration: CarbonConfiguration,
-  val storeConfiguration: StoreConfiguration,
-  val cassandraFactory: CassandraFactory
+  private val storeConfiguration: StoreConfiguration,
+  private val cassandraFactory: CassandraFactory
 ) : StoreHandler {
 
   private val logger = Logger.getLogger(CassandraDataStoreHandler::class.java)
