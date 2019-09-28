@@ -1,6 +1,6 @@
 package com.graphene.writer.store.key
 
-import com.graphene.writer.config.IndexConfiguration
+import com.graphene.writer.config.ElasticsearchKeyStoreConfiguration
 import com.graphene.writer.input.GrapheneMetric
 import org.apache.log4j.Logger
 import org.elasticsearch.action.bulk.BulkProcessor
@@ -13,20 +13,20 @@ import org.elasticsearch.common.unit.TimeValue
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class ElasticsearchFactory(
-  private val indexConfiguration: IndexConfiguration
+  private val elasticsearchKeyStoreConfiguration: ElasticsearchKeyStoreConfiguration
 ) {
 
   private val logger = Logger.getLogger(ElasticsearchFactory::class.java)
 
   fun transportClient(): TransportClient {
     val settings = ImmutableSettings.settingsBuilder()
-      .put("cluster.name", indexConfiguration.name)
+      .put("cluster.name", elasticsearchKeyStoreConfiguration.name)
       .build()
 
     var client = TransportClient(settings)
 
-    for (node in indexConfiguration.cluster) {
-      client.addTransportAddress(InetSocketTransportAddress(node, indexConfiguration.port))
+    for (node in elasticsearchKeyStoreConfiguration.cluster) {
+      client.addTransportAddress(InetSocketTransportAddress(node, elasticsearchKeyStoreConfiguration.port))
     }
 
     return client
@@ -37,10 +37,10 @@ class ElasticsearchFactory(
       "grapheneIndexThread",
       client,
       metrics,
-      indexConfiguration.bulk!!.actions,
-      indexConfiguration.bulk!!.interval,
-      indexConfiguration.index!!,
-      indexConfiguration.type!!,
+      elasticsearchKeyStoreConfiguration.bulk!!.actions,
+      elasticsearchKeyStoreConfiguration.bulk!!.interval,
+      elasticsearchKeyStoreConfiguration.index!!,
+      elasticsearchKeyStoreConfiguration.type!!,
       BulkProcessor.builder(
         client,
         object : BulkProcessor.Listener {
@@ -54,8 +54,8 @@ class ElasticsearchFactory(
             logger.error(failure)
           }
         })
-        .setBulkActions(indexConfiguration.bulk!!.actions)
-        .setFlushInterval(TimeValue.timeValueSeconds(indexConfiguration.bulk!!.interval))
+        .setBulkActions(elasticsearchKeyStoreConfiguration.bulk!!.actions)
+        .setFlushInterval(TimeValue.timeValueSeconds(elasticsearchKeyStoreConfiguration.bulk!!.interval))
         .setConcurrentRequests(1)
         .build()
     )

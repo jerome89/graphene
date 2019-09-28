@@ -16,30 +16,32 @@ graphene:
       rollups:
         - 60s:5356800s
     index:
-      name: "metric"
-      cluster:
-        - "127.0.0.1"
-      port: 9300
-      index: "metric"
-      type: "path"
-      bulk:
-        actions: 10000
-        interval: 5
+      elasticsearch:
+        name: "metric"
+        cluster:
+          - "127.0.0.1"
+        port: 9300
+        index: "metric"
+        type: "path"
+        bulk:
+          actions: 10000
+          interval: 5
     store:
-      cluster:
-        - "127.0.0.1"
-      port: 9042
-      userName: 'cassandra'
-      userPassword: 'cassandra'
-      keyspace: 'metric'
-      columnFamily: 'metric'
-      maxConnections: 2048
-      pool: 1
-      readTimeout: 10
-      connectTimeout: 10
-      maxRequests: 128
-      loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-      protocolVersion: "V2"
+      cassandra:
+        cluster:
+          - "127.0.0.1"
+        port: 9042
+        userName: 'cassandra'
+        userPassword: 'cassandra'
+        keyspace: 'metric'
+        columnFamily: 'metric'
+        maxConnections: 2048
+        pool: 1
+        readTimeout: 10
+        connectTimeout: 10
+        maxRequests: 128
+        loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
+        protocolVersion: "V2"
     stats:
       interval: 60
       tenant: "graphene"

@@ -4,7 +4,7 @@ import com.datastax.driver.core.*
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
-import com.graphene.writer.config.StoreConfiguration
+import com.graphene.writer.config.CassandraDataStoreConfiguration
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
 import net.iponweb.disthene.service.aggregate.CarbonConfiguration
@@ -23,7 +23,7 @@ import javax.annotation.PostConstruct
  */
 class CassandraDataStoreHandler(
   carbonConfiguration: CarbonConfiguration,
-  private val storeConfiguration: StoreConfiguration,
+  private val cassandraDataStoreConfiguration: CassandraDataStoreConfiguration,
   private val cassandraFactory: CassandraFactory
 ) : StoreHandler {
 
@@ -31,7 +31,7 @@ class CassandraDataStoreHandler(
   private val rollup: Int = carbonConfiguration.baseRollup.rollup
   private val period: Int = carbonConfiguration.baseRollup.period
   private val query: String = """
-    UPDATE ${storeConfiguration.keyspace}.${storeConfiguration.columnFamily} 
+    UPDATE ${cassandraDataStoreConfiguration.keyspace}.${cassandraDataStoreConfiguration.columnFamily} 
     USING TTL ? 
     SET data = ? 
     WHERE tenant = ? 
@@ -47,7 +47,7 @@ class CassandraDataStoreHandler(
 
   @PostConstruct
   fun init() {
-    this.cluster = cassandraFactory.createCluster(storeConfiguration)
+    this.cluster = cassandraFactory.createCluster(cassandraDataStoreConfiguration)
     this.session = cluster.connect()
     this.statement = session.prepare(query)
     this.executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())

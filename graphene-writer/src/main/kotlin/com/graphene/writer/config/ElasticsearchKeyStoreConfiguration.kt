@@ -9,8 +9,8 @@ import java.util.ArrayList
 /**
  * @author Andrei Ivanov
  */
-@ConfigurationProperties(prefix = "graphene.writer.index")
-class IndexConfiguration {
+@ConfigurationProperties(prefix = "graphene.writer.index.elasticsearch")
+class ElasticsearchKeyStoreConfiguration {
 
   var name: String? = null
   var index: String? = null
@@ -23,13 +23,13 @@ class IndexConfiguration {
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene index configuration : {}", toString())
+    logger.info("Load Graphene elasticsearchKeyStore configuration : {}", toString())
   }
 
   override fun toString(): String {
-    return "IndexConfiguration{" +
+    return "ElasticsearchKeyStoreConfiguration{" +
       "name='" + name + '\''.toString() +
-      ", index='" + index + '\''.toString() +
+      ", elasticsearchKeyStore='" + index + '\''.toString() +
       ", type='" + type + '\''.toString() +
       ", cache=" + isCache +
       ", expire=" + expire +
@@ -41,6 +41,6 @@ class IndexConfiguration {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(IndexConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(ElasticsearchKeyStoreConfiguration::class.java)
   }
 }

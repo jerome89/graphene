@@ -9,9 +9,10 @@ import java.util.ArrayList
 
 /**
  * @author Andrei Ivanov
+ * @author dark
  */
-@ConfigurationProperties(prefix = "graphene.writer.store")
-class StoreConfiguration {
+@ConfigurationProperties(prefix = "graphene.writer.store.cassandra")
+class CassandraDataStoreConfiguration {
 
   var cluster: List<String> = ArrayList()
   var keyspace: String? = null
@@ -31,11 +32,11 @@ class StoreConfiguration {
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene store configuration : {}", toString())
+    logger.info("Load Graphene cassandraDataStore configuration : {}", toString())
   }
 
   override fun toString(): String {
-    return "StoreConfiguration{" +
+    return "CassandraDataStoreConfiguration{" +
       "cluster=" + cluster +
       ", keyspace='" + keyspace + '\''.toString() +
       ", columnFamily='" + columnFamily + '\''.toString() +
@@ -56,6 +57,6 @@ class StoreConfiguration {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(StoreConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(CassandraDataStoreConfiguration::class.java)
   }
 }

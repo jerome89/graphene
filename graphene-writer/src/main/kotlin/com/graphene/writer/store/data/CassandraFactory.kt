@@ -1,7 +1,7 @@
 package com.graphene.writer.store.data
 
 import com.datastax.driver.core.*
-import com.graphene.writer.config.StoreConfiguration
+import com.graphene.writer.config.CassandraDataStoreConfiguration
 import net.iponweb.disthene.util.CassandraLoadBalancingPolicies
 import org.apache.log4j.Logger
 
@@ -9,23 +9,23 @@ class CassandraFactory {
 
   private val logger = Logger.getLogger(CassandraFactory::class.java)
 
-  fun createCluster(storeConfiguration: StoreConfiguration): Cluster {
+  fun createCluster(cassandraDataStoreConfiguration: CassandraDataStoreConfiguration): Cluster {
     var builder = Cluster.builder()
-      .withSocketOptions(socketOptions(storeConfiguration))
+      .withSocketOptions(socketOptions(cassandraDataStoreConfiguration))
       .withCompression(ProtocolOptions.Compression.LZ4)
-      .withLoadBalancingPolicy(CassandraLoadBalancingPolicies.getLoadBalancingPolicy(storeConfiguration.loadBalancingPolicyName))
-      .withPoolingOptions(poolingOptions(storeConfiguration))
+      .withLoadBalancingPolicy(CassandraLoadBalancingPolicies.getLoadBalancingPolicy(cassandraDataStoreConfiguration.loadBalancingPolicyName))
+      .withPoolingOptions(poolingOptions(cassandraDataStoreConfiguration))
       .withQueryOptions(QueryOptions().setConsistencyLevel(ConsistencyLevel.ONE))
-      .withProtocolVersion(ProtocolVersion.valueOf(storeConfiguration.protocolVersion))
+      .withProtocolVersion(ProtocolVersion.valueOf(cassandraDataStoreConfiguration.protocolVersion))
       // TODO Enable jmx reporting
       .withoutJMXReporting()
-      .withPort(storeConfiguration.port)
+      .withPort(cassandraDataStoreConfiguration.port)
 
-    if (storeConfiguration.userName != null && storeConfiguration.userPassword != null) {
-      builder = builder.withCredentials(storeConfiguration.userName, storeConfiguration.userPassword)
+    if (cassandraDataStoreConfiguration.userName != null && cassandraDataStoreConfiguration.userPassword != null) {
+      builder = builder.withCredentials(cassandraDataStoreConfiguration.userName, cassandraDataStoreConfiguration.userPassword)
     }
 
-    for (cp in storeConfiguration.cluster) {
+    for (cp in cassandraDataStoreConfiguration.cluster) {
       builder.addContactPoint(cp)
     }
 
@@ -38,22 +38,22 @@ class CassandraFactory {
     return cluster
   }
 
-  private fun poolingOptions(storeConfiguration: StoreConfiguration): PoolingOptions {
+  private fun poolingOptions(cassandraDataStoreConfiguration: CassandraDataStoreConfiguration): PoolingOptions {
     val poolingOptions = PoolingOptions()
-    poolingOptions.setMaxConnectionsPerHost(HostDistance.LOCAL, storeConfiguration.maxConnections)
-    poolingOptions.setMaxConnectionsPerHost(HostDistance.REMOTE, storeConfiguration.maxConnections)
-    poolingOptions.setMaxRequestsPerConnection(HostDistance.REMOTE, storeConfiguration.maxRequests)
-    poolingOptions.setMaxRequestsPerConnection(HostDistance.LOCAL, storeConfiguration.maxRequests)
+    poolingOptions.setMaxConnectionsPerHost(HostDistance.LOCAL, cassandraDataStoreConfiguration.maxConnections)
+    poolingOptions.setMaxConnectionsPerHost(HostDistance.REMOTE, cassandraDataStoreConfiguration.maxConnections)
+    poolingOptions.setMaxRequestsPerConnection(HostDistance.REMOTE, cassandraDataStoreConfiguration.maxRequests)
+    poolingOptions.setMaxRequestsPerConnection(HostDistance.LOCAL, cassandraDataStoreConfiguration.maxRequests)
     return poolingOptions
   }
 
-  private fun socketOptions(storeConfiguration: StoreConfiguration): SocketOptions? {
+  private fun socketOptions(cassandraDataStoreConfiguration: CassandraDataStoreConfiguration): SocketOptions? {
     return SocketOptions()
       .setReceiveBufferSize(1024 * 1024)
       .setSendBufferSize(1024 * 1024)
       .setTcpNoDelay(false)
-      .setReadTimeoutMillis(storeConfiguration.readTimeout * 1000)
-      .setConnectTimeoutMillis(storeConfiguration.connectTimeout * 1000)
+      .setReadTimeoutMillis(cassandraDataStoreConfiguration.readTimeout * 1000)
+      .setConnectTimeoutMillis(cassandraDataStoreConfiguration.connectTimeout * 1000)
   }
 
 }

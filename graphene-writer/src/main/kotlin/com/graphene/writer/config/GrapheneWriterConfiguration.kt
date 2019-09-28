@@ -9,16 +9,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "graphene.writer")
 class GrapheneWriterConfiguration(
   var carbon: CarbonConfiguration,
-  var store: StoreConfiguration,
-  var index: IndexConfiguration,
+  var cassandraDataStore: CassandraDataStoreConfiguration,
+  var elasticsearchKeyStore: ElasticsearchKeyStoreConfiguration,
   var stats: StatsConfiguration
 ) {
 
   override fun toString(): String {
     return "GrapheneWriterConfiguration{" +
       "carbon=" + carbon +
-      ", store=" + store +
-      ", index=" + index +
+      ", cassandraDataStore=" + cassandraDataStore +
+      ", elasticsearchKeyStore=" + elasticsearchKeyStore +
       ", stats=" + stats +
       '}'.toString()
   }
