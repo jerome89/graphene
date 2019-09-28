@@ -67,13 +67,12 @@ public class SingleWriterThread extends WriterThread {
         new FutureCallback<ResultSet>() {
           @Override
           public void onSuccess(ResultSet result) {
-            bus.post(new StoreSuccessEvent(1)).now();
+            // nothing
           }
 
           @SuppressWarnings("NullableProblems")
           @Override
           public void onFailure(Throwable t) {
-            bus.post(new StoreErrorEvent(1)).now();
             logger.error(t);
           }
         },

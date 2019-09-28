@@ -9,6 +9,8 @@ import net.iponweb.disthene.util.NamedThreadFactory;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -21,7 +23,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Andrei Ivanov
  */
 @Component
-public class StatsService implements StatsServiceMBean {
+@ManagedResource("net.iponweb.disthene.service.stats:name=statsService,type=StatsService")
+public class StatsService {
     private static final String SCHEDULER_NAME = "distheneStatsFlusher";
 
     private Logger logger = Logger.getLogger(StatsService.class);
@@ -100,8 +103,6 @@ public class StatsService implements StatsServiceMBean {
 
     private void doFlush(Map<String, StatsRecord> stats, long storeSuccess, long storeError, long timestamp) {
         logger.debug("Flushing stats for " + timestamp);
-        lastMetricsReceivedPerTenant.clear();
-        lastWriteCountPerTenant.clear();
 
         long totalReceived = 0;
         long totalWritten = 0;
@@ -121,8 +122,6 @@ public class StatsService implements StatsServiceMBean {
             totalWritten += statsRecord.getMetricsWritten();
 
             lastMetricsReceivedPerTenant.put(tenant, statsRecord.getMetricsReceived());
-
-            lastMetricsReceivedPerTenant.put(tenant, statsRecord.getMetricsWritten());
 
             if (statsConfiguration.isLog()) {
                 logger.info(tenant + "\t\t" + statsRecord.metricsReceived + "\t\t" + statsRecord.getMetricsWritten());
@@ -151,32 +150,32 @@ public class StatsService implements StatsServiceMBean {
     // MBean
 
 
-    @Override
+    @ManagedAttribute
     public long getStoreSuccess() {
         return lastStoreSuccess;
     }
 
-    @Override
+    @ManagedAttribute
     public long getStoreError() {
         return lastStoreError;
     }
 
-    @Override
+    @ManagedAttribute
     public long getMetricsReceived() {
         return lastMetricsReceived;
     }
 
-    @Override
+    @ManagedAttribute
     public long getWriteCount() {
         return lastWriteCount;
     }
 
-    @Override
+    @ManagedAttribute
     public Map<String, Long> getMetricsReceivedPerTenant() {
         return lastMetricsReceivedPerTenant;
     }
 
-    @Override
+    @ManagedAttribute
     public Map<String, Long> getWriteCountPerTenant() {
         return lastWriteCountPerTenant;
     }

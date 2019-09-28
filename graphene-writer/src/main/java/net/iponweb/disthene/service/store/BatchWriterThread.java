@@ -5,8 +5,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.graphene.writer.input.GrapheneMetric;
 import com.graphene.writer.config.StoreConfiguration;
-import net.iponweb.disthene.events.StoreErrorEvent;
-import net.iponweb.disthene.events.StoreSuccessEvent;
 import net.iponweb.disthene.service.aggregate.CarbonConfiguration;
 import org.apache.log4j.Logger;
 
@@ -98,12 +96,11 @@ class BatchWriterThread extends WriterThread {
           new FutureCallback<ResultSet>() {
             @Override
             public void onSuccess(ResultSet result) {
-              bus.post(new StoreSuccessEvent(batchSize)).now();
+              // nothing
             }
 
             @Override
             public void onFailure(Throwable t) {
-              bus.post(new StoreErrorEvent(batchSize)).now();
               logger.error(t);
             }
           },

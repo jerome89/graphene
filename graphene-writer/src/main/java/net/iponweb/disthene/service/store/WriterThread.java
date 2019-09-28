@@ -16,7 +16,6 @@ public abstract class WriterThread extends Thread {
 
     protected volatile boolean shutdown = false;
 
-    protected MBassador<DistheneEvent> bus;
     protected Session session;
     protected PreparedStatement statement;
 
