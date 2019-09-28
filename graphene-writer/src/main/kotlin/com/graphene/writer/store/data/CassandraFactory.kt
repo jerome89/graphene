@@ -2,7 +2,6 @@ package com.graphene.writer.store.data
 
 import com.datastax.driver.core.*
 import com.graphene.writer.config.CassandraDataStoreConfiguration
-import net.iponweb.disthene.util.CassandraLoadBalancingPolicies
 import org.apache.log4j.Logger
 
 class CassandraFactory {

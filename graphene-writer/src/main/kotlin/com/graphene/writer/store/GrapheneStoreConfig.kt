@@ -5,7 +5,7 @@ import com.graphene.writer.config.CassandraDataStoreConfiguration
 import com.graphene.writer.store.data.CassandraDataStoreHandler
 import com.graphene.writer.store.data.CassandraFactory
 import com.graphene.writer.store.key.ElasticsearchFactory
-import net.iponweb.disthene.service.aggregate.CarbonConfiguration
+import com.graphene.writer.config.CarbonConfiguration
 import com.graphene.writer.store.key.ElasticsearchKeyStoreHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

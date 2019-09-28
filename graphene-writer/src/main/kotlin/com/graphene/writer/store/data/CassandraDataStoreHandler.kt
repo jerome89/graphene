@@ -7,7 +7,7 @@ import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.writer.config.CassandraDataStoreConfiguration
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
-import net.iponweb.disthene.service.aggregate.CarbonConfiguration
+import com.graphene.writer.config.CarbonConfiguration
 import org.apache.log4j.Logger
 
 import javax.annotation.PreDestroy
@@ -28,8 +28,8 @@ class CassandraDataStoreHandler(
 ) : StoreHandler {
 
   private val logger = Logger.getLogger(CassandraDataStoreHandler::class.java)
-  private val rollup: Int = carbonConfiguration.baseRollup.rollup
-  private val period: Int = carbonConfiguration.baseRollup.period
+  private val rollup: Int = carbonConfiguration.baseRollup!!.rollup
+  private val period: Int = carbonConfiguration.baseRollup!!.period
   private val query: String = """
     UPDATE ${cassandraDataStoreConfiguration.keyspace}.${cassandraDataStoreConfiguration.columnFamily} 
     USING TTL ? 

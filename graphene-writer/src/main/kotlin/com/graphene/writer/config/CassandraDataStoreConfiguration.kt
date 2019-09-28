@@ -1,6 +1,6 @@
 package com.graphene.writer.config
 
-import net.iponweb.disthene.util.CassandraLoadBalancingPolicies
+import com.graphene.writer.store.data.CassandraLoadBalancingPolicies
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 

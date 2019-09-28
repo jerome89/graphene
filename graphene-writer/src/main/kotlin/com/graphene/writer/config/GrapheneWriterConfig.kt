@@ -1,4 +1,4 @@
-package com.graphene.writer
+package com.graphene.writer.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

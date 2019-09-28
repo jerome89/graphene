@@ -1,6 +1,5 @@
 package com.graphene.writer.config
 
-import net.iponweb.disthene.service.aggregate.CarbonConfiguration
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**

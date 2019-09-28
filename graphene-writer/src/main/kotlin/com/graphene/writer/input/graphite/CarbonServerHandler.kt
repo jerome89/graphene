@@ -7,7 +7,7 @@ import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.CharsetUtil
-import net.iponweb.disthene.bean.Metric
+import com.graphene.writer.domain.Metric
 import com.graphene.writer.config.GrapheneWriterConfiguration
 import com.graphene.writer.config.Rollup
 import org.apache.log4j.Logger
@@ -31,7 +31,7 @@ class CarbonServerHandler(
 
   @PostConstruct
   fun init() {
-    this.rollup = configuration.carbon.baseRollup
+    this.rollup = configuration.carbon.baseRollup!!
     this.graphiteCodec = GraphiteCodec()
   }
 

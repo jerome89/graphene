@@ -1,7 +1,7 @@
 package com.graphene.writer.event
 
 import com.graphene.writer.config.StatsConfiguration
-import net.iponweb.disthene.util.NamedThreadFactory
+import com.graphene.writer.util.NamedThreadFactory
 import org.apache.log4j.Logger
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
