@@ -2,6 +2,7 @@ package net.iponweb.disthene.service.index;
 
 import com.graphene.writer.input.GrapheneMetric;
 import com.graphene.writer.config.IndexConfiguration;
+import com.graphene.writer.store.StoreHandler;
 import org.apache.log4j.Logger;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author Andrei Ivanov
  */
 @Component
-public class IndexService {
+public class IndexService implements StoreHandler {
 
     private Logger logger = Logger.getLogger(IndexService.class);
 
@@ -48,6 +49,7 @@ public class IndexService {
         indexThread.start();
     }
 
+    @Override
     public void handle(GrapheneMetric grapheneMetric) {
         metrics.offer(grapheneMetric);
     }

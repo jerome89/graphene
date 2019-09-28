@@ -3,7 +3,8 @@ package net.iponweb.disthene.service.store;
 import com.datastax.driver.core.*;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.graphene.writer.input.GrapheneMetric;
-import com.graphene.writer.storage.CassandraFactory;
+import com.graphene.writer.store.StoreHandler;
+import com.graphene.writer.store.data.CassandraFactory;
 import com.graphene.writer.config.StoreConfiguration;
 import net.iponweb.disthene.service.aggregate.CarbonConfiguration;
 import org.apache.log4j.Logger;
@@ -21,7 +22,7 @@ import java.util.concurrent.Executors;
  * @author Andrei Ivanov
  */
 @Component
-public class CassandraService {
+public class CassandraService implements StoreHandler {
     private Logger logger = Logger.getLogger(CassandraService.class);
 
     private Cluster cluster;
@@ -46,39 +47,23 @@ public class CassandraService {
     }
 
     private void createThread(CarbonConfiguration carbonConfiguration, StoreConfiguration storeConfiguration, PreparedStatement statement) {
-        if (storeConfiguration.isBatch()) {
-            for (int i = 0; i < storeConfiguration.getPool(); i++) {
-                WriterThread writerThread = new BatchWriterThread(
-                        "grapheneCassandraBatchWriter" + i,
-                        session,
-                        statement,
-                        metrics,
-                        MoreExecutors.listeningDecorator(Executors.newCachedThreadPool()),
-                        storeConfiguration,
-                        carbonConfiguration
-                );
+        for (int i = 0; i < storeConfiguration.getPool(); i++) {
+            WriterThread writerThread = new SingleWriterThread(
+                    "grapheneCassandraSingleWriter" + i,
+                    session,
+                    statement,
+                    metrics,
+                    MoreExecutors.listeningDecorator(Executors.newCachedThreadPool()),
+              storeConfiguration,
+                    carbonConfiguration
+            );
 
-                writerThreads.add(writerThread);
-                writerThread.start();
-            }
-        } else {
-            for (int i = 0; i < storeConfiguration.getPool(); i++) {
-                WriterThread writerThread = new SingleWriterThread(
-                        "grapheneCassandraSingleWriter" + i,
-                        session,
-                        statement,
-                        metrics,
-                        MoreExecutors.listeningDecorator(Executors.newCachedThreadPool()),
-                  storeConfiguration,
-                        carbonConfiguration
-                );
-
-                writerThreads.add(writerThread);
-                writerThread.start();
-            }
+            writerThreads.add(writerThread);
+            writerThread.start();
         }
     }
 
+    @Override
     public void handle(GrapheneMetric grapheneMetric) {
         metrics.offer(grapheneMetric);
     }

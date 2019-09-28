@@ -1,4 +1,4 @@
-package com.graphene.writer.storage
+package com.graphene.writer.store.data
 
 import com.datastax.driver.core.*
 import com.graphene.writer.config.StoreConfiguration
