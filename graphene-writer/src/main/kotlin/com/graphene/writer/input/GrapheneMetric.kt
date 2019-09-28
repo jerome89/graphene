@@ -29,11 +29,11 @@ data class GrapheneMetric(
   }
 
   fun getId(): String {
-    return "${meta.getOrDefault("tenant", MetricRule.defaultTenant())}_${getGraphiteKey()}"
+    return "${meta.getOrDefault("@tenant", MetricRule.defaultTenant())}_${getGraphiteKey()}"
   }
 
   fun getTenant(): String {
-    return meta.getOrDefault("tenant", MetricRule.defaultTenant())
+    return meta.getOrDefault("@tenant", MetricRule.defaultTenant())
   }
 
   companion object {
