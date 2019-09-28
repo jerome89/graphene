@@ -1,8 +1,8 @@
 package net.iponweb.disthene.service.stats;
 
 import com.graphene.writer.event.MetricStoreEvent;
-import net.iponweb.disthene.config.Rollup;
-import net.iponweb.disthene.config.StatsConfiguration;
+import com.graphene.writer.config.Rollup;
+import com.graphene.writer.config.StatsConfiguration;
 import net.iponweb.disthene.events.*;
 import net.iponweb.disthene.service.aggregate.CarbonConfiguration;
 import net.iponweb.disthene.util.NamedThreadFactory;

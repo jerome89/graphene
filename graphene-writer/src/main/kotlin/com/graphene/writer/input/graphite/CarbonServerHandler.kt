@@ -8,8 +8,8 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.CharsetUtil
 import net.iponweb.disthene.bean.Metric
-import net.iponweb.disthene.config.DistheneConfiguration
-import net.iponweb.disthene.config.Rollup
+import com.graphene.writer.config.GrapheneWriterConfiguration
+import com.graphene.writer.config.Rollup
 import org.apache.log4j.Logger
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
@@ -20,8 +20,8 @@ import javax.annotation.PostConstruct
 @Component
 @ChannelHandler.Sharable
 class CarbonServerHandler(
-  private val configuration: DistheneConfiguration,
-  private val grapheneProcessor: GrapheneProcessor
+        private val configuration: GrapheneWriterConfiguration,
+        private val grapheneProcessor: GrapheneProcessor
 ) : ChannelInboundHandlerAdapter() {
 
   private val logger = Logger.getLogger(CarbonServerHandler::class.java)

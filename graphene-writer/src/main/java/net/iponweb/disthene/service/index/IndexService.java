@@ -1,7 +1,7 @@
 package net.iponweb.disthene.service.index;
 
 import com.graphene.writer.input.GrapheneMetric;
-import net.iponweb.disthene.config.IndexConfiguration;
+import com.graphene.writer.config.IndexConfiguration;
 import org.apache.log4j.Logger;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;

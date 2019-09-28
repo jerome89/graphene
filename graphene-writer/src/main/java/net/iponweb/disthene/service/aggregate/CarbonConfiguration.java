@@ -1,6 +1,6 @@
 package net.iponweb.disthene.service.aggregate;
 
-import net.iponweb.disthene.config.Rollup;
+import com.graphene.writer.config.Rollup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;

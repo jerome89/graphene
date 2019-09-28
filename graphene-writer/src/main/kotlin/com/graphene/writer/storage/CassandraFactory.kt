@@ -1,7 +1,7 @@
 package com.graphene.writer.storage
 
 import com.datastax.driver.core.*
-import net.iponweb.disthene.config.StoreConfiguration
+import com.graphene.writer.config.StoreConfiguration
 import net.iponweb.disthene.util.CassandraLoadBalancingPolicies
 import org.apache.log4j.Logger
 import org.springframework.stereotype.Component

@@ -4,7 +4,7 @@ import com.datastax.driver.core.*;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.graphene.writer.input.GrapheneMetric;
 import com.graphene.writer.storage.CassandraFactory;
-import net.iponweb.disthene.config.StoreConfiguration;
+import com.graphene.writer.config.StoreConfiguration;
 import net.iponweb.disthene.service.aggregate.CarbonConfiguration;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;

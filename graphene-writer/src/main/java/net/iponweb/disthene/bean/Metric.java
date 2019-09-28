@@ -1,6 +1,6 @@
 package net.iponweb.disthene.bean;
 
-import net.iponweb.disthene.config.Rollup;
+import com.graphene.writer.config.Rollup;
 import net.iponweb.disthene.reader.utils.MetricRule;
 
 /**

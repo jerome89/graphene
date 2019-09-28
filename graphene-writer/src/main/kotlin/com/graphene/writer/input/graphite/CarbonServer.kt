@@ -7,7 +7,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.DelimiterBasedFrameDecoder
 import io.netty.handler.codec.Delimiters
-import net.iponweb.disthene.config.DistheneConfiguration
+import com.graphene.writer.config.GrapheneWriterConfiguration
 import org.apache.log4j.Logger
 import org.springframework.stereotype.Component
 
@@ -20,7 +20,7 @@ import javax.annotation.PreDestroy
  */
 @Component
 class CarbonServer(
-  private val configuration: DistheneConfiguration,
+  private val configuration: GrapheneWriterConfiguration,
   private val carbonServerHandler: CarbonServerHandler
 ) {
 
