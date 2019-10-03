@@ -8,6 +8,7 @@ import net.iponweb.disthene.reader.graphite.functions.registry.FunctionRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Andrei Ivanov
@@ -105,5 +106,18 @@ public abstract class DistheneFunction extends Target {
         }
 
         return null;
+    }
+
+    public void check(boolean condition, String message) throws InvalidArgumentException {
+        if (! condition) {
+            throw new InvalidArgumentException(message);
+        }
+    }
+
+    public String getClassName(Object object) {
+        if (null == object) {
+            return "null";
+        }
+        return object.getClass().getName();
     }
 }
