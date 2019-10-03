@@ -1,5 +1,6 @@
 package com.graphene.writer.store.key
 
+import com.graphene.writer.config.ElasticsearchKeyStoreConfiguration
 import com.graphene.writer.input.GrapheneMetric
 import org.apache.log4j.Logger
 import org.elasticsearch.action.bulk.BulkProcessor
@@ -21,10 +22,7 @@ class IndexThread(
   name: String,
   private val client: TransportClient,
   metrics: ConcurrentLinkedQueue<GrapheneMetric>,
-  private val batchSize: Int,
-  private val flushInterval: Long,
-  private val index: String,
-  private val type: String,
+  private val elasticsearchKeyStoreConfiguration: ElasticsearchKeyStoreConfiguration,
   private val bulkProcessor: BulkProcessor
 ) : Thread(name) {
 
@@ -33,13 +31,21 @@ class IndexThread(
   @Volatile
   protected var shutdown = false
   protected var metrics: Queue<GrapheneMetric>
-  private var lastFlushTimestamp = System.currentTimeMillis() / 1000L
 
+  private var lastFlushTimestamp = System.currentTimeMillis() / 1000L
   private var request: MetricMultiGetRequestBuilder? = null
+  private var index: String
+  private var type: String
+  private var batchSize: Int
+  private var flushInterval: Long = 0
 
   init {
     this.metrics = metrics
+    this.index = elasticsearchKeyStoreConfiguration.index!!
+    this.type = elasticsearchKeyStoreConfiguration.type!!
     this.request = MetricMultiGetRequestBuilder(client, index, type)
+    this.batchSize = elasticsearchKeyStoreConfiguration.bulk!!.actions
+    this.flushInterval = elasticsearchKeyStoreConfiguration.bulk!!.interval
   }
 
   override fun run() {

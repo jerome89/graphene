@@ -28,7 +28,13 @@ class ElasticsearchKeyStoreHandler(
   fun init() {
     client = elasticsearchFactory.transportClient()
 
-    indexThread = elasticsearchFactory.indexThread(client, metrics)
+    indexThread = IndexThread(
+      "grapheneIndexThread",
+      client,
+      metrics,
+      elasticsearchFactory.elasticsearchKeyStoreConfiguration,
+      elasticsearchFactory.bulkProcessor(client)
+    )
     indexThread.start()
   }
 
