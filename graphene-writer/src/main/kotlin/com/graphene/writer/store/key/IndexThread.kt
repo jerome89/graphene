@@ -11,8 +11,7 @@ import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.xcontent.XContentFactory
 
 import java.io.IOException
-import java.util.HashMap
-import java.util.Queue
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
@@ -52,18 +51,17 @@ class IndexThread(
     while (!shutdown) {
       try {
         val metric = metrics.poll()
-        if (metric != null) {
+        if (Objects.nonNull(metric)) {
           addToBatch(metric)
-        } else {
-          Thread.sleep(100)
         }
+
+        sleep(100)
       } catch (e: Exception) {
         logger.error("Encountered error in busy loop: ", e)
       }
-
     }
 
-    if (request!!.size() > 0) {
+    if (0 < request!!.size()) {
       flush()
     }
   }
@@ -87,7 +85,7 @@ class IndexThread(
 
       val metric = request!!.metrics[response.id]
       if (response.isFailed || !response.response.isExists) {
-        val parts = metric!!.getGraphiteKey()!!.split("\\.".toRegex())
+        val parts = metric!!.getHierarchyGraphiteKey()
         val sb = StringBuilder()
 
         for (i in parts.indices) {
@@ -107,11 +105,8 @@ class IndexThread(
           } catch (e: IOException) {
             logger.error(e)
           }
-
         }
-
       }
-
     }
 
     request = MetricMultiGetRequestBuilder(client, index, type)

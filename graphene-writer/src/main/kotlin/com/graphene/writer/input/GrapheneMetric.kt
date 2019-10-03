@@ -1,8 +1,7 @@
 package com.graphene.writer.input
 
+import com.graphene.writer.input.graphite.GraphiteAware
 import net.iponweb.disthene.reader.utils.MetricRule
-import java.util.*
-import java.util.stream.IntStream
 
 /***
  *
@@ -11,31 +10,24 @@ import java.util.stream.IntStream
  */
 data class GrapheneMetric(
   val meta: Map<String, String>,
-  val tags: Map<String, String>,
+  internal val tags: Map<String, String>,
   val value: Double,
   val timestamp: Long
-) {
+) : GraphiteAware {
 
-  fun getGraphiteKey(): String {
-    val stringJoiner = StringJoiner(DOT)
-
-    IntStream.range(0, tags.size)
-      .forEach {
-        stringJoiner.add(tags[it.toString()])
-      }
-
-    return stringJoiner.toString()
+  override fun getTags(): Map<String, String> {
+    return this.tags
   }
 
   fun getId(): String {
-    return "${meta.getOrDefault("@tenant", MetricRule.defaultTenant())}_${getGraphiteKey()}"
+    return "${meta.getOrDefault(TENANT, MetricRule.defaultTenant())}_${getGraphiteKey()}"
   }
 
   fun getTenant(): String {
-    return meta.getOrDefault("@tenant", MetricRule.defaultTenant())
+    return meta.getOrDefault(TENANT, MetricRule.defaultTenant())
   }
 
   companion object {
-    const val DOT = "."
+    private val TENANT = "@tenant"
   }
 }
