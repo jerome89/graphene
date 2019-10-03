@@ -31,12 +31,12 @@ class IndexThread(
   protected var shutdown = false
   protected var metrics: Queue<GrapheneMetric>
 
-  private var lastFlushTimestamp = System.currentTimeMillis() / 1000L
-  private var request: MetricMultiGetRequestBuilder? = null
+  private var lastFlushTimeSeconds = currentTimeSeconds()
+  private var request: MetricMultiGetRequestBuilder
   private var index: String
   private var type: String
   private var batchSize: Int
-  private var flushInterval: Long = 0
+  private var flushInterval: Long
 
   init {
     this.metrics = metrics
@@ -61,31 +61,30 @@ class IndexThread(
       }
     }
 
-    if (0 < request!!.size()) {
+    if (0 < request.size()) {
       flush()
     }
   }
 
   private fun addToBatch(metric: GrapheneMetric) {
-    request!!.add(metric)
+    request.add(metric)
 
-    if (request!!.size() >= batchSize || lastFlushTimestamp < System.currentTimeMillis() / 1000L - flushInterval) {
+    if (batchSize <= request.size() || lastFlushTimeSeconds < currentTimeSeconds() - flushInterval) {
       flush()
-      lastFlushTimestamp = System.currentTimeMillis() / 1000L
     }
   }
 
   private fun flush() {
-    val multiGetItemResponse = request!!.execute().actionGet()
+    val multiGetItemResponse = request.execute().actionGet()
 
     for (response in multiGetItemResponse.responses) {
       if (response.isFailed) {
         logger.error("Get failed: " + response.failure.message)
       }
 
-      val metric = request!!.metrics[response.id]
+      val metric = request.metrics[response.id]
       if (response.isFailed || !response.response.isExists) {
-        val parts = metric!!.getHierarchyGraphiteKey()
+        val parts = metric!!.getGraphiteKeyParts()
         val sb = StringBuilder()
 
         for (i in parts.indices) {
@@ -110,13 +109,21 @@ class IndexThread(
     }
 
     request = MetricMultiGetRequestBuilder(client, index, type)
+    lastFlushTimeSeconds = currentTimeSeconds()
   }
+
+  private fun currentTimeSeconds() = System.currentTimeMillis() / 1000L
 
   fun shutdown() {
     shutdown = true
   }
 
-  private inner class MetricMultiGetRequestBuilder(client: Client, private val index: String, private val type: String) : MultiGetRequestBuilder(client) {
+  private inner class MetricMultiGetRequestBuilder(
+    client: Client,
+    private val index: String,
+    private val type: String
+  ) : MultiGetRequestBuilder(client) {
+
     internal var metrics: MutableMap<String, GrapheneMetric> = HashMap()
 
     fun add(metric: GrapheneMetric): MultiGetRequestBuilder {

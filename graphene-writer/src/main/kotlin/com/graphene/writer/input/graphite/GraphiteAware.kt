@@ -8,17 +8,17 @@ interface GraphiteAware {
   fun getTags() : Map<String, String>
 
   fun getGraphiteKey(): String {
-    val stringJoiner = StringJoiner(GraphiteMetric.DOT)
+    val graphiteKey = StringJoiner(GraphiteMetric.DOT)
 
     IntStream.range(0, getTags().size)
       .forEach {
-        stringJoiner.add(getTags()[it.toString()])
+        graphiteKey.add(getTags()[it.toString()])
       }
 
-    return stringJoiner.toString()
+    return graphiteKey.toString()
   }
 
-  fun getHierarchyGraphiteKey(): List<String> {
+  fun getGraphiteKeyParts(): List<String> {
     return getGraphiteKey().split("\\.".toRegex())
   }
 }
