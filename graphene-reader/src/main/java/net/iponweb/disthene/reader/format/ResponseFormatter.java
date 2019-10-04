@@ -9,17 +9,21 @@ import net.iponweb.disthene.reader.exceptions.LogarithmicScaleNotAllowed;
 import net.iponweb.disthene.reader.graph.DecoratedTimeSeries;
 import net.iponweb.disthene.reader.graphite.utils.GraphiteUtils;
 import com.graphene.reader.handler.RenderParameter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author Andrei Ivanov
  */
 public class ResponseFormatter {
+
+    private static Gson GSON = new Gson();
 
     public static FullHttpResponse formatResponse(List<TimeSeries> timeSeriesList, RenderParameter parameters) throws NotImplementedException, LogarithmicScaleNotAllowed {
         // Let's remove empty series
@@ -98,34 +102,15 @@ public class ResponseFormatter {
     }
 
     private static FullHttpResponse formatResponseAsJson(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
-        List<String> results = new ArrayList<>();
-
-        Gson gson = new Gson();
-
         // consolidate data points
         consolidate(timeSeriesList, renderParameter.getMaxDataPoints());
-
-        for(TimeSeries timeSeries : timeSeriesList) {
-            List<String> datapoints = new ArrayList<>();
-            for(int i = 0; i < timeSeries.getValues().length; i++) {
-                String stringValue;
-                if (timeSeries.getValues()[i] == null) {
-                    stringValue = "null";
-                } else {
-                    stringValue = GraphiteUtils.formatDoubleSpecialPlain(timeSeries.getValues()[i]);
-                }
-
-                datapoints.add("[" + stringValue + ", " + (timeSeries.getFrom() + timeSeries.getStep() * i) + "]");
-            }
-            results.add("{\"target\": " + gson.toJson(timeSeries.getName()) + ", \"datapoints\": [" + Joiner.on(", ").join(datapoints) + "]}");
-        }
-        String responseString = "[" + Joiner.on(", ").join(results) + "]";
-
+        StringBuilder result = new StringBuilder(computeStringBuilderCapacity(timeSeriesList));
+        appendResults(result, timeSeriesList);
 
         FullHttpResponse response = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1,
                 HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(responseString.getBytes()));
+                Unpooled.wrappedBuffer(result.toString().getBytes()));
         response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json");
         response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
         return response;
@@ -194,5 +179,34 @@ public class ResponseFormatter {
         }
 
         return result;
+    }
+
+    private static int computeStringBuilderCapacity(List<TimeSeries> timeSeriesList) {
+        int stringBuilderCapacity = 28 * timeSeriesList.size() + 1;
+        for (TimeSeries ts : timeSeriesList) {
+            ts.setName(GSON.toJson(ts.getName()));
+            stringBuilderCapacity += ts.getName().length() + (14 * ts.getValues().length) - 1;
+            stringBuilderCapacity += Arrays.stream(ts.getValues()).map(String::valueOf).map(String::length).reduce(0, Integer::sum);
+        }
+        return stringBuilderCapacity;
+    }
+
+    private static void appendResults(StringBuilder sb, List<TimeSeries> timeSeriesList) {
+        sb.append("[");
+        timeSeriesList.forEach(ts -> appendTimeSeries(sb, ts));
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("]");
+    }
+
+    private static void appendTimeSeries(StringBuilder sb, TimeSeries ts) {
+        sb.append("{").append("\"target\"").append(":").append(ts.getName()).append(",");
+        sb.append("\"datapoints\"").append(":[");
+        if (ArrayUtils.isNotEmpty(ts.getValues())) {
+            for (int i = 0; i < ts.getValues().length; i++) {
+                sb.append("[").append(ts.getValues()[i]).append(",").append(ts.getFrom() + i * ts.getStep()).append("],");
+            }
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        sb.append("]},");
     }
 }
