@@ -3,14 +3,10 @@ package com.graphene.reader.service.index
 import com.google.common.base.Joiner
 import net.iponweb.disthene.reader.config.IndexConfiguration
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
-import net.iponweb.disthene.reader.handler.response.HierarchyMetricPath
+import com.graphene.common.HierarchyMetricPaths
 import net.iponweb.disthene.reader.service.index.IndexService
 import net.iponweb.disthene.reader.utils.WildcardUtil
-import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.action.search.SearchType
 import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.settings.ImmutableSettings
-import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.index.query.FilterBuilders
 import org.elasticsearch.index.query.QueryBuilders
@@ -20,7 +16,6 @@ import org.springframework.stereotype.Component
 
 import javax.annotation.PreDestroy
 import java.util.*
-import javax.annotation.PostConstruct
 
 /**
  *
@@ -30,7 +25,8 @@ import javax.annotation.PostConstruct
 @Component
 class ElasticsearchIndexService(
   private val client: TransportClient,
-  private val indexConfiguration: IndexConfiguration
+  private val indexConfiguration: IndexConfiguration,
+  private val elasticsearchClient: ElasticsearchClient
 ) : IndexService {
 
   private val joiner = Joiner.on(",").skipNulls()
@@ -55,14 +51,14 @@ class ElasticsearchIndexService(
 
       // Why secondary searchPaths to elasticsearch?
       // Reason : https://stackoverflow.com/questions/18239537/scroll-searchresponse-not-iterable-when-there-are-less-results-than-the-scrollsi
-      var response = searchPaths(regEx)
+      var response = elasticsearchClient.actionGet(regEx)
 
       while (response.hits.hits.size > 0) {
         for (hit in response.hits) {
           result.add(hit.sourceAsMap()["path"] as String)
         }
 
-        response = searchScroll(response)
+        response = elasticsearchClient.searchScroll(response)
       }
     }
 
@@ -70,70 +66,37 @@ class ElasticsearchIndexService(
   }
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getPathsAsHierarchyMetricPath(tenant: String, query: String): Set<HierarchyMetricPath> {
-    var hierarchyMetricPaths: MutableSet<HierarchyMetricPath> = HashSet()
+  override fun getPathsAsHierarchyMetricPath(tenant: String, query: String): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
+    val hierarchyMetricPaths = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
     try {
       val regEx = WildcardUtil.getPathsRegExFromWildcard(query)
 
       // Why secondary searchPaths to elasticsearch?
       // Reason : https://stackoverflow.com/questions/18239537/scroll-searchresponse-not-iterable-when-there-are-less-results-than-the-scrollsi
-      var response = searchPaths(regEx)
+      var response = elasticsearchClient.actionGet(regEx)
 
-      hierarchyMetricPaths = HashSet()
-      while (0 < response.hits.hits.size) {
+      while (response.hits.hits.isNotEmpty()) {
         for (hit in response.hits) {
-          hierarchyMetricPaths.add(mapToHierarchyMetricPath(hit))
+          val mapToHierarchyMetricPath = mapToHierarchyMetricPath(hit)
+          hierarchyMetricPaths.putIfAbsent(mapToHierarchyMetricPath.text, mapToHierarchyMetricPath)
         }
-        response = searchScroll(response)
+        response = elasticsearchClient.searchScroll(response)
       }
     } catch (e: Exception) {
       logger.error("Fail to get paths : " + e.message, e)
     }
 
-    return hierarchyMetricPaths
+    return hierarchyMetricPaths.values
   }
 
-  @Throws(TooMuchDataExpectedException::class)
-  private fun searchPaths(regEx: String): SearchResponse {
-    var response = client.prepareSearch(indexConfiguration.index)
-      .setTypes("path")
-      .setSearchType(SearchType.SCAN)
-      .setScroll(TimeValue.timeValueMinutes(1))
-      .setSize(1000)
-      .setQuery(QueryBuilders.regexpQuery("path", regEx))
-      .execute()
-      .actionGet()
-
-    response = searchScroll(response)
-
-    // if total hits exceeds maximum - abort right away returning empty array
-    if (response.hits.totalHits() > indexConfiguration.maxPaths) {
-      logger.debug("Total number of paths exceeds the limit: " + response.hits.totalHits())
-      throw TooMuchDataExpectedException(
-        "Total number of paths exceeds the limit: "
-          + response.hits.totalHits()
-          + " (the limit is "
-          + indexConfiguration.maxPaths
-          + ")")
-    }
-    return response
-  }
-
-  private fun searchScroll(response: SearchResponse): SearchResponse {
-    return client.prepareSearchScroll(response.scrollId)
-      .setScroll(TimeValue.timeValueMinutes(1))
-      .execute()
-      .actionGet()
-  }
-
-  private fun mapToHierarchyMetricPath(hit: SearchHit): HierarchyMetricPath {
+  private fun mapToHierarchyMetricPath(hit: SearchHit): HierarchyMetricPaths.HierarchyMetricPath {
     val source = hit.sourceAsMap()
 
     val path = source["path"] as String
     val depth = source["depth"] as Int
     val leaf = source["leaf"] as Boolean
 
-    return HierarchyMetricPath.of(path, depth, leaf)
+    return HierarchyMetricPaths.of(path, depth, leaf)
   }
 
   @Throws(TooMuchDataExpectedException::class)
