@@ -11,20 +11,25 @@ class HierarchyMetricPaths {
       Preconditions.checkNotNull(depth, "depth must be set!")
       Preconditions.checkNotNull(leaf, "leaf must be set!")
 
+      val leafOrBranch = if (leaf) LEAF else BRANCH
+
       return HierarchyMetricPath(
-        if (leaf) 0 else 1,
-        if (leaf) 0 else 1,
-        if (leaf) 0 else 1,
+        leafOrBranch,
+        leafOrBranch,
+        leafOrBranch,
         path,
         path.substring(path.lastIndexOf('.') + 1)
       )
     }
+
+    private const val LEAF = 0
+    private const val BRANCH = 1
   }
 
   data class HierarchyMetricPath internal constructor(
-    var allowChildren: Int = 0,
-    var expandable: Int = 0,
-    var leaf: Int = 0,
+    var allowChildren: Int,
+    var expandable: Int,
+    var leaf: Int,
     var id: String,
     var text: String
   )
