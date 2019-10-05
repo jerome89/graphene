@@ -3,11 +3,10 @@ package com.graphene.reader.service.index
 import net.iponweb.disthene.reader.config.IndexConfiguration
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
 import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.action.search.SearchType
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.index.query.FilteredQueryBuilder
-import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.index.query.RegexpQueryBuilder
 import org.elasticsearch.search.SearchHits
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -20,65 +19,57 @@ class ElasticsearchClient(
 ) {
 
   @Throws(TooMuchDataExpectedException::class)
-  fun actionGet(regexQuery: String): Response {
-    val searchResponse = client.prepareSearch(indexConfiguration.index)
-      .setTypes(indexConfiguration.type)
-      .setSearchType(SearchType.SCAN)
-      .setScroll(TimeValue.timeValueMinutes(1))
-      .setSize(1000)
-      .setQuery(QueryBuilders.regexpQuery(indexConfiguration.type, regexQuery))
-      .execute()
-      .actionGet()
-
-    val response = client.prepareSearchScroll(searchResponse.scrollId)
-      .setScroll(TimeValue.timeValueMinutes(1))
-      .execute()
-      .actionGet()
-
-    // if total hits exceeds maximum - abort right away returning empty array
-    if (response.hits.totalHits() > indexConfiguration.maxPaths) {
-      ElasticsearchIndexService.logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits())
-      throw TooMuchDataExpectedException(
-        "Total number map paths exceeds the limit: "
-          + response.hits.totalHits()
-          + " (the limit is "
-          + indexConfiguration.maxPaths
-          + ")")
-    }
-
-    return Response.of(response)
-  }
-
-  fun query(filteredQuery: FilteredQueryBuilder): Response {
-    var response = client
+  fun regexpQuery(regexpQuery: RegexpQueryBuilder): Response {
+    var searchResponse = client
       .prepareSearch(indexConfiguration.index)
       .setScroll(TimeValue(indexConfiguration.timeout.toLong()))
       .setSize(indexConfiguration.scroll)
+      .setTypes(indexConfiguration.type)
+      .setQuery(regexpQuery)
+      .execute()
+      .actionGet()
+
+    throwIfExceededMaxPaths(searchResponse)
+
+    return Response.of(searchResponse)
+  }
+
+  fun filteredQuery(filteredQuery: FilteredQueryBuilder): Response {
+    val response = client
+      .prepareSearch(indexConfiguration.index)
+      .setScroll(TimeValue(indexConfiguration.timeout.toLong()))
+      .setSize(indexConfiguration.scroll)
+      .setTypes(indexConfiguration.type)
       .setQuery(filteredQuery)
       .execute()
       .actionGet()
 
-    // if total hits exceeds maximum - abort right away returning empty array
-    if (response.hits.totalHits() > indexConfiguration.maxPaths) {
-      ElasticsearchIndexService.logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits())
-      throw TooMuchDataExpectedException(
-        "Total number map paths exceeds the limit: "
-          + response.hits.totalHits()
-          + " (the limit is "
-          + indexConfiguration.maxPaths
-          + ")")
-    }
+    throwIfExceededMaxPaths(response)
 
     return Response.of(response)
   }
 
   fun searchScroll(response: Response): Response {
-    val response = client.prepareSearchScroll(response.scrollId)
+    val searchResponse = client
+      .prepareSearchScroll(response.scrollId)
       .setScroll(TimeValue.timeValueMinutes(indexConfiguration.timeout.toLong()))
       .execute()
       .actionGet()
 
-    return Response.of(response)
+    return Response.of(searchResponse)
+  }
+
+  private fun throwIfExceededMaxPaths(response: SearchResponse) {
+    // if total hits exceeds maximum - abort right away returning empty array
+    if (response.hits.totalHits() > indexConfiguration.maxPaths) {
+      ElasticsearchIndexService.logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits())
+      throw TooMuchDataExpectedException(
+        "Total number map paths exceeds the limit: "
+          + response.hits.totalHits()
+          + " (the limit is "
+          + indexConfiguration.maxPaths
+          + ")")
+    }
   }
 
   @PreDestroy

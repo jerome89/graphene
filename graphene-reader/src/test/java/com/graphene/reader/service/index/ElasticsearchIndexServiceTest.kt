@@ -17,7 +17,7 @@ internal class ElasticsearchIndexServiceTest {
 
   @BeforeEach
   internal fun setUp() {
-    elasticsearchIndexService = ElasticsearchIndexService(mockk(), mockk(), elasticsearchClient)
+    elasticsearchIndexService = ElasticsearchIndexService(elasticsearchClient)
   }
 
   @Test
@@ -29,7 +29,7 @@ internal class ElasticsearchIndexServiceTest {
       internalSearchHit(Pair("path", "hosts.i-c.cpu.usage"))
     ))
 
-    every { elasticsearchClient.actionGet(any()) } answers { response }
+    every { elasticsearchClient.regexpQuery(any()) } answers { response }
     every { elasticsearchClient.searchScroll(any()) } answers { response(arrayOf()) }
 
     // when
@@ -40,12 +40,11 @@ internal class ElasticsearchIndexServiceTest {
   }
 
   private fun response(hits: Array<InternalSearchHit>): ElasticsearchClient.Response {
-    val response = ElasticsearchClient.Response(UUID.randomUUID().toString(), InternalSearchHits(
+    return ElasticsearchClient.Response(UUID.randomUUID().toString(), InternalSearchHits(
       hits,
       hits.size.toLong(),
       0.0f
     ), hits.size)
-    return response
   }
 
   private fun internalSearchHit(pathPair: Pair<String, Any>): InternalSearchHit {

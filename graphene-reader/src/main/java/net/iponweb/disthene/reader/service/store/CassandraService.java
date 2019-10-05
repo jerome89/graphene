@@ -69,7 +69,7 @@ public class CassandraService {
 
         session = cluster.connect();
 
-        logger.info("cassandra query is : " + query);
+        logger.info("cassandra filteredQuery is : " + query);
 
         statement = session.prepare(query);
     }
