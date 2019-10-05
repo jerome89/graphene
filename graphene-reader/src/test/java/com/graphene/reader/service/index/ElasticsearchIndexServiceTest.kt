@@ -33,7 +33,7 @@ internal class ElasticsearchIndexServiceTest {
     every { elasticsearchClient.searchScroll(any()) } answers { response(arrayOf()) }
 
     // when
-    val hierarchyMetricPath = elasticsearchIndexService.getPathsAsHierarchyMetricPath("NONE", "hosts.*.cpu.*")
+    val hierarchyMetricPath = elasticsearchIndexService.getHierarchyMetricPaths("NONE", "hosts.*.cpu.*")
 
     // then
     assertEquals(1, hierarchyMetricPath.size)

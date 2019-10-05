@@ -66,7 +66,7 @@ class ElasticsearchIndexService(
   }
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getPathsAsHierarchyMetricPath(tenant: String, query: String): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
+  override fun getHierarchyMetricPaths(tenant: String, query: String): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
     val hierarchyMetricPaths = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
     try {
       val regEx = WildcardUtil.getPathsRegExFromWildcard(query)
