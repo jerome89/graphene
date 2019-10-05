@@ -1,6 +1,6 @@
 package com.graphene.writer.config
 
-import com.graphene.writer.store.data.CassandraLoadBalancingPolicies
+import com.graphene.writer.store.data.CassandraLoadBalancingPolicy
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -27,7 +27,7 @@ class CassandraDataStoreConfiguration {
   var isBatch: Boolean = false
   var batchSize: Int = 0
   var pool: Int = 0
-  var loadBalancingPolicyName = CassandraLoadBalancingPolicies.tokenDcAwareRoundRobinPolicy
+  var loadBalancingPolicyName = CassandraLoadBalancingPolicy.tokenDcAwareRoundRobinPolicy
   var protocolVersion = "V2"
 
   @PostConstruct
