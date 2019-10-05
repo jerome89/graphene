@@ -5,7 +5,6 @@ import com.graphene.common.HierarchyMetricPaths
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
 import net.iponweb.disthene.reader.service.index.IndexService
 import net.iponweb.disthene.reader.utils.WildcardUtil
-import org.elasticsearch.index.query.FilterBuilders
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.slf4j.LoggerFactory
@@ -21,8 +20,6 @@ import java.util.*
 class ElasticsearchIndexService(
   private val elasticsearchClient: ElasticsearchClient
 ) : IndexService {
-
-  private val joiner = Joiner.on(",").skipNulls()
 
   @Throws(TooMuchDataExpectedException::class)
   override fun getPaths(tenant: String, wildcards: List<String>): Set<String> {
@@ -76,26 +73,6 @@ class ElasticsearchIndexService(
     }
 
     return hierarchyMetricPaths.values
-  }
-
-  @Throws(TooMuchDataExpectedException::class)
-  fun getPathsAsJsonArray(tenant: String, wildcard: String): String {
-    var response = elasticsearchClient.query(
-      QueryBuilders.filteredQuery(
-        QueryBuilders.regexpQuery("path", WildcardUtil.getPathsRegExFromWildcard(wildcard)),
-        FilterBuilders.termFilter("tenant", tenant)
-      )
-    )
-
-    val paths = ArrayList<String>()
-    while (response.hits.hits.isNotEmpty()) {
-      for (hit in response.hits) {
-        paths.add(hit.sourceAsString)
-      }
-      response = elasticsearchClient.searchScroll(response)
-    }
-
-    return "[" + joiner.join(paths) + "]"
   }
 
   private fun mapToHierarchyMetricPath(hit: SearchHit): HierarchyMetricPaths.HierarchyMetricPath {
