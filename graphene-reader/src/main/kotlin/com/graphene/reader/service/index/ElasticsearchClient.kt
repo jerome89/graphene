@@ -62,7 +62,7 @@ class ElasticsearchClient(
     client.close()
   }
 
-  data class Response internal constructor(
+  data class Response private constructor(
     val scrollId: String,
     val hits: SearchHits,
     val size: Int
