@@ -19,7 +19,7 @@ class ElasticsearchClient(
 
   @Throws(TooMuchDataExpectedException::class)
   fun query(query: QueryBuilder): Response {
-    var searchResponse = client
+    val searchResponse = client
       .prepareSearch(indexConfiguration.index)
       .setScroll(TimeValue(indexConfiguration.timeout.toLong()))
       .setSize(indexConfiguration.scroll)
@@ -46,7 +46,7 @@ class ElasticsearchClient(
   private fun throwIfExceededMaxPaths(response: SearchResponse) {
     // if total hits exceeds maximum - abort right away returning empty array
     if (response.hits.totalHits() > indexConfiguration.maxPaths) {
-      ElasticsearchIndexService.logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits())
+      logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits())
       throw TooMuchDataExpectedException(
         "Total number map paths exceeds the limit: "
           + response.hits.totalHits()
