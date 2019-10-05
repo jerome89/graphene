@@ -40,10 +40,8 @@ class ElasticsearchIndexService(
     logger.debug("getPaths plain paths: " + result.size + ", wildcard paths: " + regExs.size)
 
     if (regExs.size > 0) {
-      val regEx = Joiner.on("|").skipNulls().join(regExs)
-
       var response = elasticsearchClient.query(
-        QueryBuilders.regexpQuery("path", regEx)
+        QueryBuilders.regexpQuery("path", Joiner.on("|").skipNulls().join(regExs))
       )
 
       while (response.hits.hits.isNotEmpty()) {
@@ -62,10 +60,8 @@ class ElasticsearchIndexService(
   override fun getHierarchyMetricPaths(tenant: String, query: String): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
     val hierarchyMetricPaths = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
     try {
-      val regEx = WildcardUtil.getPathsRegExFromWildcard(query)
-
       var response = elasticsearchClient.query(
-        QueryBuilders.regexpQuery("path", regEx)
+        QueryBuilders.regexpQuery("path", WildcardUtil.getPathsRegExFromWildcard(query))
       )
 
       while (response.hits.hits.isNotEmpty()) {
@@ -82,22 +78,11 @@ class ElasticsearchIndexService(
     return hierarchyMetricPaths.values
   }
 
-  private fun mapToHierarchyMetricPath(hit: SearchHit): HierarchyMetricPaths.HierarchyMetricPath {
-    val source = hit.sourceAsMap()
-
-    val path = source["path"] as String
-    val leaf = source["leaf"] as Boolean
-
-    return HierarchyMetricPaths.of(path, leaf)
-  }
-
   @Throws(TooMuchDataExpectedException::class)
   fun getPathsAsJsonArray(tenant: String, wildcard: String): String {
-    val regEx = WildcardUtil.getPathsRegExFromWildcard(wildcard)
-
     var response = elasticsearchClient.query(
       QueryBuilders.filteredQuery(
-        QueryBuilders.regexpQuery("path", regEx),
+        QueryBuilders.regexpQuery("path", WildcardUtil.getPathsRegExFromWildcard(wildcard)),
         FilterBuilders.termFilter("tenant", tenant)
       )
     )
@@ -111,6 +96,15 @@ class ElasticsearchIndexService(
     }
 
     return "[" + joiner.join(paths) + "]"
+  }
+
+  private fun mapToHierarchyMetricPath(hit: SearchHit): HierarchyMetricPaths.HierarchyMetricPath {
+    val source = hit.sourceAsMap()
+
+    val path = source["path"] as String
+    val leaf = source["leaf"] as Boolean
+
+    return HierarchyMetricPaths.of(path, leaf)
   }
 
   companion object {
