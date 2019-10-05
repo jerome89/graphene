@@ -8,21 +8,23 @@ import org.elasticsearch.action.get.MultiGetRequestBuilder
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.xcontent.XContentFactory
 
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
+ *
  * @author Andrei Ivanov
+ * @author dark
  */
 class IndexThread(
   name: String,
   private val client: TransportClient,
   metrics: ConcurrentLinkedQueue<GrapheneMetric>,
   private val elasticsearchKeyStoreConfiguration: ElasticsearchKeyStoreConfiguration,
-  private val bulkProcessor: BulkProcessor
+  private val bulkProcessor: BulkProcessor,
+  private val grapheneKeyMapper: GrapheneKeyMapper
 ) : Thread(name) {
 
   private val logger = Logger.getLogger(IndexThread::class.java)
@@ -93,13 +95,8 @@ class IndexThread(
           }
           sb.append(parts[i])
           try {
-            bulkProcessor.add(IndexRequest(index, type, metric.getTenant() + "_" + sb.toString()).source(
-              XContentFactory.jsonBuilder().startObject()
-                .field("tenant", metric.getTenant())
-                .field("path", sb.toString())
-                .field("depth", i + 1)
-                .field("leaf", i == parts.size - 1)
-                .endObject()
+            bulkProcessor.add(IndexRequest(index, type, metric.getTenant() + "_" + sb.toString())
+              .source(grapheneKeyMapper.mapGrapheneMetricKey(metric, sb, i, parts)
             ))
           } catch (e: IOException) {
             logger.error(e)

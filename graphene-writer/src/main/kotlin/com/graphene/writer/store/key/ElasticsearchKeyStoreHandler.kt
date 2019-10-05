@@ -33,7 +33,8 @@ class ElasticsearchKeyStoreHandler(
       client,
       metrics,
       elasticsearchFactory.elasticsearchKeyStoreConfiguration,
-      elasticsearchFactory.bulkProcessor(client)
+      elasticsearchFactory.bulkProcessor(client),
+      GrapheneKeyMapper()
     )
     indexThread.start()
   }
