@@ -29,7 +29,7 @@ internal class ElasticsearchIndexServiceTest {
       internalSearchHit(Pair("path", "hosts.i-c.cpu.usage"))
     ))
 
-    every { elasticsearchClient.regexpQuery(any()) } answers { response }
+    every { elasticsearchClient.query(any()) } answers { response }
     every { elasticsearchClient.searchScroll(any()) } answers { response(arrayOf()) }
 
     // when

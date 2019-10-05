@@ -5,8 +5,7 @@ import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.unit.TimeValue
-import org.elasticsearch.index.query.FilteredQueryBuilder
-import org.elasticsearch.index.query.RegexpQueryBuilder
+import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHits
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -19,34 +18,19 @@ class ElasticsearchClient(
 ) {
 
   @Throws(TooMuchDataExpectedException::class)
-  fun regexpQuery(regexpQuery: RegexpQueryBuilder): Response {
+  fun query(query: QueryBuilder): Response {
     var searchResponse = client
       .prepareSearch(indexConfiguration.index)
       .setScroll(TimeValue(indexConfiguration.timeout.toLong()))
       .setSize(indexConfiguration.scroll)
       .setTypes(indexConfiguration.type)
-      .setQuery(regexpQuery)
+      .setQuery(query)
       .execute()
       .actionGet()
 
     throwIfExceededMaxPaths(searchResponse)
 
     return Response.of(searchResponse)
-  }
-
-  fun filteredQuery(filteredQuery: FilteredQueryBuilder): Response {
-    val response = client
-      .prepareSearch(indexConfiguration.index)
-      .setScroll(TimeValue(indexConfiguration.timeout.toLong()))
-      .setSize(indexConfiguration.scroll)
-      .setTypes(indexConfiguration.type)
-      .setQuery(filteredQuery)
-      .execute()
-      .actionGet()
-
-    throwIfExceededMaxPaths(response)
-
-    return Response.of(response)
   }
 
   fun searchScroll(response: Response): Response {

@@ -42,7 +42,7 @@ class ElasticsearchIndexService(
     if (regExs.size > 0) {
       val regEx = Joiner.on("|").skipNulls().join(regExs)
 
-      var response = elasticsearchClient.regexpQuery(
+      var response = elasticsearchClient.query(
         QueryBuilders.regexpQuery("path", regEx)
       )
 
@@ -64,7 +64,7 @@ class ElasticsearchIndexService(
     try {
       val regEx = WildcardUtil.getPathsRegExFromWildcard(query)
 
-      var response = elasticsearchClient.regexpQuery(
+      var response = elasticsearchClient.query(
         QueryBuilders.regexpQuery("path", regEx)
       )
 
@@ -95,7 +95,7 @@ class ElasticsearchIndexService(
   fun getPathsAsJsonArray(tenant: String, wildcard: String): String {
     val regEx = WildcardUtil.getPathsRegExFromWildcard(wildcard)
 
-    var response = elasticsearchClient.filteredQuery(
+    var response = elasticsearchClient.query(
       QueryBuilders.filteredQuery(
         QueryBuilders.regexpQuery("path", regEx),
         FilterBuilders.termFilter("tenant", tenant)
