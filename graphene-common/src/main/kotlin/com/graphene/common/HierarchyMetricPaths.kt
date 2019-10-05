@@ -6,9 +6,8 @@ class HierarchyMetricPaths {
 
   companion object {
 
-    fun of(path: String, depth: Int, leaf: Boolean): HierarchyMetricPath {
+    fun of(path: String, leaf: Boolean): HierarchyMetricPath {
       Preconditions.checkNotNull(path, "path must be set!")
-      Preconditions.checkNotNull(depth, "depth must be set!")
       Preconditions.checkNotNull(leaf, "leaf must be set!")
 
       val leafOrBranch = if (leaf) LEAF else BRANCH
@@ -22,8 +21,8 @@ class HierarchyMetricPaths {
       )
     }
 
-    private const val LEAF = 0
-    private const val BRANCH = 1
+    const val LEAF = 0
+    const val BRANCH = 1
   }
 
   data class HierarchyMetricPath internal constructor(

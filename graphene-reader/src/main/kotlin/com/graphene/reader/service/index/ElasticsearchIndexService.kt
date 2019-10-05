@@ -77,8 +77,8 @@ class ElasticsearchIndexService(
 
       while (response.hits.hits.isNotEmpty()) {
         for (hit in response.hits) {
-          val mapToHierarchyMetricPath = mapToHierarchyMetricPath(hit)
-          hierarchyMetricPaths.putIfAbsent(mapToHierarchyMetricPath.text, mapToHierarchyMetricPath)
+          val hierarchyMetricPath = mapToHierarchyMetricPath(hit)
+          hierarchyMetricPaths.putIfAbsent(hierarchyMetricPath.text, hierarchyMetricPath)
         }
         response = elasticsearchClient.searchScroll(response)
       }
@@ -93,10 +93,9 @@ class ElasticsearchIndexService(
     val source = hit.sourceAsMap()
 
     val path = source["path"] as String
-    val depth = source["depth"] as Int
     val leaf = source["leaf"] as Boolean
 
-    return HierarchyMetricPaths.of(path, depth, leaf)
+    return HierarchyMetricPaths.of(path, leaf)
   }
 
   @Throws(TooMuchDataExpectedException::class)

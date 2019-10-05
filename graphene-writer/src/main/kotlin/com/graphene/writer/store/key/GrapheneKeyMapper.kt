@@ -9,7 +9,7 @@ class GrapheneKeyMapper {
   fun mapGrapheneMetricKey(metric: GrapheneMetric, sb: StringBuilder, i: Int, parts: List<String>): XContentBuilder {
     return XContentFactory.jsonBuilder()
       .startObject()
-      .field("@tenant", metric.getTenant())
+      .field("tenant", metric.getTenant())
       .field("path", sb.toString())
       .field("depth", i + 1)
       .field("leaf", i == parts.size - 1)
