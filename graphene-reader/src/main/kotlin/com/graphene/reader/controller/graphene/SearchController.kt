@@ -1,6 +1,6 @@
 package com.graphene.reader.controller.graphene
 
-import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService
+import com.graphene.reader.service.index.ElasticsearchIndexService
 import net.iponweb.disthene.reader.service.stats.StatsService
 import org.springframework.web.bind.annotation.*
 
@@ -12,7 +12,7 @@ class SearchController(
 
   @GetMapping("/search")
   fun getPathsStats(
-    @RequestParam tenant: String? = "NONE",
+    @RequestParam tenant: String = "NONE",
     @RequestParam query: String
   ): String {
     statsService.incPathsRequests(tenant)
@@ -30,7 +30,7 @@ class SearchController(
   }
 
   data class SearchParameters(
-    var tenant: String? = "NONE",
+    var tenant: String = "NONE",
     var query: String
   )
 }

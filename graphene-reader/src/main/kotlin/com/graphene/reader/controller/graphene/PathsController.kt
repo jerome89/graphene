@@ -1,6 +1,6 @@
 package com.graphene.reader.controller.graphene
 
-import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService
+import com.graphene.reader.service.index.ElasticsearchIndexService
 import net.iponweb.disthene.reader.service.stats.StatsService
 import org.springframework.web.bind.annotation.*
 
@@ -28,7 +28,7 @@ class PathsController(
   }
 
   data class PathsParameters(
-    var tenant: String? = "NONE",
+    var tenant: String = "NONE",
     var query: String
   )
 }

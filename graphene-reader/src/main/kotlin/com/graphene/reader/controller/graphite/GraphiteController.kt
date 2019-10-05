@@ -5,7 +5,7 @@ import com.graphene.reader.controller.graphite.request.RenderRequest
 import com.graphene.reader.handler.RenderParameters
 import net.iponweb.disthene.reader.handler.RenderHandler
 import net.iponweb.disthene.reader.handler.response.HierarchyMetricPath
-import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService
+import com.graphene.reader.service.index.ElasticsearchIndexService
 import net.iponweb.disthene.reader.utils.MetricRule
 import org.apache.log4j.Logger
 import org.springframework.web.bind.annotation.*
