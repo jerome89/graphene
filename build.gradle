@@ -53,6 +53,9 @@ subprojects {
             jvmTarget = "1.8"
         }
     }
+    tasks.test {
+        useJUnitPlatform()
+    }
 
     dependencies {
         compile 'log4j:log4j:1.2.17'
