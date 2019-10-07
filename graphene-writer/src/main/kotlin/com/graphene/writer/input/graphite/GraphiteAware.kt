@@ -1,7 +1,6 @@
 package com.graphene.writer.input.graphite
 
 import java.util.*
-import java.util.stream.IntStream
 
 interface GraphiteAware {
 
@@ -10,10 +9,10 @@ interface GraphiteAware {
   fun getGraphiteKey(): String {
     val graphiteKey = StringJoiner(GraphiteMetric.DOT)
 
-    IntStream.range(0, getTags().size)
-      .forEach {
-        graphiteKey.add(getTags()[it.toString()])
-      }
+    IntRange(0, getTags().size)
+      .map { it.toString() }
+      .map { getTags()[it] }
+      .forEach { graphiteKey.add(it) }
 
     return graphiteKey.toString()
   }
