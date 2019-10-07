@@ -23,8 +23,8 @@ class ElasticsearchIndexService(
 
   @Throws(TooMuchDataExpectedException::class)
   override fun getPaths(tenant: String, wildcards: List<String>): Set<String> {
-    val regExs = ArrayList<String>()
-    val result = HashSet<String>()
+    val regExs = mutableListOf<String>()
+    val result = mutableSetOf<String>()
 
     for (wildcard in wildcards) {
       if (WildcardUtil.isPlainPath(wildcard)) {
