@@ -7,7 +7,7 @@ import com.graphene.writer.store.StoreHandler
  *
  * @author dark
  */
-class IndexBasedTagKeyStoreHandler : StoreHandler {
+class IndexBasedKeyStoreHandler : StoreHandler {
 
   override fun handle(grapheneMetric: GrapheneMetric) {
 

@@ -17,7 +17,7 @@ class GrapheneStoreConfig {
   fun cassandraDataStoreHandler(
     carbonConfiguration: CarbonConfiguration,
     properties: CassandraDataStoreProperties
-  ): CassandraDataStoreHandler {
+  ): StoreHandler {
 
     return CassandraDataStoreHandler(
       carbonConfiguration,
