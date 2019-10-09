@@ -11,7 +11,7 @@ import java.util.ArrayList
  * @author Andrei Ivanov
  * @author dark
  */
-@ConfigurationProperties(prefix = "graphene.writer.store.cassandra")
+@ConfigurationProperties(prefix = "graphene.writer.store.data.cassandra")
 class CassandraDataStoreConfiguration {
 
   var cluster: List<String> = ArrayList()
@@ -37,22 +37,21 @@ class CassandraDataStoreConfiguration {
 
   override fun toString(): String {
     return "CassandraDataStoreConfiguration{" +
-      "cluster=" + cluster +
-      ", keyspace='" + keyspace + '\''.toString() +
-      ", columnFamily='" + columnFamily + '\''.toString() +
-      ", userName='" + userName + '\''.toString() +
-      ", userPassword='" + userPassword + '\''.toString() +
-      ", port=" + port +
-      ", maxConnections=" + maxConnections +
-      ", readTimeout=" + readTimeout +
-      ", connectTimeout=" + connectTimeout +
-      ", maxRequests=" + maxRequests +
-      ", batch=" + isBatch +
-      ", batchSize=" + batchSize +
-      ", pool=" + pool +
-      ", loadBalancingPolicyName='" + loadBalancingPolicyName + '\''.toString() +
-      ", protocolVersion='" + protocolVersion + '\''.toString() +
-      '}'.toString()
+      "cluster=$cluster" +
+      ", keyspace=$keyspace" +
+      ", columnFamily=$columnFamily" +
+      ", userName=$userName" +
+      ", userPassword=$userPassword" +
+      ", port=$port" +
+      ", maxConnections=$maxConnections" +
+      ", readTimeout=$readTimeout" +
+      ", connectTimeout=$connectTimeout" +
+      ", maxRequests=$maxRequests" +
+      ", batch=$isBatch" +
+      ", batchSize=$batchSize" +
+      ", pool=$pool" +
+      ", loadBalancingPolicyName=$loadBalancingPolicyName" +
+      ", protocolVersion=$protocolVersion}"
   }
 
   companion object {

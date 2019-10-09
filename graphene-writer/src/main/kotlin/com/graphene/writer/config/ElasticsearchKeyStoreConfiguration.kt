@@ -9,10 +9,10 @@ import javax.annotation.PostConstruct
 /**
  * @author Andrei Ivanov
  */
-@ConfigurationProperties(prefix = "graphene.writer.index.elasticsearch")
+@ConfigurationProperties(prefix = "graphene.writer.store.key")
 class ElasticsearchKeyStoreConfiguration {
 
-  var name: String? = null
+  var clusterName: String? = null
   var index: String? = null
   var type: String? = null
   var isCache: Boolean = false
@@ -28,15 +28,14 @@ class ElasticsearchKeyStoreConfiguration {
 
   override fun toString(): String {
     return "ElasticsearchKeyStoreConfiguration{" +
-      "name='" + name + '\''.toString() +
-      ", elasticsearchKeyStore='" + index + '\''.toString() +
-      ", type='" + type + '\''.toString() +
-      ", cache=" + isCache +
-      ", expire=" + expire +
-      ", cluster=" + cluster +
-      ", port=" + port +
-      ", bulk=" + bulk +
-      '}'.toString()
+      "clusterName=$clusterName" +
+      ", index=$index" +
+      ", type=$type" +
+      ", cache=$isCache" +
+      ", expire=$expire" +
+      ", cluster=$cluster" +
+      ", port=$port" +
+      ", bulk=$bulk}"
   }
 
   companion object {

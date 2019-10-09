@@ -18,7 +18,7 @@ class ElasticsearchFactory(
 
   fun transportClient(): TransportClient {
     val settings = ImmutableSettings.settingsBuilder()
-      .put("cluster.name", elasticsearchKeyStoreConfiguration.name)
+      .put("cluster.name", elasticsearchKeyStoreConfiguration.clusterName)
       .build()
 
     var client = TransportClient(settings)
