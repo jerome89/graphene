@@ -1,3 +1,11 @@
+# 1.1.2
+
+## Bug fix
+- Fix metrics/find API duplicated path issue [#3](https://github.com/graphene-monitoring/graphene/pull/3)
+
+## Feature
+- aliasByNode function now supports minus index [#2](https://github.com/graphene-monitoring/graphene/pull/2)
+
 # 1.1.1
 
 ## Feature
