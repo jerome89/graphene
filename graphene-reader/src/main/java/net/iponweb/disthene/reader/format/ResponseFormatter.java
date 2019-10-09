@@ -182,18 +182,31 @@ public class ResponseFormatter {
     }
 
     private static int computeStringBuilderCapacity(List<TimeSeries> timeSeriesList) {
+        // For each TimeSeries, 28 = {"target":,"datapoints":[]},
+        // Subtract 1 because the last TimeSeries does not have comma.
+        // Plus 2 = [] --> 28 * timeSeriesList.size() - 1 + 2 = 28 * timeSeriesList.size() + 1
         int stringBuilderCapacity = 28 * timeSeriesList.size() + 1;
         for (TimeSeries ts : timeSeriesList) {
             ts.setName(GSON.toJson(ts.getName()));
+            // For each timeSeries, there are
+            // 1. TimeSeries name length
+            // 2. Length of timestamp = 10
+            // 3. Necessary symbols = [,], = 4
+            // So, 1 + (2 + 3) * (Count of values), but subtract 1 because the last datapoint does not have comma.
             stringBuilderCapacity += ts.getName().length() + (14 * ts.getValues().length) - 1;
-            stringBuilderCapacity += Arrays.stream(ts.getValues()).map(String::valueOf).map(String::length).reduce(0, Integer::sum);
+            // Count for each datapoint's length.
+            for (Double val : ts.getValues()) {
+                stringBuilderCapacity += String.valueOf(val).length();
+            }
         }
         return stringBuilderCapacity;
     }
 
     private static void appendResults(StringBuilder sb, List<TimeSeries> timeSeriesList) {
         sb.append("[");
-        timeSeriesList.forEach(ts -> appendTimeSeries(sb, ts));
+        for (TimeSeries ts : timeSeriesList) {
+            appendTimeSeries(sb, ts);
+        }
         sb.deleteCharAt(sb.length() - 1);
         sb.append("]");
     }
