@@ -1,4 +1,4 @@
-![Graphene](docs/GrapheneSignature.png)
+![Graphene](docs/logo/GrapheneSignature.png)
 
 
 ## What is Graphene?
