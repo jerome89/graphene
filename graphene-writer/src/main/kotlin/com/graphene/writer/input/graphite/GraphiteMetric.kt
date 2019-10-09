@@ -4,4 +4,9 @@ data class GraphiteMetric(
   val key: String,
   val value: Double,
   val timestamp: Long
-)
+) {
+
+  companion object {
+    const val DOT = "."
+  }
+}

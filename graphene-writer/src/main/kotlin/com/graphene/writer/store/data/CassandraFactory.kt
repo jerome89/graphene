@@ -12,7 +12,7 @@ class CassandraFactory {
     var builder = Cluster.builder()
       .withSocketOptions(socketOptions(cassandraDataStoreConfiguration))
       .withCompression(ProtocolOptions.Compression.LZ4)
-      .withLoadBalancingPolicy(CassandraLoadBalancingPolicies.getLoadBalancingPolicy(cassandraDataStoreConfiguration.loadBalancingPolicyName))
+      .withLoadBalancingPolicy(CassandraLoadBalancingPolicy.createLoadBalancingPolicy(cassandraDataStoreConfiguration.loadBalancingPolicyName))
       .withPoolingOptions(poolingOptions(cassandraDataStoreConfiguration))
       .withQueryOptions(QueryOptions().setConsistencyLevel(ConsistencyLevel.ONE))
       .withProtocolVersion(ProtocolVersion.valueOf(cassandraDataStoreConfiguration.protocolVersion))

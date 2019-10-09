@@ -14,7 +14,7 @@ import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.config.GrapheneReaderProperties;
 import net.iponweb.disthene.reader.config.Rollup;
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException;
-import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService;
+import com.graphene.reader.service.index.ElasticsearchIndexService;
 import net.iponweb.disthene.reader.service.stats.StatsService;
 import net.iponweb.disthene.reader.service.store.CassandraService;
 import net.iponweb.disthene.reader.utils.CollectionUtils;

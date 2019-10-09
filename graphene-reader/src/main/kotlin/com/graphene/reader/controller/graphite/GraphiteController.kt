@@ -4,8 +4,8 @@ import com.graphene.reader.controller.graphite.request.MetricsFindRequest
 import com.graphene.reader.controller.graphite.request.RenderRequest
 import com.graphene.reader.handler.RenderParameters
 import net.iponweb.disthene.reader.handler.RenderHandler
-import net.iponweb.disthene.reader.handler.response.HierarchyMetricPath
-import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService
+import com.graphene.common.HierarchyMetricPaths
+import com.graphene.reader.service.index.ElasticsearchIndexService
 import net.iponweb.disthene.reader.utils.MetricRule
 import org.apache.log4j.Logger
 import org.springframework.web.bind.annotation.*
@@ -38,12 +38,12 @@ class GraphiteController(
   @RequestMapping("/metrics/find", "/find", method = [RequestMethod.POST, RequestMethod.GET])
   fun metricsFindAboutFormUrlEncoded(
     @ModelAttribute("metricsFindRequest") metricsFindRequest: MetricsFindRequest
-  ): Set<HierarchyMetricPath> {
+  ): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
 
     return getPathsAsHierarchyMetricPath(metricsFindRequest)
   }
 
-  private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Set<HierarchyMetricPath> {
-    return elasticsearchIndexService.getPathsAsHierarchyMetricPath(MetricRule.defaultTenant(), metricsFindRequest.query)
+  private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
+    return elasticsearchIndexService.getHierarchyMetricPaths(MetricRule.defaultTenant(), metricsFindRequest.query)
   }
 }
