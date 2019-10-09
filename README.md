@@ -1,4 +1,5 @@
-# Graphene
+![Graphene](docs/logo/GrapheneSignature.png)
+
 
 ## What is Graphene?
 Graphene is a java version of [Graphite](https://graphiteapp.org). To

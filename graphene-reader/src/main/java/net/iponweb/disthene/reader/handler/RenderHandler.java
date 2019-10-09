@@ -17,7 +17,7 @@ import net.iponweb.disthene.reader.graphite.grammar.GraphiteLexer;
 import net.iponweb.disthene.reader.graphite.grammar.GraphiteParser;
 import net.iponweb.disthene.reader.graphite.utils.ValueFormatter;
 import com.graphene.reader.handler.RenderParameter;
-import net.iponweb.disthene.reader.service.index.ElasticsearchIndexService;
+import com.graphene.reader.service.index.ElasticsearchIndexService;
 import net.iponweb.disthene.reader.service.metric.CassandraMetricService;
 import net.iponweb.disthene.reader.service.stats.StatsService;
 import net.iponweb.disthene.reader.service.throttling.ThrottlingService;

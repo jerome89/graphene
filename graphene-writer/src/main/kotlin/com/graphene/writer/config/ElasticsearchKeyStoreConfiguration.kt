@@ -3,8 +3,8 @@ package com.graphene.writer.config
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-import javax.annotation.PostConstruct
 import java.util.ArrayList
+import javax.annotation.PostConstruct
 
 /**
  * @author Andrei Ivanov
