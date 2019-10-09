@@ -23,12 +23,12 @@ import javax.annotation.PostConstruct
  * @author Andrei Ivanov
  * @author dark
  */
-class ElasticsearchKeyStoreHandler(
+class SimpleKeyStoreHandler(
   private val elasticsearchFactory: ElasticsearchFactory,
   private val properties: ElasticsearchKeyStoreProperties
 ) : StoreHandler, Runnable {
 
-  private val logger = Logger.getLogger(ElasticsearchKeyStoreHandler::class.java)
+  private val logger = Logger.getLogger(SimpleKeyStoreHandler::class.java)
 
   private lateinit var client: TransportClient
   private lateinit var scheduler: ScheduledExecutorService

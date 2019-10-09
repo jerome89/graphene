@@ -6,7 +6,7 @@ import com.graphene.writer.store.data.CassandraDataStoreHandler
 import com.graphene.writer.store.data.CassandraFactory
 import com.graphene.writer.store.key.ElasticsearchFactory
 import com.graphene.writer.config.CarbonConfiguration
-import com.graphene.writer.store.key.ElasticsearchKeyStoreHandler
+import com.graphene.writer.store.key.SimpleKeyStoreHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -29,9 +29,9 @@ class GrapheneStoreConfig {
   @Bean
   fun elasticsearchKeyStoreHandler(
     properties: ElasticsearchKeyStoreProperties
-  ): ElasticsearchKeyStoreHandler {
+  ): StoreHandler {
 
-    return ElasticsearchKeyStoreHandler(
+    return SimpleKeyStoreHandler(
       ElasticsearchFactory(properties),
       properties
     )
