@@ -1,6 +1,5 @@
-package com.graphene.writer.config
+package com.graphene.writer.store.data
 
-import com.graphene.writer.store.data.CassandraLoadBalancingPolicy
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -12,7 +11,7 @@ import java.util.ArrayList
  * @author dark
  */
 @ConfigurationProperties(prefix = "graphene.writer.store.data.cassandra")
-class CassandraDataStoreConfiguration {
+class CassandraDataStoreProperties {
 
   var cluster: List<String> = ArrayList()
   var keyspace: String? = null
@@ -36,7 +35,7 @@ class CassandraDataStoreConfiguration {
   }
 
   override fun toString(): String {
-    return "CassandraDataStoreConfiguration{" +
+    return "CassandraDataStoreProperties{" +
       "cluster=$cluster" +
       ", keyspace=$keyspace" +
       ", columnFamily=$columnFamily" +
@@ -56,6 +55,6 @@ class CassandraDataStoreConfiguration {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(CassandraDataStoreConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(CassandraDataStoreProperties::class.java)
   }
 }

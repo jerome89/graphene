@@ -24,7 +24,8 @@ import javax.annotation.PostConstruct
  * @author dark
  */
 class ElasticsearchKeyStoreHandler(
-  private val elasticsearchFactory: ElasticsearchFactory
+  private val elasticsearchFactory: ElasticsearchFactory,
+  private val properties: ElasticsearchKeyStoreProperties
 ) : StoreHandler, Runnable {
 
   private val logger = Logger.getLogger(ElasticsearchKeyStoreHandler::class.java)
@@ -50,11 +51,11 @@ class ElasticsearchKeyStoreHandler(
     bulkProcessor = elasticsearchFactory.bulkProcessor(client)
     grapheneKeyMapper = GrapheneKeyMapper()
 
-    index = elasticsearchFactory.elasticsearchKeyStoreConfiguration.index!!
-    type = elasticsearchFactory.elasticsearchKeyStoreConfiguration.type!!
+    index = properties.index!!
+    type = properties.type!!
     request = MetricMultiGetRequestBuilder(client, index, type)
-    batchSize = elasticsearchFactory.elasticsearchKeyStoreConfiguration.bulk!!.actions
-    flushInterval = elasticsearchFactory.elasticsearchKeyStoreConfiguration.bulk!!.interval
+    batchSize = properties.bulk!!.actions
+    flushInterval = properties.bulk!!.interval
 
     scheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory("grapheneIndexThread"))
     scheduler.scheduleWithFixedDelay(this, 3000, 100, TimeUnit.MILLISECONDS)

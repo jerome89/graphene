@@ -1,30 +1,29 @@
 package com.graphene.writer.store.data
 
 import com.datastax.driver.core.*
-import com.graphene.writer.config.CassandraDataStoreConfiguration
 import org.apache.log4j.Logger
 
 class CassandraFactory {
 
   private val logger = Logger.getLogger(CassandraFactory::class.java)
 
-  fun createCluster(cassandraDataStoreConfiguration: CassandraDataStoreConfiguration): Cluster {
+  fun createCluster(cassandraDataStoreProperties: CassandraDataStoreProperties): Cluster {
     var builder = Cluster.builder()
-      .withSocketOptions(socketOptions(cassandraDataStoreConfiguration))
+      .withSocketOptions(socketOptions(cassandraDataStoreProperties))
       .withCompression(ProtocolOptions.Compression.LZ4)
-      .withLoadBalancingPolicy(CassandraLoadBalancingPolicy.createLoadBalancingPolicy(cassandraDataStoreConfiguration.loadBalancingPolicyName))
-      .withPoolingOptions(poolingOptions(cassandraDataStoreConfiguration))
+      .withLoadBalancingPolicy(CassandraLoadBalancingPolicy.createLoadBalancingPolicy(cassandraDataStoreProperties.loadBalancingPolicyName))
+      .withPoolingOptions(poolingOptions(cassandraDataStoreProperties))
       .withQueryOptions(QueryOptions().setConsistencyLevel(ConsistencyLevel.ONE))
-      .withProtocolVersion(ProtocolVersion.valueOf(cassandraDataStoreConfiguration.protocolVersion))
+      .withProtocolVersion(ProtocolVersion.valueOf(cassandraDataStoreProperties.protocolVersion))
       // TODO Enable jmx reporting
       .withoutJMXReporting()
-      .withPort(cassandraDataStoreConfiguration.port)
+      .withPort(cassandraDataStoreProperties.port)
 
-    if (cassandraDataStoreConfiguration.userName != null && cassandraDataStoreConfiguration.userPassword != null) {
-      builder = builder.withCredentials(cassandraDataStoreConfiguration.userName, cassandraDataStoreConfiguration.userPassword)
+    if (cassandraDataStoreProperties.userName != null && cassandraDataStoreProperties.userPassword != null) {
+      builder = builder.withCredentials(cassandraDataStoreProperties.userName, cassandraDataStoreProperties.userPassword)
     }
 
-    for (cp in cassandraDataStoreConfiguration.cluster) {
+    for (cp in cassandraDataStoreProperties.cluster) {
       builder.addContactPoint(cp)
     }
 
@@ -37,22 +36,22 @@ class CassandraFactory {
     return cluster
   }
 
-  private fun poolingOptions(cassandraDataStoreConfiguration: CassandraDataStoreConfiguration): PoolingOptions {
+  private fun poolingOptions(cassandraDataStoreProperties: CassandraDataStoreProperties): PoolingOptions {
     val poolingOptions = PoolingOptions()
-    poolingOptions.setMaxConnectionsPerHost(HostDistance.LOCAL, cassandraDataStoreConfiguration.maxConnections)
-    poolingOptions.setMaxConnectionsPerHost(HostDistance.REMOTE, cassandraDataStoreConfiguration.maxConnections)
-    poolingOptions.setMaxRequestsPerConnection(HostDistance.REMOTE, cassandraDataStoreConfiguration.maxRequests)
-    poolingOptions.setMaxRequestsPerConnection(HostDistance.LOCAL, cassandraDataStoreConfiguration.maxRequests)
+    poolingOptions.setMaxConnectionsPerHost(HostDistance.LOCAL, cassandraDataStoreProperties.maxConnections)
+    poolingOptions.setMaxConnectionsPerHost(HostDistance.REMOTE, cassandraDataStoreProperties.maxConnections)
+    poolingOptions.setMaxRequestsPerConnection(HostDistance.REMOTE, cassandraDataStoreProperties.maxRequests)
+    poolingOptions.setMaxRequestsPerConnection(HostDistance.LOCAL, cassandraDataStoreProperties.maxRequests)
     return poolingOptions
   }
 
-  private fun socketOptions(cassandraDataStoreConfiguration: CassandraDataStoreConfiguration): SocketOptions? {
+  private fun socketOptions(cassandraDataStoreProperties: CassandraDataStoreProperties): SocketOptions? {
     return SocketOptions()
       .setReceiveBufferSize(1024 * 1024)
       .setSendBufferSize(1024 * 1024)
       .setTcpNoDelay(false)
-      .setReadTimeoutMillis(cassandraDataStoreConfiguration.readTimeout * 1000)
-      .setConnectTimeoutMillis(cassandraDataStoreConfiguration.connectTimeout * 1000)
+      .setReadTimeoutMillis(cassandraDataStoreProperties.readTimeout * 1000)
+      .setConnectTimeoutMillis(cassandraDataStoreProperties.connectTimeout * 1000)
   }
 
 }

@@ -1,9 +1,9 @@
 package com.graphene.writer
 
 import com.graphene.writer.config.GrapheneWriterConfiguration
-import com.graphene.writer.config.ElasticsearchKeyStoreConfiguration
+import com.graphene.writer.store.key.ElasticsearchKeyStoreProperties
 import com.graphene.writer.config.StatsConfiguration
-import com.graphene.writer.config.CassandraDataStoreConfiguration
+import com.graphene.writer.store.data.CassandraDataStoreProperties
 import com.graphene.writer.config.CarbonConfiguration
 import com.graphene.writer.blacklist.BlacklistConfiguration
 import org.springframework.boot.SpringApplication
@@ -21,9 +21,9 @@ import org.springframework.scheduling.annotation.EnableAsync
   BlacklistConfiguration::class,
   GrapheneWriterConfiguration::class,
   CarbonConfiguration::class,
-  ElasticsearchKeyStoreConfiguration::class,
+  ElasticsearchKeyStoreProperties::class,
   StatsConfiguration::class,
-  CassandraDataStoreConfiguration::class
+  CassandraDataStoreProperties::class
 )
 class GrapheneWriterApplication
 

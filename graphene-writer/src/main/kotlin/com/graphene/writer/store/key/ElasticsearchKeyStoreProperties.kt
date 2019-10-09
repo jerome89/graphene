@@ -1,5 +1,6 @@
-package com.graphene.writer.config
+package com.graphene.writer.store.key
 
+import com.graphene.writer.config.IndexBulkConfiguration
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -10,7 +11,7 @@ import javax.annotation.PostConstruct
  * @author Andrei Ivanov
  */
 @ConfigurationProperties(prefix = "graphene.writer.store.key")
-class ElasticsearchKeyStoreConfiguration {
+class ElasticsearchKeyStoreProperties {
 
   var clusterName: String? = null
   var index: String? = null
@@ -27,7 +28,7 @@ class ElasticsearchKeyStoreConfiguration {
   }
 
   override fun toString(): String {
-    return "ElasticsearchKeyStoreConfiguration{" +
+    return "ElasticsearchKeyStoreProperties{" +
       "clusterName=$clusterName" +
       ", index=$index" +
       ", type=$type" +
@@ -40,6 +41,6 @@ class ElasticsearchKeyStoreConfiguration {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(ElasticsearchKeyStoreConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(ElasticsearchKeyStoreProperties::class.java)
   }
 }
