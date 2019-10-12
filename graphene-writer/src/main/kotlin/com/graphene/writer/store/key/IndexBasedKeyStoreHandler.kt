@@ -20,9 +20,25 @@ class IndexBasedKeyStoreHandler(
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchFactory, property) {
 
   override fun source(tenant: String, graphiteKeyPart: String, depth: Int, leaf: Boolean): XContentBuilder {
-    return XContentFactory.jsonBuilder()
+    val source = XContentFactory.jsonBuilder()
       .startObject()
-      .endObject()
+      .field(TENANT, tenant)
+      .field(DEPTH, depth + 1)
+      .field(LEAF, leaf)
+
+    val graphiteKeyParts = graphiteKeyPart.split(DOT)
+    for (index in graphiteKeyParts.indices) {
+      source.field(index.toString(), graphiteKeyParts[index])
+    }
+
+    return source.endObject()
+  }
+
+  companion object {
+    const val TENANT = "tenant"
+    const val DEPTH = "tenant"
+    const val LEAF = "leaf"
+    const val DOT = "."
   }
 
 }

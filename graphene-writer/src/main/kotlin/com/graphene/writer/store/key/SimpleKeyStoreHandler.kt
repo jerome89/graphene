@@ -21,11 +21,18 @@ class SimpleKeyStoreHandler(
   override fun source(tenant: String, graphiteKeyPart: String, depth: Int, leaf: Boolean): XContentBuilder {
     return XContentFactory.jsonBuilder()
       .startObject()
-      .field("tenant", tenant)
-      .field("path", graphiteKeyPart)
-      .field("depth", depth + 1)
-      .field("leaf", leaf)
+      .field(TENANT, tenant)
+      .field(PATH, graphiteKeyPart)
+      .field(DEPTH, depth + 1)
+      .field(LEAF, leaf)
       .endObject()
+  }
+
+  companion object {
+    const val TENANT = "tenant"
+    const val DEPTH = "tenant"
+    const val LEAF = "leaf"
+    const val PATH = "path"
   }
 
 }
