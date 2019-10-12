@@ -1,5 +1,6 @@
 package com.graphene.writer.input.graphite
 
+import com.graphene.writer.input.graphite.property.GraphiteInputProperty
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.*
 import io.netty.channel.nio.NioEventLoopGroup
@@ -7,7 +8,6 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.DelimiterBasedFrameDecoder
 import io.netty.handler.codec.Delimiters
-import com.graphene.writer.config.GrapheneWriterConfiguration
 import org.apache.log4j.Logger
 import org.springframework.stereotype.Component
 
@@ -20,7 +20,7 @@ import javax.annotation.PreDestroy
  */
 @Component
 class CarbonServer(
-  private val configuration: GrapheneWriterConfiguration,
+  private val property: GraphiteInputProperty,
   private val carbonServerHandler: CarbonServerHandler
 ) {
 
@@ -52,7 +52,7 @@ class CarbonServer(
       })
 
     // Start the server.
-    b.bind(configuration.carbon.bind, configuration.carbon.port).sync()
+    b.bind(property.carbon.bind, property.carbon.port).sync()
   }
 
   @PreDestroy

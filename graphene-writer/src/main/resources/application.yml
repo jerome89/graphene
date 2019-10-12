@@ -10,11 +10,12 @@ graphene:
     blacklist:
       'test':
         - '^xxx_sum.*\.system\..*'
-    carbon:
-      bind: "0.0.0.0"
-      port: 2003
-      rollups:
-        - 60s:5356800s
+    input:
+      graphite.carbon:
+        bind: "0.0.0.0"
+        port: 2003
+        rollups:
+          - 60s:5356800s
     store:
       key:
         clusterName: "metric"

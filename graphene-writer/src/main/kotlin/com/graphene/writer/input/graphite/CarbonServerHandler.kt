@@ -8,8 +8,8 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.CharsetUtil
 import com.graphene.writer.domain.Metric
-import com.graphene.writer.config.GrapheneWriterConfiguration
 import com.graphene.writer.config.Rollup
+import com.graphene.writer.input.graphite.property.CarbonProperty
 import org.apache.log4j.Logger
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
@@ -20,19 +20,19 @@ import javax.annotation.PostConstruct
 @Component
 @ChannelHandler.Sharable
 class CarbonServerHandler(
-        private val configuration: GrapheneWriterConfiguration,
-        private val grapheneProcessor: GrapheneProcessor
+  private val carbonProperty: CarbonProperty,
+  private val grapheneProcessor: GrapheneProcessor
 ) : ChannelInboundHandlerAdapter() {
 
   private val logger = Logger.getLogger(CarbonServerHandler::class.java)
 
   private lateinit var rollup: Rollup
-  private lateinit var graphiteCodec: GraphiteCodec
+  private lateinit var graphiteCodec: GraphiteMetricConverter
 
   @PostConstruct
   fun init() {
-    this.rollup = configuration.carbon.baseRollup!!
-    this.graphiteCodec = GraphiteCodec()
+    this.rollup = carbonProperty.baseRollup!!
+    this.graphiteCodec = GraphiteMetricConverter()
   }
 
   @Throws(Exception::class)
@@ -46,7 +46,7 @@ class CarbonServerHandler(
       }
 
       if (CharMatcher.ASCII.matchesAllOf(metric.path) && CharMatcher.ASCII.matchesAllOf(metric.tenant)) {
-        grapheneProcessor.process(graphiteCodec.encode(GraphiteMetric(metric.path, metric.value, normalizeTimestamp(metric.timestamp))))
+        grapheneProcessor.process(graphiteCodec.convert(GraphiteMetric(metric.path, metric.value, normalizeTimestamp(metric.timestamp))))
       } else {
         logger.warn("Non ASCII characters received, discarding: $metric")
       }

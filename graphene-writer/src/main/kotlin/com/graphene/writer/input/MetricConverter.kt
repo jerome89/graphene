@@ -5,8 +5,8 @@ package com.graphene.writer.input
  * @since 1.0.0
  * @author dark
  */
-interface Codec<T> {
+interface MetricConverter<T> {
 
-  fun encode(metric: T): GrapheneMetric
+  fun convert(metric: T): GrapheneMetric
 
 }

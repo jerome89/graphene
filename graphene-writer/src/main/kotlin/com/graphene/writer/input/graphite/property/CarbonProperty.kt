@@ -1,16 +1,16 @@
-package com.graphene.writer.config
+package com.graphene.writer.input.graphite.property
 
+import com.graphene.writer.config.Rollup
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-
 import javax.annotation.PostConstruct
 import java.util.ArrayList
 
 /**
  * @author Andrei Ivanov
  */
-@ConfigurationProperties(prefix = "graphene.writer.carbon")
-class CarbonConfiguration {
+@ConfigurationProperties(prefix = "graphene.writer.input.graphite.carbon")
+class CarbonProperty {
 
   var bind: String? = null
   var port: Int = 0
@@ -20,7 +20,6 @@ class CarbonConfiguration {
       field = rollups.subList(1, rollups.size)
     }
   var baseRollup: Rollup? = null
-    private set
 
   @PostConstruct
   fun init() {
@@ -28,7 +27,7 @@ class CarbonConfiguration {
   }
 
   override fun toString(): String {
-    return "CarbonConfiguration{" +
+    return "CarbonProperty{" +
       "bind='" + bind + '\''.toString() +
       ", port=" + port +
       ", rollups=" + this.rollups +
@@ -38,6 +37,6 @@ class CarbonConfiguration {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(CarbonConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(CarbonProperty::class.java)
   }
 }

@@ -6,7 +6,7 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
-import com.graphene.writer.config.CarbonConfiguration
+import com.graphene.writer.input.graphite.property.CarbonProperty
 import org.apache.log4j.Logger
 
 import javax.annotation.PreDestroy
@@ -21,14 +21,14 @@ import javax.annotation.PostConstruct
  * @since 1.0.0
  */
 class CassandraDataStoreHandler(
-  carbonConfiguration: CarbonConfiguration,
+  carbonProperty: CarbonProperty,
   private val cassandraDataStoreProperties: CassandraDataStoreProperties,
   private val cassandraFactory: CassandraFactory
 ) : StoreHandler {
 
   private val logger = Logger.getLogger(CassandraDataStoreHandler::class.java)
-  private val rollup: Int = carbonConfiguration.baseRollup!!.rollup
-  private val period: Int = carbonConfiguration.baseRollup!!.period
+  private val rollup: Int = carbonProperty.baseRollup!!.rollup
+  private val period: Int = carbonProperty.baseRollup!!.period
   private val query: String = """
     UPDATE ${cassandraDataStoreProperties.keyspace}.${cassandraDataStoreProperties.columnFamily} 
     USING TTL ? 

@@ -1,13 +1,13 @@
 package com.graphene.writer.input.graphite
 
-import com.graphene.writer.input.Codec
+import com.graphene.writer.input.MetricConverter
 import com.graphene.writer.input.GrapheneMetric
 import net.iponweb.disthene.reader.utils.MetricRule
 import java.util.*
 
-class GraphiteCodec : Codec<GraphiteMetric> {
+class GraphiteMetricConverter : MetricConverter<GraphiteMetric> {
 
-  override fun encode(metric: GraphiteMetric): GrapheneMetric {
+  override fun convert(metric: GraphiteMetric): GrapheneMetric {
     return GrapheneMetric(
       Collections.emptyMap(),
       convertTags(metric),
