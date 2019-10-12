@@ -36,7 +36,7 @@ class IndexBasedKeyStoreHandler(
 
   companion object {
     const val TENANT = "tenant"
-    const val DEPTH = "tenant"
+    const val DEPTH = "depth"
     const val LEAF = "leaf"
     const val DOT = "."
   }
