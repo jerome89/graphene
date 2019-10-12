@@ -5,8 +5,8 @@ import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.writer.input.GrapheneMetric
-import com.graphene.writer.store.StoreHandler
 import com.graphene.writer.input.graphite.property.CarbonProperty
+import com.graphene.writer.store.DataStoreHandler
 import org.apache.log4j.Logger
 
 import javax.annotation.PreDestroy
@@ -24,7 +24,7 @@ class CassandraDataStoreHandler(
   carbonProperty: CarbonProperty,
   private val handlerProperty: CassandraDataStoreHandlerProperty,
   private val cassandraFactory: CassandraFactory
-) : StoreHandler {
+) : DataStoreHandler {
 
   private val logger = Logger.getLogger(CassandraDataStoreHandler::class.java)
   private val rollup: Int = carbonProperty.baseRollup!!.rollup

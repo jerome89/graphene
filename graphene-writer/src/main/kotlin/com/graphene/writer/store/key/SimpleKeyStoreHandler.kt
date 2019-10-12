@@ -1,7 +1,8 @@
 package com.graphene.writer.store.key
 
 import com.graphene.writer.input.GrapheneMetric
-import com.graphene.writer.store.StoreHandler
+import com.graphene.writer.store.KeyStoreHandler
+import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import com.graphene.writer.util.NamedThreadFactory
 import org.apache.log4j.Logger
 import org.elasticsearch.action.bulk.BulkProcessor
@@ -9,6 +10,8 @@ import org.elasticsearch.action.get.MultiGetRequestBuilder
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
 import java.io.IOException
 import java.util.*
 
@@ -23,10 +26,12 @@ import javax.annotation.PostConstruct
  * @author Andrei Ivanov
  * @author dark
  */
+@Component
+@ConditionalOnProperty(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler", name = ["enabled"], havingValue = "true")
 class SimpleKeyStoreHandler(
   private val elasticsearchFactory: ElasticsearchFactory,
-  private val property: ElasticsearchKeyStoreProperty
-) : StoreHandler, Runnable {
+  private val property: SimpleKeyStoreHandlerProperty
+) : KeyStoreHandler, Runnable {
 
   private val logger = Logger.getLogger(SimpleKeyStoreHandler::class.java)
 

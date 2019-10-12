@@ -1,5 +1,6 @@
 package com.graphene.writer.store.key
 
+import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import org.apache.log4j.Logger
 import org.elasticsearch.action.bulk.BulkProcessor
 import org.elasticsearch.action.bulk.BulkRequest
@@ -8,9 +9,11 @@ import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.ImmutableSettings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.common.unit.TimeValue
+import org.springframework.stereotype.Component
 
+@Component
 class ElasticsearchFactory(
-  private val property: ElasticsearchKeyStoreProperty
+  private val property: SimpleKeyStoreHandlerProperty
 ) {
 
   private val logger = Logger.getLogger(ElasticsearchFactory::class.java)

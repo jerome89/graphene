@@ -18,15 +18,31 @@ graphene:
           - 60s:5356800s
     store:
       key:
-        clusterName: "metric"
-        cluster:
-          - "127.0.0.1"
-        port: 9300
-        index: "metric"
-        type: "path"
-        bulk:
-          actions: 10000
-          interval: 5
+        handlers:
+          logging-key-store-handler:
+            enabled: true
+          simple-key-store-handler:
+            enabled: true
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "metric"
+            type: "path"
+            bulk:
+              actions: 10000
+              interval: 5
+          index-based-key-store-handler:
+            enabled: false
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "metric"
+            type: "path"
+            bulk:
+              actions: 10000
+              interval: 5
       data:
         rollup: 60s
         retention: 30d

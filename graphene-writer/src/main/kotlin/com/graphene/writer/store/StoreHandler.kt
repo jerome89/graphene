@@ -12,3 +12,7 @@ interface StoreHandler {
   fun handle(grapheneMetric: GrapheneMetric)
 
 }
+
+interface KeyStoreHandler : StoreHandler
+
+interface DataStoreHandler : StoreHandler
