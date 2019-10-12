@@ -1,6 +1,5 @@
-package com.graphene.writer.store.key
+package com.graphene.writer.store.key.model
 
-import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import org.apache.log4j.Logger
 import org.elasticsearch.action.bulk.BulkProcessor
 import org.elasticsearch.action.bulk.BulkRequest

@@ -1,18 +1,15 @@
-package com.graphene.writer.store.key
+package com.graphene.writer.store.key.model
 
 import com.graphene.writer.config.IndexBulkConfiguration
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-
 import java.util.ArrayList
 import javax.annotation.PostConstruct
 
-/**
- * @author Andrei Ivanov
- */
-@ConfigurationProperties(prefix = "graphene.writer.store.key")
-class ElasticsearchKeyStoreProperty {
+@ConfigurationProperties(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler")
+class SimpleKeyStoreHandlerProperty {
 
+  var enabled: Boolean = false
   var clusterName: String? = null
   var index: String? = null
   var type: String? = null
@@ -24,11 +21,12 @@ class ElasticsearchKeyStoreProperty {
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene elasticsearchKeyStoreProperty configuration : {}", toString())
+    logger.info("Load Graphene SimpleKeyStoreHandlerProperty configuration : {}", toString())
   }
 
   override fun toString(): String {
-    return "ElasticsearchKeyStoreProperty{" +
+    return "SimpleKeyStoreHandlerProperty{" +
+      "enabled=$enabled" +
       "clusterName=$clusterName" +
       ", index=$index" +
       ", type=$type" +
@@ -41,6 +39,6 @@ class ElasticsearchKeyStoreProperty {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(ElasticsearchKeyStoreProperty::class.java)
+    private val logger = LoggerFactory.getLogger(SimpleKeyStoreHandlerProperty::class.java)
   }
 }
