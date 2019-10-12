@@ -9,7 +9,7 @@ interface GraphiteAware {
   fun getGraphiteKey(): String {
     val graphiteKey = StringJoiner(GraphiteMetric.DOT)
 
-    IntRange(0, getTags().size)
+    IntRange(0, getTags().size - 1)
       .map { it.toString() }
       .map { getTags()[it] }
       .forEach { graphiteKey.add(it) }

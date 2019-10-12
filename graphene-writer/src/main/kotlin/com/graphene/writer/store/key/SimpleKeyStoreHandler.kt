@@ -1,66 +1,78 @@
 package com.graphene.writer.store.key
 
-import com.graphene.writer.config.ElasticsearchKeyStoreConfiguration
 import com.graphene.writer.input.GrapheneMetric
+import com.graphene.writer.store.StoreHandler
+import com.graphene.writer.util.NamedThreadFactory
 import org.apache.log4j.Logger
 import org.elasticsearch.action.bulk.BulkProcessor
 import org.elasticsearch.action.get.MultiGetRequestBuilder
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
-
 import java.io.IOException
 import java.util.*
+
+import javax.annotation.PreDestroy
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
+import javax.annotation.PostConstruct
 
 /**
- *
  * @author Andrei Ivanov
  * @author dark
  */
-class IndexThread(
-  name: String,
-  private val client: TransportClient,
-  metrics: ConcurrentLinkedQueue<GrapheneMetric>,
-  private val elasticsearchKeyStoreConfiguration: ElasticsearchKeyStoreConfiguration,
-  private val bulkProcessor: BulkProcessor,
-  private val grapheneKeyMapper: GrapheneKeyMapper
-) : Thread(name) {
+class SimpleKeyStoreHandler(
+  private val elasticsearchFactory: ElasticsearchFactory,
+  private val properties: ElasticsearchKeyStoreProperties
+) : StoreHandler, Runnable {
 
-  private val logger = Logger.getLogger(IndexThread::class.java)
+  private val logger = Logger.getLogger(SimpleKeyStoreHandler::class.java)
 
-  @Volatile
-  protected var shutdown = false
-  protected var metrics: Queue<GrapheneMetric>
+  private lateinit var client: TransportClient
+  private lateinit var scheduler: ScheduledExecutorService
+  private lateinit var request: MetricMultiGetRequestBuilder
+  private lateinit var index: String
+  private lateinit var type: String
+  private lateinit var bulkProcessor: BulkProcessor
+  private lateinit var grapheneKeyMapper: GrapheneKeyMapper
 
   private var lastFlushTimeSeconds = currentTimeSeconds()
-  private var request: MetricMultiGetRequestBuilder
-  private var index: String
-  private var type: String
-  private var batchSize: Int
-  private var flushInterval: Long
+  private var batchSize: Int = 0
+  private var flushInterval: Long = 0
 
-  init {
-    this.metrics = metrics
-    this.index = elasticsearchKeyStoreConfiguration.index!!
-    this.type = elasticsearchKeyStoreConfiguration.type!!
-    this.request = MetricMultiGetRequestBuilder(client, index, type)
-    this.batchSize = elasticsearchKeyStoreConfiguration.bulk!!.actions
-    this.flushInterval = elasticsearchKeyStoreConfiguration.bulk!!.interval
+  private val metrics = ConcurrentLinkedQueue<GrapheneMetric>()
+
+  @PostConstruct
+  fun init() {
+    client = elasticsearchFactory.transportClient()
+
+    bulkProcessor = elasticsearchFactory.bulkProcessor(client)
+    grapheneKeyMapper = GrapheneKeyMapper()
+
+    index = properties.index!!
+    type = properties.type!!
+    request = MetricMultiGetRequestBuilder(client, index, type)
+    batchSize = properties.bulk!!.actions
+    flushInterval = properties.bulk!!.interval
+
+    scheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory("grapheneIndexThread"))
+    scheduler.scheduleWithFixedDelay(this, 3000, 100, TimeUnit.MILLISECONDS)
+  }
+
+  override fun handle(grapheneMetric: GrapheneMetric) {
+    metrics.offer(grapheneMetric)
   }
 
   override fun run() {
-    while (!shutdown) {
-      try {
-        val metric = metrics.poll()
-        if (Objects.nonNull(metric)) {
-          addToBatch(metric)
-        }
-
-        sleep(100)
-      } catch (e: Exception) {
-        logger.error("Encountered error in busy loop: ", e)
+    try {
+      val metric = metrics.poll()
+      if (Objects.nonNull(metric)) {
+        addToBatch(metric)
       }
+    } catch (e: Exception) {
+      logger.error("Encountered error in busy loop: ", e)
     }
 
     if (0 < request.size()) {
@@ -97,7 +109,7 @@ class IndexThread(
           try {
             bulkProcessor.add(IndexRequest(index, type, metric.getTenant() + "_" + sb.toString())
               .source(grapheneKeyMapper.mapGrapheneMetricKey(metric, sb, i, parts)
-            ))
+              ))
           } catch (e: IOException) {
             logger.error(e)
           }
@@ -110,10 +122,6 @@ class IndexThread(
   }
 
   private fun currentTimeSeconds() = System.currentTimeMillis() / 1000L
-
-  fun shutdown() {
-    shutdown = true
-  }
 
   private inner class MetricMultiGetRequestBuilder(
     client: Client,
@@ -131,5 +139,18 @@ class IndexThread(
     fun size(): Int {
       return metrics.size
     }
+  }
+
+  @PreDestroy
+  fun shutdown() {
+    scheduler.shutdown()
+    logger.info("Sleeping for 10 seconds to allow leftovers to be written")
+    try {
+      Thread.sleep(10000)
+    } catch (ignored: InterruptedException) {
+    }
+
+    logger.info("Closing ES client")
+    client.close()
   }
 }

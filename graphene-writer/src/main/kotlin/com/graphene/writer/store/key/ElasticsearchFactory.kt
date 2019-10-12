@@ -1,6 +1,5 @@
 package com.graphene.writer.store.key
 
-import com.graphene.writer.config.ElasticsearchKeyStoreConfiguration
 import org.apache.log4j.Logger
 import org.elasticsearch.action.bulk.BulkProcessor
 import org.elasticsearch.action.bulk.BulkRequest
@@ -11,20 +10,20 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.common.unit.TimeValue
 
 class ElasticsearchFactory(
-  val elasticsearchKeyStoreConfiguration: ElasticsearchKeyStoreConfiguration
+  private val properties: ElasticsearchKeyStoreProperties
 ) {
 
   private val logger = Logger.getLogger(ElasticsearchFactory::class.java)
 
   fun transportClient(): TransportClient {
     val settings = ImmutableSettings.settingsBuilder()
-      .put("cluster.name", elasticsearchKeyStoreConfiguration.name)
+      .put("cluster.name", properties.clusterName)
       .build()
 
     var client = TransportClient(settings)
 
-    for (node in elasticsearchKeyStoreConfiguration.cluster) {
-      client.addTransportAddress(InetSocketTransportAddress(node, elasticsearchKeyStoreConfiguration.port))
+    for (node in properties.cluster) {
+      client.addTransportAddress(InetSocketTransportAddress(node, properties.port))
     }
 
     return client
@@ -44,8 +43,8 @@ class ElasticsearchFactory(
           logger.error(failure)
         }
       })
-      .setBulkActions(elasticsearchKeyStoreConfiguration.bulk!!.actions)
-      .setFlushInterval(TimeValue.timeValueSeconds(elasticsearchKeyStoreConfiguration.bulk!!.interval))
+      .setBulkActions(properties.bulk!!.actions)
+      .setFlushInterval(TimeValue.timeValueSeconds(properties.bulk!!.interval))
       .setConcurrentRequests(1)
       .build()
   }
