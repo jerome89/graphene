@@ -64,7 +64,7 @@ class SimpleKeyStoreHandler(
     batchSize = property.bulk!!.actions
     flushInterval = property.bulk!!.interval
 
-    scheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory("grapheneIndexThread"))
+    scheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     scheduler.scheduleWithFixedDelay(this, 3000, 100, TimeUnit.MILLISECONDS)
   }
 

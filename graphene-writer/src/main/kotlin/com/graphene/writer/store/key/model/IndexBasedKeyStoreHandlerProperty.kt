@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import javax.annotation.PostConstruct
 
-@ConfigurationProperties(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler")
-data class SimpleKeyStoreHandlerProperty(
+@ConfigurationProperties(prefix = "graphene.writer.store.key.handlers.index-based-key-store-handler")
+data class IndexBasedKeyStoreHandlerProperty(
   var enabled: Boolean = false,
   var clusterName: String? = null,
   var index: String? = null,
@@ -20,11 +20,11 @@ data class SimpleKeyStoreHandlerProperty(
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene SimpleKeyStoreHandlerProperty : {}", toString())
+    logger.info("Load Graphene IndexBasedKeyStoreHandlerProperty : {}", toString())
   }
 
   companion object {
-    private val logger = LoggerFactory.getLogger(SimpleKeyStoreHandlerProperty::class.java)
+    private val logger = LoggerFactory.getLogger(IndexBasedKeyStoreHandlerProperty::class.java)
   }
 
 }
