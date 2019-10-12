@@ -110,7 +110,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
           try {
             val graphiteKeyPart = graphiteKeySb.toString()
             bulkProcessor.add(IndexRequest(index, type, metric.getTenant() + "_" + graphiteKeyPart)
-              .source(source(metric.getTenant(), graphiteKeyPart, depth, depth == parts.size - 1)))
+              .source(source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts))))
           } catch (e: IOException) {
             logger.error(e)
           }
@@ -121,6 +121,8 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     request = MetricMultiGetRequestBuilder(client, index, type)
     lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
   }
+
+  private fun isLeaf(depth: Int, parts: List<String>) = depth == parts.size - 1
 
   private inner class MetricMultiGetRequestBuilder(
     client: Client,
