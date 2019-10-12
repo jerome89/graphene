@@ -28,21 +28,24 @@ graphene:
           actions: 10000
           interval: 5
       data:
-        cassandra:
-          cluster:
-            - "127.0.0.1"
-          port: 9042
-          userName: 'cassandra'
-          userPassword: 'cassandra'
-          keyspace: 'metric'
-          columnFamily: 'metric'
-          maxConnections: 2048
-          pool: 1
-          readTimeout: 10
-          connectTimeout: 10
-          maxRequests: 128
-          loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-          protocolVersion: "V2"
+        rollup: 60s
+        retention: 30d
+        handlers:
+          cassandra:
+            cluster:
+              - "127.0.0.1"
+            port: 9042
+            userName: 'cassandra'
+            userPassword: 'cassandra'
+            keyspace: 'metric'
+            columnFamily: 'metric'
+            maxConnections: 2048
+            pool: 1
+            readTimeout: 10
+            connectTimeout: 10
+            maxRequests: 128
+            loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
+            protocolVersion: "V2"
     stats:
       interval: 60
       tenant: "graphene"

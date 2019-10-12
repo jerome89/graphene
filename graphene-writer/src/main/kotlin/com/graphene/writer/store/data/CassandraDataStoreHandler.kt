@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct
  */
 class CassandraDataStoreHandler(
   carbonProperty: CarbonProperty,
-  private val cassandraDataStoreProperties: CassandraDataStoreProperties,
+  private val handlerProperty: CassandraDataStoreHandlerProperty,
   private val cassandraFactory: CassandraFactory
 ) : StoreHandler {
 
@@ -30,7 +30,7 @@ class CassandraDataStoreHandler(
   private val rollup: Int = carbonProperty.baseRollup!!.rollup
   private val period: Int = carbonProperty.baseRollup!!.period
   private val query: String = """
-    UPDATE ${cassandraDataStoreProperties.keyspace}.${cassandraDataStoreProperties.columnFamily} 
+    UPDATE ${handlerProperty.keyspace}.${handlerProperty.columnFamily} 
     USING TTL ? 
     SET data = ? 
     WHERE tenant = ? 
@@ -46,7 +46,7 @@ class CassandraDataStoreHandler(
 
   @PostConstruct
   fun init() {
-    this.cluster = cassandraFactory.createCluster(cassandraDataStoreProperties)
+    this.cluster = cassandraFactory.createCluster(handlerProperty)
     this.session = cluster.connect()
     this.statement = session.prepare(query)
     this.executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())

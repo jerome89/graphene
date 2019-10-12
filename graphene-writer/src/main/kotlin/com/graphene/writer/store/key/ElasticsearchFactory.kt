@@ -10,20 +10,20 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.common.unit.TimeValue
 
 class ElasticsearchFactory(
-  private val properties: ElasticsearchKeyStoreProperties
+  private val property: ElasticsearchKeyStoreProperty
 ) {
 
   private val logger = Logger.getLogger(ElasticsearchFactory::class.java)
 
   fun transportClient(): TransportClient {
     val settings = ImmutableSettings.settingsBuilder()
-      .put("cluster.name", properties.clusterName)
+      .put("cluster.name", property.clusterName)
       .build()
 
     var client = TransportClient(settings)
 
-    for (node in properties.cluster) {
-      client.addTransportAddress(InetSocketTransportAddress(node, properties.port))
+    for (node in property.cluster) {
+      client.addTransportAddress(InetSocketTransportAddress(node, property.port))
     }
 
     return client
@@ -43,8 +43,8 @@ class ElasticsearchFactory(
           logger.error(failure)
         }
       })
-      .setBulkActions(properties.bulk!!.actions)
-      .setFlushInterval(TimeValue.timeValueSeconds(properties.bulk!!.interval))
+      .setBulkActions(property.bulk!!.actions)
+      .setFlushInterval(TimeValue.timeValueSeconds(property.bulk!!.interval))
       .setConcurrentRequests(1)
       .build()
   }

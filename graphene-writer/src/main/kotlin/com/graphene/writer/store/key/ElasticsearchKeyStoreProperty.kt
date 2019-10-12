@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct
  * @author Andrei Ivanov
  */
 @ConfigurationProperties(prefix = "graphene.writer.store.key")
-class ElasticsearchKeyStoreProperties {
+class ElasticsearchKeyStoreProperty {
 
   var clusterName: String? = null
   var index: String? = null
@@ -24,11 +24,11 @@ class ElasticsearchKeyStoreProperties {
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene elasticsearchKeyStore configuration : {}", toString())
+    logger.info("Load Graphene elasticsearchKeyStoreProperty configuration : {}", toString())
   }
 
   override fun toString(): String {
-    return "ElasticsearchKeyStoreProperties{" +
+    return "ElasticsearchKeyStoreProperty{" +
       "clusterName=$clusterName" +
       ", index=$index" +
       ", type=$type" +
@@ -41,6 +41,6 @@ class ElasticsearchKeyStoreProperties {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(ElasticsearchKeyStoreProperties::class.java)
+    private val logger = LoggerFactory.getLogger(ElasticsearchKeyStoreProperty::class.java)
   }
 }

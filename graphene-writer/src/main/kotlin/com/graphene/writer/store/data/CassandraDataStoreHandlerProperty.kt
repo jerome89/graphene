@@ -10,8 +10,8 @@ import java.util.ArrayList
  * @author Andrei Ivanov
  * @author dark
  */
-@ConfigurationProperties(prefix = "graphene.writer.store.data.cassandra")
-class CassandraDataStoreProperties {
+@ConfigurationProperties(prefix = "graphene.writer.store.data.handlers.cassandra")
+class CassandraDataStoreHandlerProperty {
 
   var cluster: List<String> = ArrayList()
   var keyspace: String? = null
@@ -31,11 +31,11 @@ class CassandraDataStoreProperties {
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene cassandraDataStore configuration : {}", toString())
+    logger.info("Load Graphene cassandraDataStoreHandlerProperty configuration : {}", toString())
   }
 
   override fun toString(): String {
-    return "CassandraDataStoreProperties{" +
+    return "CassandraDataStoreHandlerProperty{" +
       "cluster=$cluster" +
       ", keyspace=$keyspace" +
       ", columnFamily=$columnFamily" +
@@ -55,6 +55,6 @@ class CassandraDataStoreProperties {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(CassandraDataStoreProperties::class.java)
+    private val logger = LoggerFactory.getLogger(CassandraDataStoreHandlerProperty::class.java)
   }
 }

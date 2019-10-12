@@ -11,7 +11,7 @@ import java.net.UnknownHostException
  * @author Andrei Ivanov
  */
 @ConfigurationProperties(prefix = "graphene.writer.stats")
-class StatsConfiguration {
+class StatsProperty {
 
   var interval: Int = 0
   var tenant: String? = null
@@ -33,7 +33,7 @@ class StatsConfiguration {
   }
 
   override fun toString(): String {
-    return "StatsConfiguration{" +
+    return "StatsProperty{" +
       "interval=" + interval +
       ", tenant='" + tenant + '\''.toString() +
       ", hostname='" + hostname + '\''.toString() +
@@ -43,6 +43,6 @@ class StatsConfiguration {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(StatsConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(StatsProperty::class.java)
   }
 }

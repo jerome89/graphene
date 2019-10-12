@@ -1,7 +1,7 @@
 package com.graphene.writer.store
 
-import com.graphene.writer.store.key.ElasticsearchKeyStoreProperties
-import com.graphene.writer.store.data.CassandraDataStoreProperties
+import com.graphene.writer.store.key.ElasticsearchKeyStoreProperty
+import com.graphene.writer.store.data.CassandraDataStoreHandlerProperty
 import com.graphene.writer.store.data.CassandraDataStoreHandler
 import com.graphene.writer.store.data.CassandraFactory
 import com.graphene.writer.store.key.ElasticsearchFactory
@@ -16,24 +16,24 @@ class GrapheneStoreConfig {
   @Bean
   fun cassandraDataStoreHandler(
     carbonProperty: CarbonProperty,
-    properties: CassandraDataStoreProperties
+    handlerProperty: CassandraDataStoreHandlerProperty
   ): StoreHandler {
 
     return CassandraDataStoreHandler(
       carbonProperty,
-      properties,
+      handlerProperty,
       CassandraFactory()
     )
   }
 
   @Bean
   fun elasticsearchKeyStoreHandler(
-    properties: ElasticsearchKeyStoreProperties
+    property: ElasticsearchKeyStoreProperty
   ): StoreHandler {
 
     return SimpleKeyStoreHandler(
-      ElasticsearchFactory(properties),
-      properties
+      ElasticsearchFactory(property),
+      property
     )
   }
 }
