@@ -204,10 +204,16 @@ public class ResponseFormatter {
     private static void appendResults(StringBuilder sb, List<TimeSeries> timeSeriesList) {
         sb.append("[");
         for (TimeSeries ts : timeSeriesList) {
+            if (isSecondTime(sb)) {
+                sb.append(",");
+            }
             appendTimeSeries(sb, ts);
         }
-        sb.deleteCharAt(sb.length() - 1);
         sb.append("]");
+    }
+
+    private static boolean isSecondTime(StringBuilder sb) {
+        return 2 <= sb.length();
     }
 
     private static void appendTimeSeries(StringBuilder sb, TimeSeries ts) {
@@ -219,6 +225,6 @@ public class ResponseFormatter {
             }
             sb.deleteCharAt(sb.length() - 1);
         }
-        sb.append("]},");
+        sb.append("]}");
     }
 }
