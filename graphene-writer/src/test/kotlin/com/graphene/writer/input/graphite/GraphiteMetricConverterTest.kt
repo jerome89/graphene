@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test
 import java.util.*
 import kotlin.test.assertEquals
 
-internal class GraphiteCodecTest {
+internal class GraphiteMetricConverterTest {
 
-  private val graphiteCodec = GraphiteCodec()
+  private val graphiteMetricConverter = GraphiteMetricConverter()
 
   @Test
   internal fun `should encode to graphene metric`() {
@@ -18,7 +18,7 @@ internal class GraphiteCodecTest {
     val timestamp = DateTimeUtils.currentTimeMillis()
 
     // when
-    val grapheneMetric = graphiteCodec.encode(GraphiteMetric(
+    val grapheneMetric = graphiteMetricConverter.convert(GraphiteMetric(
       key,
       value,
       timestamp
@@ -41,7 +41,7 @@ internal class GraphiteCodecTest {
     val timestamp = DateTimeUtils.currentTimeMillis()
 
     // when
-    val grapheneMetric = graphiteCodec.encode(GraphiteMetric(
+    val grapheneMetric = graphiteMetricConverter.convert(GraphiteMetric(
       key,
       value,
       timestamp

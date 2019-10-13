@@ -5,8 +5,8 @@ import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.writer.input.GrapheneMetric
-import com.graphene.writer.store.StoreHandler
-import com.graphene.writer.config.CarbonConfiguration
+import com.graphene.writer.input.graphite.property.CarbonProperty
+import com.graphene.writer.store.DataStoreHandler
 import org.apache.log4j.Logger
 
 import javax.annotation.PreDestroy
@@ -21,16 +21,16 @@ import javax.annotation.PostConstruct
  * @since 1.0.0
  */
 class CassandraDataStoreHandler(
-  carbonConfiguration: CarbonConfiguration,
-  private val cassandraDataStoreProperties: CassandraDataStoreProperties,
+  carbonProperty: CarbonProperty,
+  private val handlerProperty: CassandraDataStoreHandlerProperty,
   private val cassandraFactory: CassandraFactory
-) : StoreHandler {
+) : DataStoreHandler {
 
   private val logger = Logger.getLogger(CassandraDataStoreHandler::class.java)
-  private val rollup: Int = carbonConfiguration.baseRollup!!.rollup
-  private val period: Int = carbonConfiguration.baseRollup!!.period
+  private val rollup: Int = carbonProperty.baseRollup!!.rollup
+  private val period: Int = carbonProperty.baseRollup!!.period
   private val query: String = """
-    UPDATE ${cassandraDataStoreProperties.keyspace}.${cassandraDataStoreProperties.columnFamily} 
+    UPDATE ${handlerProperty.keyspace}.${handlerProperty.columnFamily} 
     USING TTL ? 
     SET data = ? 
     WHERE tenant = ? 
@@ -46,7 +46,7 @@ class CassandraDataStoreHandler(
 
   @PostConstruct
   fun init() {
-    this.cluster = cassandraFactory.createCluster(cassandraDataStoreProperties)
+    this.cluster = cassandraFactory.createCluster(handlerProperty)
     this.session = cluster.connect()
     this.statement = session.prepare(query)
     this.executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())

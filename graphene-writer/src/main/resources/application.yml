@@ -10,38 +10,58 @@ graphene:
     blacklist:
       'test':
         - '^xxx_sum.*\.system\..*'
-    carbon:
-      bind: "0.0.0.0"
-      port: 2003
-      rollups:
-        - 60s:5356800s
+    input:
+      graphite.carbon:
+        bind: "0.0.0.0"
+        port: 2003
+        rollups:
+          - 60s:5356800s
     store:
       key:
-        clusterName: "metric"
-        cluster:
-          - "127.0.0.1"
-        port: 9300
-        index: "metric"
-        type: "path"
-        bulk:
-          actions: 10000
-          interval: 5
+        handlers:
+          logging-key-store-handler:
+            enabled: true
+          simple-key-store-handler:
+            enabled: true
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "metric"
+            type: "path"
+            bulk:
+              actions: 10000
+              interval: 5
+          index-based-key-store-handler:
+            enabled: false
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "metric"
+            type: "path"
+            bulk:
+              actions: 10000
+              interval: 5
       data:
-        cassandra:
-          cluster:
-            - "127.0.0.1"
-          port: 9042
-          userName: 'cassandra'
-          userPassword: 'cassandra'
-          keyspace: 'metric'
-          columnFamily: 'metric'
-          maxConnections: 2048
-          pool: 1
-          readTimeout: 10
-          connectTimeout: 10
-          maxRequests: 128
-          loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-          protocolVersion: "V2"
+        rollup: 60s
+        retention: 30d
+        handlers:
+          cassandra:
+            cluster:
+              - "127.0.0.1"
+            port: 9042
+            userName: 'cassandra'
+            userPassword: 'cassandra'
+            keyspace: 'metric'
+            columnFamily: 'metric'
+            maxConnections: 2048
+            pool: 1
+            readTimeout: 10
+            connectTimeout: 10
+            maxRequests: 128
+            loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
+            protocolVersion: "V2"
     stats:
       interval: 60
       tenant: "graphene"

@@ -1,7 +1,6 @@
 package com.graphene.writer.config
 
-import com.graphene.writer.store.data.CassandraDataStoreProperties
-import com.graphene.writer.store.key.ElasticsearchKeyStoreProperties
+import com.graphene.writer.store.data.CassandraDataStoreHandlerProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
@@ -9,18 +8,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(prefix = "graphene.writer")
 class GrapheneWriterConfiguration(
-  var carbon: CarbonConfiguration,
-  var cassandraDataStore: CassandraDataStoreProperties,
-  var elasticsearchKeyStore: ElasticsearchKeyStoreProperties,
-  var stats: StatsConfiguration
+  var cassandraDataStoreHandlerProperty: CassandraDataStoreHandlerProperty,
+  var statsProperty: StatsProperty
 ) {
 
   override fun toString(): String {
     return "GrapheneWriterConfiguration{" +
-      "carbon=" + carbon +
-      ", cassandraDataStore=" + cassandraDataStore +
-      ", elasticsearchKeyStore=" + elasticsearchKeyStore +
-      ", stats=" + stats +
+      ", cassandraDataStoreHandlerProperty=" + cassandraDataStoreHandlerProperty +
+      ", statsProperty=" + statsProperty +
       '}'.toString()
   }
 }

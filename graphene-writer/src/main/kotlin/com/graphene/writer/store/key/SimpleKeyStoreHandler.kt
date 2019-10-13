@@ -1,7 +1,10 @@
 package com.graphene.writer.store.key
 
 import com.graphene.writer.input.GrapheneMetric
-import com.graphene.writer.store.StoreHandler
+import com.graphene.writer.store.KeyStoreHandler
+import com.graphene.writer.store.key.model.ElasticsearchFactory
+import com.graphene.writer.store.key.model.GrapheneKeyMapper
+import com.graphene.writer.store.key.model.SimpleKeyStoreHandlerProperty
 import com.graphene.writer.util.NamedThreadFactory
 import org.apache.log4j.Logger
 import org.elasticsearch.action.bulk.BulkProcessor
@@ -9,6 +12,8 @@ import org.elasticsearch.action.get.MultiGetRequestBuilder
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
 import java.io.IOException
 import java.util.*
 
@@ -23,10 +28,12 @@ import javax.annotation.PostConstruct
  * @author Andrei Ivanov
  * @author dark
  */
+@Component
+@ConditionalOnProperty(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler", name = ["enabled"], havingValue = "true")
 class SimpleKeyStoreHandler(
   private val elasticsearchFactory: ElasticsearchFactory,
-  private val properties: ElasticsearchKeyStoreProperties
-) : StoreHandler, Runnable {
+  private val property: SimpleKeyStoreHandlerProperty
+) : KeyStoreHandler, Runnable {
 
   private val logger = Logger.getLogger(SimpleKeyStoreHandler::class.java)
 
@@ -51,11 +58,11 @@ class SimpleKeyStoreHandler(
     bulkProcessor = elasticsearchFactory.bulkProcessor(client)
     grapheneKeyMapper = GrapheneKeyMapper()
 
-    index = properties.index!!
-    type = properties.type!!
+    index = property.index!!
+    type = property.type!!
     request = MetricMultiGetRequestBuilder(client, index, type)
-    batchSize = properties.bulk!!.actions
-    flushInterval = properties.bulk!!.interval
+    batchSize = property.bulk!!.actions
+    flushInterval = property.bulk!!.interval
 
     scheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory("grapheneIndexThread"))
     scheduler.scheduleWithFixedDelay(this, 3000, 100, TimeUnit.MILLISECONDS)

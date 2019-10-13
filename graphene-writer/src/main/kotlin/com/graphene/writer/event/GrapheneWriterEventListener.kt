@@ -1,6 +1,6 @@
 package com.graphene.writer.event
 
-import com.graphene.writer.config.StatsConfiguration
+import com.graphene.writer.config.StatsProperty
 import com.graphene.writer.util.NamedThreadFactory
 import org.apache.log4j.Logger
 import org.joda.time.DateTime
@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct
 @Component
 @ManagedResource("com.graphene.writer.stats:name=GrapheneStats,type=GrapheneWriterEventListener")
 class GrapheneWriterEventListener(
-  private val statsConfiguration: StatsConfiguration
+  private val statsProperty: StatsProperty
 ) {
 
   private val logger = Logger.getLogger(GrapheneWriterEventListener::class.java)
@@ -49,7 +49,7 @@ class GrapheneWriterEventListener(
   @PostConstruct
   fun init() {
     this.scheduler = Executors.newScheduledThreadPool(1, NamedThreadFactory(SCHEDULER_NAME))
-    this.scheduler.scheduleAtFixedRate({ flush() }, 60 - System.currentTimeMillis() / 1000L % 60, statsConfiguration.interval.toLong(), TimeUnit.SECONDS)
+    this.scheduler.scheduleAtFixedRate({ flush() }, 60 - System.currentTimeMillis() / 1000L % 60, statsProperty.interval.toLong(), TimeUnit.SECONDS)
   }
 
   private fun getStatsRecord(tenant: String): StatsRecord {
@@ -78,13 +78,13 @@ class GrapheneWriterEventListener(
   }
 
   private fun doFlush(stats: Map<String, StatsRecord>, storeSuccess: Long, storeError: Long, timestamp: Long) {
-    logger.debug("Flushing stats for $timestamp")
+    logger.debug("Flushing statsProperty for $timestamp")
 
     var totalReceived: Long = 0
     var totalWritten: Long = 0
 
-    if (statsConfiguration.isLog) {
-      logger.info("Graphene stats:")
+    if (statsProperty.isLog) {
+      logger.info("Graphene statsProperty:")
       logger.info("=========================================================================")
       logger.info("Tenant\t\tmetrics_received\t\twrite_count")
       logger.info("=========================================================================")
@@ -97,7 +97,7 @@ class GrapheneWriterEventListener(
 
       lastMetricsReceivedPerTenant[tenant] = statsRecord.getMetricsReceived()
 
-      if (statsConfiguration.isLog) {
+      if (statsProperty.isLog) {
         logger.info(tenant + "\t\t" + statsRecord.metricsReceived + "\t\t" + statsRecord.getMetricsWritten())
       }
     }
@@ -107,7 +107,7 @@ class GrapheneWriterEventListener(
     lastStoreSuccess = storeSuccess
     lastStoreError = storeError
 
-    if (statsConfiguration.isLog) {
+    if (statsProperty.isLog) {
       logger.info("total\t\t$totalReceived\t\t$totalWritten")
       logger.info("=========================================================================")
       logger.info("store.success:\t\t$storeSuccess")
