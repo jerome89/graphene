@@ -33,12 +33,12 @@ graphene:
               actions: 10000
               interval: 5
           index-based-key-store-handler:
-            enabled: false
+            enabled: true
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
             port: 9300
-            index: "metric"
+            index: "index-based-metric"
             type: "path"
             bulk:
               actions: 10000
