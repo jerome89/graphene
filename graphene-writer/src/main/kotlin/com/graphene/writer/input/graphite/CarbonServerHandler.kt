@@ -51,7 +51,7 @@ class CarbonServerHandler(
         logger.warn("Non ASCII characters received, discarding: $metric")
       }
     } catch (e: Exception) {
-      logger.trace(e)
+      logger.error(e)
     }
 
     byteBuf.release()

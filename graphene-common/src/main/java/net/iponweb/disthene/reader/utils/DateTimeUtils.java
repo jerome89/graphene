@@ -50,4 +50,8 @@ public class DateTimeUtils {
     public static boolean testTimeOffset(String s) {
         return timeOffsetPattern.matcher(s.replaceAll("^['\"]|['\"]$", "")).matches();
     }
+
+    public static long currentTimeSeconds() {
+        return System.currentTimeMillis() / 1000L;
+    }
 }

@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import javax.annotation.PostConstruct
 
-@ConfigurationProperties(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler")
-class SimpleKeyStoreHandlerProperty(
+@ConfigurationProperties(prefix = "graphene.writer.store.key.handlers.index-based-key-store-handler")
+data class IndexBasedKeyStoreHandlerProperty(
   var enabled: Boolean = false,
   var isCache: Boolean = false,
   var expire: Long = 0,
@@ -14,21 +14,21 @@ class SimpleKeyStoreHandlerProperty(
   override var index: String = "metric",
   override var type: String = "path",
   override var cluster: List<String> = mutableListOf(),
-  override var port: Int = 9300,
+  override var port: Int = 0,
   override var bulk: IndexBulkConfiguration? = null
 ) : ElasticsearchKeyStoreHandlerProperty(clusterName, index, type, cluster, port, bulk) {
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene SimpleKeyStoreHandlerProperty : {}", toString())
+    logger.info("Load Graphene IndexBasedKeyStoreHandlerProperty : {}", toString())
   }
 
   override fun toString(): String {
-    return "SimpleKeyStoreHandlerProperty(enabled=$enabled, isCache=$isCache, expire=$expire, clusterName='$clusterName', index='$index', type='$type', cluster=$cluster, port=$port, bulk=$bulk)"
+    return "IndexBasedKeyStoreHandlerProperty(enabled=$enabled, isCache=$isCache, expire=$expire, clusterName='$clusterName', index='$index', type='$type', cluster=$cluster, port=$port, bulk=$bulk)"
   }
 
   companion object {
-    private val logger = LoggerFactory.getLogger(SimpleKeyStoreHandlerProperty::class.java)
+    private val logger = LoggerFactory.getLogger(IndexBasedKeyStoreHandlerProperty::class.java)
   }
 
 }
