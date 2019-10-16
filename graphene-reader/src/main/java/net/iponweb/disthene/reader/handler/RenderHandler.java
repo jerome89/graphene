@@ -4,20 +4,22 @@ import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
-import io.netty.handler.codec.http.*;
+import com.graphene.reader.handler.RenderParameter;
+import com.graphene.reader.service.index.ElasticsearchIndexService;
 import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.config.ReaderConfiguration;
-import net.iponweb.disthene.reader.exceptions.*;
+import net.iponweb.disthene.reader.exceptions.EvaluationException;
+import net.iponweb.disthene.reader.exceptions.InvalidParameterValueException;
+import net.iponweb.disthene.reader.exceptions.LogarithmicScaleNotAllowed;
+import net.iponweb.disthene.reader.exceptions.ParameterParsingException;
 import net.iponweb.disthene.reader.format.ResponseFormatter;
 import net.iponweb.disthene.reader.graphite.Target;
-import net.iponweb.disthene.reader.graphite.evaluation.TargetVisitor;
 import net.iponweb.disthene.reader.graphite.evaluation.EvaluationContext;
 import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
+import net.iponweb.disthene.reader.graphite.evaluation.TargetVisitor;
 import net.iponweb.disthene.reader.graphite.grammar.GraphiteLexer;
 import net.iponweb.disthene.reader.graphite.grammar.GraphiteParser;
 import net.iponweb.disthene.reader.graphite.utils.ValueFormatter;
-import com.graphene.reader.handler.RenderParameter;
-import com.graphene.reader.service.index.ElasticsearchIndexService;
 import net.iponweb.disthene.reader.service.metric.CassandraMetricService;
 import net.iponweb.disthene.reader.service.stats.StatsService;
 import net.iponweb.disthene.reader.service.throttling.ThrottlingService;
@@ -26,6 +28,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -56,7 +60,7 @@ public class RenderHandler {
         this.readerConfiguration = readerConfiguration;
     }
 
-    public FullHttpResponse handle(RenderParameter parameters) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
+    public ResponseEntity<?> handle(RenderParameter parameters) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
         logger.debug("Redner Got request: " + parameters + " / parameters: " + parameters.toString());
         Stopwatch timer = Stopwatch.createStarted();
 
@@ -91,32 +95,32 @@ public class RenderHandler {
         }
 
         logger.info("targets : " + targets);
-        FullHttpResponse response;
+        ResponseEntity<?> response;
         try {
-            response = timeLimiter.callWithTimeout(new Callable<FullHttpResponse>() {
+            response = timeLimiter.callWithTimeout(new Callable<ResponseEntity>() {
                 @Override
-                public FullHttpResponse call() throws EvaluationException, LogarithmicScaleNotAllowed {
+                public ResponseEntity<?> call() throws EvaluationException, LogarithmicScaleNotAllowed {
                     return handleInternal(targets, parameters);
                 }
             }, readerConfiguration.getRequestTimeout(), TimeUnit.SECONDS, true);
         } catch (UncheckedTimeoutException e) {
             logger.debug("Request timed out: " + parameters);
             statsService.incTimedOutRequests(parameters.getTenant());
-            response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE);
+            response = ResponseEntity.status(HttpStatus.REQUEST_ENTITY_TOO_LARGE).build();
         } catch (EvaluationException | LogarithmicScaleNotAllowed e) {
             throw e;
         } catch (Exception e) {
             logger.error(e);
-            response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+            response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         timer.stop();
         logger.debug("Request took " + timer.elapsed(TimeUnit.MILLISECONDS) + " milliseconds (" + parameters + ")");
 
-        logger.info("Response status : " + response.getStatus() + " Response Body : " + response.content().toString());
+        logger.info("Response status : " + response.getStatusCode());
         return response;
     }
-    private FullHttpResponse handleInternal(List<Target> targets, RenderParameter parameters) throws EvaluationException, LogarithmicScaleNotAllowed {
+    private ResponseEntity<?> handleInternal(List<Target> targets, RenderParameter parameters) throws EvaluationException, LogarithmicScaleNotAllowed {
         // now evaluate each target producing list of TimeSeries
         List<TimeSeries> results = new ArrayList<>();
 
@@ -128,5 +132,4 @@ public class RenderHandler {
 
         return ResponseFormatter.formatResponse(results, parameters);
     }
-
 }
