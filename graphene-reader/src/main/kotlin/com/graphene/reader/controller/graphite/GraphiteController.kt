@@ -8,6 +8,7 @@ import com.graphene.common.HierarchyMetricPaths
 import com.graphene.reader.service.index.ElasticsearchIndexService
 import net.iponweb.disthene.reader.utils.MetricRule
 import org.apache.log4j.Logger
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.nio.charset.StandardCharsets
 
@@ -30,9 +31,8 @@ class GraphiteController(
   @PostMapping("/render")
   fun postRender(
     @ModelAttribute("renderRequest") renderRequest: RenderRequest
-  ): String {
-    val response = renderHandler.handle(RenderParameters.from(renderRequest))
-    return String(response.content().array(), StandardCharsets.UTF_8)
+  ): ResponseEntity<*> {
+    return renderHandler.handle(RenderParameters.from(renderRequest))
   }
 
   @RequestMapping("/metrics/find", "/find", method = [RequestMethod.POST, RequestMethod.GET])

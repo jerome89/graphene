@@ -1,17 +1,18 @@
 package net.iponweb.disthene.reader.format;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Utf8;
 import com.google.gson.Gson;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.*;
+import com.graphene.reader.handler.RenderParameter;
 import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.exceptions.LogarithmicScaleNotAllowed;
 import net.iponweb.disthene.reader.graph.DecoratedTimeSeries;
 import net.iponweb.disthene.reader.graphite.utils.GraphiteUtils;
-import com.graphene.reader.handler.RenderParameter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.joda.time.DateTime;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class ResponseFormatter {
 
     private static Gson GSON = new Gson();
 
-    public static FullHttpResponse formatResponse(List<TimeSeries> timeSeriesList, RenderParameter parameters) throws NotImplementedException, LogarithmicScaleNotAllowed {
+    public static ResponseEntity<?> formatResponse(List<TimeSeries> timeSeriesList, RenderParameter parameters) throws NotImplementedException, LogarithmicScaleNotAllowed {
         // Let's remove empty series
         List<TimeSeries> filtered = filterAllNulls(timeSeriesList);
 
@@ -40,7 +41,7 @@ public class ResponseFormatter {
         return formatResponseAsJson(filtered, parameters);
     }
 
-    private static FullHttpResponse formatResponseAsCSV(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
+    private static ResponseEntity<?> formatResponseAsCSV(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
         List<String> results = new ArrayList<>();
 
         for(TimeSeries timeSeries : timeSeriesList) {
@@ -64,16 +65,12 @@ public class ResponseFormatter {
 
         String responseString = Joiner.on("\n").join(results);
 
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(responseString.getBytes()));
-        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/csv");
-        response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
-        return response;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "text/csv")
+                .body(responseString);
     }
 
-    private static FullHttpResponse formatResponseAsRaw(List<TimeSeries> timeSeriesList) {
+    private static ResponseEntity<?> formatResponseAsRaw(List<TimeSeries> timeSeriesList) {
         List<String> results = new ArrayList<>();
 
         for(TimeSeries timeSeries : timeSeriesList) {
@@ -90,32 +87,25 @@ public class ResponseFormatter {
 
         String responseString = Joiner.on("\n").join(results);
 
-
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(responseString.getBytes()));
-        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
-        response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
-        return response;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "text/plain")
+                .body(responseString);
     }
 
-    private static FullHttpResponse formatResponseAsJson(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
+    private static ResponseEntity<?> formatResponseAsJson(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
         // consolidate data points
         consolidate(timeSeriesList, renderParameter.getMaxDataPoints());
         StringBuilder result = new StringBuilder(computeStringBuilderCapacity(timeSeriesList));
         appendResults(result, timeSeriesList);
+        String responseString = result.toString();
 
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(result.toString().getBytes()));
-        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json");
-        response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
-        return response;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(Utf8.encodedLength(responseString)))
+                .body(responseString);
     }
 
-    private static FullHttpResponse formatResponseAsGraphplotJson(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
+    private static ResponseEntity<?> formatResponseAsGraphplotJson(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
         List<String> results = new ArrayList<>();
 
         Gson gson = new Gson();
@@ -139,14 +129,9 @@ public class ResponseFormatter {
         }
         String responseString = "[" + Joiner.on(", ").join(results) + "]";
 
-
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(responseString.getBytes()));
-        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json");
-        response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
-        return response;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .body(responseString);
     }
 
 
