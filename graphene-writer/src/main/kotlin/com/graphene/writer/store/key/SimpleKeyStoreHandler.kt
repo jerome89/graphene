@@ -63,13 +63,11 @@ class SimpleKeyStoreHandler(
     restHighLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT)
   }
 
-  override fun createTemplateIfNotExists(index: String) {
-    val restHighLevelClient = elasticsearchFactory.restHighLevelClient()
-    val putIndexTemplateRequest = PutIndexTemplateRequest("simple-key-path-template")
-    putIndexTemplateRequest.patterns(listOf("simple-key-path*"))
+  override fun createTemplateIfNotExists(): PutIndexTemplateRequest {
+    val putIndexTemplateRequest = PutIndexTemplateRequest(TEMPLATE_NAME)
+    putIndexTemplateRequest.patterns(listOf(property.templateIndexPattern))
     putIndexTemplateRequest.source(SOURCE, XContentType.JSON)
-
-    restHighLevelClient.indices().putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
+    return putIndexTemplateRequest
   }
 
   private fun source(tenant: String, graphiteKeyPart: String, depth: Int, leaf: Boolean): XContentBuilder {
@@ -90,9 +88,9 @@ class SimpleKeyStoreHandler(
     const val LEAF = "leaf"
     const val PATH = "path"
 
+    const val TEMPLATE_NAME = "simple-key-path-template"
     const val SOURCE = """
       {
-        "index_patterns": ["simple-key-path*"],
         "settings": {
           "number_of_replicas": 0,
           "number_of_shards": 5

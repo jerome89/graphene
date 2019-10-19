@@ -8,6 +8,7 @@ import com.graphene.writer.store.key.model.GrapheneKeyMapper
 import com.graphene.writer.util.NamedThreadFactory
 import net.iponweb.disthene.reader.utils.DateTimeUtils
 import org.apache.log4j.Logger
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest
 import org.elasticsearch.action.bulk.BulkRequest
 import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.action.index.IndexRequest
@@ -57,7 +58,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     scheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     scheduler.scheduleWithFixedDelay(this, 3000, 100, TimeUnit.MILLISECONDS)
 
-    createTemplateIfNotExists(property.templateIndexPattern)
+    client.indices().putTemplate(createTemplateIfNotExists(), RequestOptions.DEFAULT)
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
@@ -99,10 +100,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       }
 
       val metric = multiGetRequestContainer.metrics[response.id]
-      val indexRequests = mapToIndexRequests(metric)
-      for (indexRequest in indexRequests) {
-        bulkRequest.add(indexRequest)
-      }
+      bulkRequest.add(mapToIndexRequests(metric))
     }
 
     if (bulkRequest.requests().isEmpty()) {
@@ -145,7 +143,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   abstract fun mapToIndexRequests(metric: GrapheneMetric?) : List<IndexRequest>
 
-  abstract fun createTemplateIfNotExists(index: String)
+  abstract fun createTemplateIfNotExists(): PutIndexTemplateRequest
 
   abstract fun createIndexIfNotExists(index: String)
 
