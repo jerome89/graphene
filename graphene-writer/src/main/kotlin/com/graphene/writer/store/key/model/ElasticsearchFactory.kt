@@ -1,53 +1,62 @@
 package com.graphene.writer.store.key.model
 
-import org.apache.log4j.Logger
-import org.elasticsearch.action.bulk.BulkProcessor
-import org.elasticsearch.action.bulk.BulkRequest
-import org.elasticsearch.action.bulk.BulkResponse
-import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.settings.ImmutableSettings
-import org.elasticsearch.common.transport.InetSocketTransportAddress
-import org.elasticsearch.common.unit.TimeValue
+import org.apache.http.HttpHost
+import org.apache.http.impl.nio.reactor.IOReactorConfig
+import org.elasticsearch.client.NodeSelector
+import org.elasticsearch.client.RestClient
+import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.sniff.Sniffer
 import org.springframework.stereotype.Component
+import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
+
 
 @Component
 class ElasticsearchFactory(
   private val property: SimpleKeyStoreHandlerProperty
 ) {
 
-  private val logger = Logger.getLogger(ElasticsearchFactory::class.java)
+  private lateinit var restHighLevelClient: RestHighLevelClient
+  private lateinit var sniffer: Sniffer
 
-  fun transportClient(): TransportClient {
-    val settings = ImmutableSettings.settingsBuilder()
-      .put("cluster.name", property.clusterName)
+  @PostConstruct
+  fun init() {
+    val restClientBuilder = RestClient.builder(*httpHosts())
+      .setRequestConfigCallback { config ->
+        config.setConnectTimeout(5_000)
+        config.setSocketTimeout(30_000)
+      }
+      .setHttpClientConfigCallback { config ->
+        config.setDefaultIOReactorConfig(
+          IOReactorConfig.custom()
+            .setIoThreadCount(Runtime.getRuntime().availableProcessors())
+            .build()
+        )
+      }
+      .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS)
+
+    restHighLevelClient = RestHighLevelClient(restClientBuilder)
+
+    sniffer = Sniffer.builder(restHighLevelClient.lowLevelClient)
+      .setSniffIntervalMillis(30_000)
       .build()
-
-    var client = TransportClient(settings)
-
-    for (node in property.cluster) {
-      client.addTransportAddress(InetSocketTransportAddress(node, property.port))
-    }
-
-    return client
   }
 
-  fun bulkProcessor(client: TransportClient): BulkProcessor {
-    return BulkProcessor.builder(
-      client,
-      object : BulkProcessor.Listener {
-        override fun beforeBulk(executionId: Long, request: BulkRequest) {}
+  private fun httpHosts(): Array<HttpHost> {
+    val httpHosts = mutableListOf<HttpHost>()
+    for (index in property.cluster.indices) {
+      httpHosts.add(HttpHost(property.cluster[index], 9200, "http"))
+    }
+    return httpHosts.toTypedArray()
+  }
 
-        override fun afterBulk(executionId: Long, request: BulkRequest, response: BulkResponse) {
-          logger.debug("stored " + request.numberOfActions() + " metrics")
-        }
+  fun restHighLevelClient(): RestHighLevelClient {
+    return restHighLevelClient
+  }
 
-        override fun afterBulk(executionId: Long, request: BulkRequest, failure: Throwable) {
-          logger.error(failure)
-        }
-      })
-      .setBulkActions(property.bulk!!.actions)
-      .setFlushInterval(TimeValue.timeValueSeconds(property.bulk!!.interval))
-      .setConcurrentRequests(1)
-      .build()
+  @PreDestroy
+  fun destroy() {
+    restHighLevelClient.close()
+    sniffer.close()
   }
 }

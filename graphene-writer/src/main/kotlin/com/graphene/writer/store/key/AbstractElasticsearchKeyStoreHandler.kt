@@ -8,11 +8,11 @@ import com.graphene.writer.store.key.model.GrapheneKeyMapper
 import com.graphene.writer.util.NamedThreadFactory
 import net.iponweb.disthene.reader.utils.DateTimeUtils
 import org.apache.log4j.Logger
-import org.elasticsearch.action.bulk.BulkProcessor
-import org.elasticsearch.action.get.MultiGetRequestBuilder
+import org.elasticsearch.action.bulk.BulkRequest
+import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.action.index.IndexRequest
-import org.elasticsearch.client.Client
-import org.elasticsearch.client.transport.TransportClient
+import org.elasticsearch.client.RequestOptions
+import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.xcontent.XContentBuilder
 import java.io.IOException
 import java.util.*
@@ -31,12 +31,11 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private val logger = Logger.getLogger(SimpleKeyStoreHandler::class.java)
 
-  private lateinit var client: TransportClient
+  private lateinit var client: RestHighLevelClient
   private lateinit var scheduler: ScheduledExecutorService
-  private lateinit var request: MetricMultiGetRequestBuilder
+  private lateinit var multiGetRequestContainer: MultiGetRequestContainer
   private lateinit var index: String
   private lateinit var type: String
-  private lateinit var bulkProcessor: BulkProcessor
   private lateinit var grapheneKeyMapper: GrapheneKeyMapper
 
   private var lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
@@ -47,14 +46,13 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   @PostConstruct
   fun init() {
-    client = elasticsearchFactory.transportClient()
+    client = elasticsearchFactory.restHighLevelClient()
 
-    bulkProcessor = elasticsearchFactory.bulkProcessor(client)
     grapheneKeyMapper = GrapheneKeyMapper()
 
     index = property.index
     type = property.type
-    request = MetricMultiGetRequestBuilder(client, index, type)
+    multiGetRequestContainer = MultiGetRequestContainer()
     batchSize = property.bulk!!.actions
     flushInterval = property.bulk!!.interval
 
@@ -72,32 +70,33 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       if (Objects.nonNull(metric)) {
         addToBatch(metric)
       }
+
+      if (0 < multiGetRequestContainer.size()) {
+        flush()
+      }
     } catch (e: Exception) {
       logger.error("Encountered error in busy loop: ", e)
-    }
-
-    if (0 < request.size()) {
-      flush()
     }
   }
 
   private fun addToBatch(metric: GrapheneMetric) {
-    request.add(metric)
+    multiGetRequestContainer.add(index, type, metric)
 
-    if (batchSize <= request.size() || lastFlushTimeSeconds < DateTimeUtils.currentTimeSeconds() - flushInterval) {
+    if (batchSize <= multiGetRequestContainer.size() || lastFlushTimeSeconds < DateTimeUtils.currentTimeSeconds() - flushInterval) {
       flush()
     }
   }
 
   private fun flush() {
-    val multiGetItemResponse = request.execute().actionGet()
+    val multiGetResponse = client.mget(multiGetRequestContainer.multiGetRequest, RequestOptions.DEFAULT)
+    val bulkRequest = BulkRequest()
 
-    for (response in multiGetItemResponse.responses) {
+    for (response in multiGetResponse.responses) {
       if (response.isFailed) {
         logger.error("Get failed: " + response.failure.message)
       }
 
-      val metric = request.metrics[response.id]
+      val metric = multiGetRequestContainer.metrics[response.id]
       if (response.isFailed || !response.response.isExists) {
         val parts = metric!!.getGraphiteKeyParts()
         val graphiteKeySb = StringBuilder()
@@ -109,7 +108,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
           graphiteKeySb.append(parts[depth])
           try {
             val graphiteKeyPart = graphiteKeySb.toString()
-            bulkProcessor.add(IndexRequest(index, type, metric.getTenant() + "_" + graphiteKeyPart)
+            bulkRequest.add(IndexRequest(index, type, metric.getTenant() + "_" + graphiteKeyPart)
               .source(source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts))))
           } catch (e: IOException) {
             logger.error(e)
@@ -118,23 +117,23 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       }
     }
 
-    request = MetricMultiGetRequestBuilder(client, index, type)
+    // add the bulk metrics
+    val bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT)
+    bulkResponse.took
+    multiGetRequestContainer = MultiGetRequestContainer()
     lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
   }
 
   private fun isLeaf(depth: Int, parts: List<String>) = depth == parts.size - 1
 
-  private inner class MetricMultiGetRequestBuilder(
-    client: Client,
-    private val index: String,
-    private val type: String
-  ) : MultiGetRequestBuilder(client) {
+  private inner class MultiGetRequestContainer(
+    val multiGetRequest: MultiGetRequest = MultiGetRequest(),
+    val metrics: MutableMap<String, GrapheneMetric> = mutableMapOf()
+  ) {
 
-    internal var metrics: MutableMap<String, GrapheneMetric> = HashMap()
-
-    fun add(metric: GrapheneMetric): MultiGetRequestBuilder {
+    fun add(index: String, type: String, metric: GrapheneMetric) {
       metrics[metric.getId()] = metric
-      return super.add(index, type, metric.getId())
+      multiGetRequest.add(MultiGetRequest.Item(index, type, metric.getId()))
     }
 
     fun size(): Int {
