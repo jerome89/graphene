@@ -1,57 +1,59 @@
 package com.graphene.reader.service.index
 
-import net.iponweb.disthene.reader.config.IndexConfiguration
+import com.graphene.reader.service.index.model.IndexProperty
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
 import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.client.transport.TransportClient
+import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHits
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import javax.annotation.PreDestroy
+import org.elasticsearch.client.RequestOptions
+import org.elasticsearch.search.builder.SearchSourceBuilder
+import org.elasticsearch.action.search.SearchRequest
+import org.elasticsearch.action.search.SearchScrollRequest
 
 @Component
 class ElasticsearchClient(
-  private val client: TransportClient,
-  private val indexConfiguration: IndexConfiguration
+  private val client: RestHighLevelClient,
+  private val indexProperty: IndexProperty
 ) {
 
   @Throws(TooMuchDataExpectedException::class)
   fun query(query: QueryBuilder): Response {
-    val searchResponse = client
-      .prepareSearch(indexConfiguration.index)
-      .setScroll(TimeValue(indexConfiguration.timeout.toLong()))
-      .setSize(indexConfiguration.scroll)
-      .setTypes(indexConfiguration.type)
-      .setQuery(query)
-      .execute()
-      .actionGet()
+    val searchSourceBuilder = SearchSourceBuilder()
+    searchSourceBuilder.query(query)
+    searchSourceBuilder.size(indexProperty.scroll)
 
+    val searchRequest = SearchRequest(indexProperty.index)
+    searchRequest.source(searchSourceBuilder)
+    searchRequest.scroll(TimeValue(indexProperty.timeout.toLong()))
+
+    val searchResponse = client.search(searchRequest, RequestOptions.DEFAULT)
     throwIfExceededMaxPaths(searchResponse)
 
     return Response.of(searchResponse)
   }
 
   fun searchScroll(response: Response): Response {
-    val searchResponse = client
-      .prepareSearchScroll(response.scrollId)
-      .setScroll(TimeValue.timeValueMinutes(indexConfiguration.timeout.toLong()))
-      .execute()
-      .actionGet()
+    val scrollRequest = SearchScrollRequest(response.scrollId)
+    scrollRequest.scroll(TimeValue.timeValueSeconds(indexProperty.timeout.toLong()))
 
+    val searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
     return Response.of(searchResponse)
   }
 
   private fun throwIfExceededMaxPaths(response: SearchResponse) {
     // if total hits exceeds maximum - abort right away returning empty array
-    if (response.hits.totalHits() > indexConfiguration.maxPaths) {
-      logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits())
+    if (response.hits.totalHits > indexProperty.maxPaths) {
+      logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits)
       throw TooMuchDataExpectedException(
         "Total number map paths exceeds the limit: "
-          + response.hits.totalHits()
+          + response.hits.totalHits
           + " (the limit is "
-          + indexConfiguration.maxPaths
+          + indexProperty.maxPaths
           + ")")
     }
   }

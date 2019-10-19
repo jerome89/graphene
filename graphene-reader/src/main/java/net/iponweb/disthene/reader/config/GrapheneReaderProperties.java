@@ -1,5 +1,6 @@
 package net.iponweb.disthene.reader.config;
 
+import com.graphene.reader.service.index.model.IndexProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -9,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class GrapheneReaderProperties {
     private ReaderConfiguration render;
     private StoreConfiguration store;
-    private IndexConfiguration index;
+    private IndexProperty index;
     private StatsConfiguration stats;
 
     public ReaderConfiguration getRender() {
@@ -28,11 +29,11 @@ public class GrapheneReaderProperties {
         this.store = store;
     }
 
-    public IndexConfiguration getIndex() {
+    public IndexProperty getIndex() {
         return index;
     }
 
-    public void setIndex(IndexConfiguration index) {
+    public void setIndex(IndexProperty index) {
         this.index = index;
     }
 

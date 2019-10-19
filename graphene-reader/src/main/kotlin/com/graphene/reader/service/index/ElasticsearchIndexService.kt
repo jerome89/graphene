@@ -9,7 +9,6 @@ import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.util.*
 
 /**
  *
@@ -43,7 +42,7 @@ class ElasticsearchIndexService(
 
       while (response.hits.hits.isNotEmpty()) {
         for (hit in response.hits) {
-          result.add(hit.sourceAsMap()["path"] as String)
+          result.add(hit.sourceAsMap["path"] as String)
         }
 
         response = elasticsearchClient.searchScroll(response)
@@ -76,7 +75,7 @@ class ElasticsearchIndexService(
   }
 
   private fun mapToHierarchyMetricPath(hit: SearchHit): HierarchyMetricPaths.HierarchyMetricPath {
-    val source = hit.sourceAsMap()
+    val source = hit.sourceAsMap
 
     val path = source["path"] as String
     val leaf = source["leaf"] as Boolean

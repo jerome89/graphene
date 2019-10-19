@@ -1,5 +1,6 @@
 package net.iponweb.disthene.reader;
 
+import com.graphene.reader.service.index.model.IndexProperty;
 import net.iponweb.disthene.reader.config.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -11,7 +12,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @SpringBootApplication(scanBasePackages = {"com.graphene.reader", "net.iponweb.disthene.reader"})
 @EnableAutoConfiguration(exclude = {CassandraAutoConfiguration.class, GsonAutoConfiguration.class})
 @EnableConfigurationProperties({
-  IndexConfiguration.class,
+  IndexProperty.class,
   StoreConfiguration.class,
   GrapheneReaderProperties.class,
   ThrottlingConfiguration.class,
