@@ -13,8 +13,6 @@ import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestHighLevelClient
-import org.elasticsearch.common.xcontent.XContentBuilder
-import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
@@ -58,6 +56,8 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     scheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     scheduler.scheduleWithFixedDelay(this, 3000, 100, TimeUnit.MILLISECONDS)
+
+    createTemplateIfNotExists(property.templateIndexPattern)
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
@@ -88,43 +88,32 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   }
 
   private fun flush() {
+    createIndexIfNotExists(property.index)
+
     val multiGetResponse = client.mget(multiGetRequestContainer.multiGetRequest, RequestOptions.DEFAULT)
     val bulkRequest = BulkRequest()
 
     for (response in multiGetResponse.responses) {
-      if (response.isFailed) {
-        logger.error("Get failed: " + response.failure.message)
+      if (response.response.isExists || response.isFailed) {
+        continue
       }
 
       val metric = multiGetRequestContainer.metrics[response.id]
-      if (response.isFailed || !response.response.isExists) {
-        val parts = metric!!.getGraphiteKeyParts()
-        val graphiteKeySb = StringBuilder()
-
-        for (depth in parts.indices) {
-          if (graphiteKeySb.toString().isNotEmpty()) {
-            graphiteKeySb.append(".")
-          }
-          graphiteKeySb.append(parts[depth])
-          try {
-            val graphiteKeyPart = graphiteKeySb.toString()
-            bulkRequest.add(IndexRequest(index, type, metric.getTenant() + "_" + graphiteKeyPart)
-              .source(source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts))))
-          } catch (e: IOException) {
-            logger.error(e)
-          }
-        }
+      val indexRequests = mapToIndexRequests(metric)
+      for (indexRequest in indexRequests) {
+        bulkRequest.add(indexRequest)
       }
     }
 
-    // add the bulk metrics
+    if (bulkRequest.requests().isEmpty()) {
+      return
+    }
+
     val bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT)
     bulkResponse.took
     multiGetRequestContainer = MultiGetRequestContainer()
     lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
   }
-
-  private fun isLeaf(depth: Int, parts: List<String>) = depth == parts.size - 1
 
   private inner class MultiGetRequestContainer(
     val multiGetRequest: MultiGetRequest = MultiGetRequest(),
@@ -154,6 +143,10 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     client.close()
   }
 
-  abstract fun source(tenant: String, graphiteKeyPart: String, depth: Int, leaf: Boolean): XContentBuilder
+  abstract fun mapToIndexRequests(metric: GrapheneMetric?) : List<IndexRequest>
+
+  abstract fun createTemplateIfNotExists(index: String)
+
+  abstract fun createIndexIfNotExists(index: String)
 
 }
