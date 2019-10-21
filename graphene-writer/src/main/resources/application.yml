@@ -21,8 +21,10 @@ graphene:
         handlers:
           logging-key-store-handler:
             enabled: true
+            tenant: NONE
           simple-key-store-handler:
             enabled: true
+            tenant: NONE
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
@@ -35,6 +37,7 @@ graphene:
               interval: 5
           index-based-key-store-handler:
             enabled: true
+            tenant: NONE
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
