@@ -15,6 +15,9 @@ graphene:
       key:
         handlers:
           elasticsearch-key-search-handler:
+            key-selector:
+              type: "RollingKeySelector"
+              period: 0
             enabled: true
             tenant: NONE
             clusterName: "metric"
