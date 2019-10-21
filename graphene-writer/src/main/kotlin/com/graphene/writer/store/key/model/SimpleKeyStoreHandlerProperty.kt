@@ -11,13 +11,14 @@ class SimpleKeyStoreHandlerProperty(
   var isCache: Boolean = false,
   var expire: Long = 0,
   override var clusterName: String = "graphene",
+  override var tenant: String = "NONE",
   override var templateIndexPattern: String = "metric*",
   override var index: String = "metric",
   override var type: String = "path",
   override var cluster: List<String> = mutableListOf(),
   override var port: Int = 9300,
   override var bulk: IndexBulkConfiguration? = null
-) : ElasticsearchKeyStoreHandlerProperty(clusterName, templateIndexPattern, index, type, cluster, port, bulk) {
+) : ElasticsearchKeyStoreHandlerProperty(clusterName, tenant, templateIndexPattern, index, type, cluster, port, bulk) {
 
   @PostConstruct
   fun init() {
