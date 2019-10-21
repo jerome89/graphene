@@ -96,7 +96,7 @@ class SimpleKeyStoreHandler(
           "number_of_shards": 5
         },
         "mappings": {
-          "path": {
+          "_doc": {
             "properties": {
               "path": {
                 "type": "keyword"
