@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Set;
 
 public interface IndexService {
+
   Set<String> getPaths(String tenant, List<String> wildcards) throws TooMuchDataExpectedException;
 
   Collection<HierarchyMetricPaths.HierarchyMetricPath> getHierarchyMetricPaths(String tenant, String query) throws TooMuchDataExpectedException;
+
 }

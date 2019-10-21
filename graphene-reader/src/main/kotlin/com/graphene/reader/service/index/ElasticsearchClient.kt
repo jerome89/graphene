@@ -2,6 +2,7 @@ package com.graphene.reader.service.index
 
 import com.graphene.reader.service.index.model.IndexProperty
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
+import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.unit.TimeValue
@@ -39,10 +40,20 @@ class ElasticsearchClient(
 
   fun searchScroll(response: Response): Response {
     val scrollRequest = SearchScrollRequest(response.scrollId)
-    scrollRequest.scroll(TimeValue.timeValueSeconds(indexProperty.timeout.toLong()))
+    scrollRequest.scroll(TimeValue.timeValueMillis(indexProperty.timeout.toLong()))
 
     val searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
     return Response.of(searchResponse)
+  }
+
+  fun clearScroll(scrollIds: List<String>) {
+    val clearScrollRequest = ClearScrollRequest()
+    clearScrollRequest.scrollIds(scrollIds)
+
+    val clearScroll = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT)
+    if (!clearScroll.isSucceeded) {
+      logger.warn("[$scrollIds] scroll clears is failed.")
+    }
   }
 
   private fun throwIfExceededMaxPaths(response: SearchResponse) {

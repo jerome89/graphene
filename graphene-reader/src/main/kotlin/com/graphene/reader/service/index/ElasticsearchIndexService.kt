@@ -35,7 +35,9 @@ class ElasticsearchIndexService(
 
     logger.debug("getPaths plain paths: " + result.size + ", wildcard paths: " + regExs.size)
 
-    if (regExs.size > 0) {
+    if (0 < regExs.size) {
+      val scrollIds = mutableListOf<String>()
+
       var response = elasticsearchClient.query(
         QueryBuilders.regexpQuery("path", Joiner.on("|").skipNulls().join(regExs))
       )
@@ -46,7 +48,10 @@ class ElasticsearchIndexService(
         }
 
         response = elasticsearchClient.searchScroll(response)
+        scrollIds.add(response.scrollId)
       }
+
+      elasticsearchClient.clearScroll(scrollIds)
     }
 
     return result
