@@ -48,6 +48,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   @PostConstruct
   fun init() {
     client = elasticsearchFactory.restHighLevelClient()
+    keyRotator = SimpleKeyRotator(property, elasticsearchFactory)
 
     index = property.index
     type = property.type
@@ -55,14 +56,17 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     batchSize = property.bulk!!.actions
     flushInterval = property.bulk!!.interval
 
+    // How to abstract this method calls
+    // for index or alias is empty
+    client.indices().putTemplate(createTemplateIfNotExists(), RequestOptions.DEFAULT)
+    createIndexIfNotExists(property.index)
+    keyRotator.run()
+
     keyStoreScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     keyStoreScheduler.scheduleWithFixedDelay(this, 3_000, 500, TimeUnit.MILLISECONDS)
 
-    keyRotator = SimpleKeyRotator(property, elasticsearchFactory)
     keyRotatorScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(KeyRotator::class.simpleName!!))
     keyRotatorScheduler.scheduleWithFixedDelay(keyRotator, 3_000, 60_000, TimeUnit.MILLISECONDS)
-
-    client.indices().putTemplate(createTemplateIfNotExists(), RequestOptions.DEFAULT)
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
@@ -93,7 +97,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   }
 
   private fun flush() {
-//    var index = indexSelector.selectIndex()
     createIndexIfNotExists(property.index)
 
     val multiGetResponse = client.mget(multiGetRequestContainer.multiGetRequest, RequestOptions.DEFAULT)
@@ -113,7 +116,9 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     }
 
     val bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT)
-    bulkResponse.took
+    if (bulkResponse.hasFailures()) {
+      logger.error("Fail to index metric key, reason : ${bulkResponse.buildFailureMessage()}")
+    }
     multiGetRequestContainer = MultiGetRequestContainer()
     lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
   }
