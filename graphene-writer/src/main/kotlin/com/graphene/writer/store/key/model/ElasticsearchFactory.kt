@@ -2,6 +2,7 @@ package com.graphene.writer.store.key.model
 
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
+import org.apache.log4j.Logger
 import org.elasticsearch.client.NodeSelector
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
@@ -15,6 +16,8 @@ import javax.annotation.PreDestroy
 class ElasticsearchFactory(
   private val property: SimpleKeyStoreHandlerProperty
 ) {
+
+  private val logger = Logger.getLogger(ElasticsearchFactory::class.java)
 
   private lateinit var restHighLevelClient: RestHighLevelClient
   private lateinit var sniffer: Sniffer
@@ -56,7 +59,9 @@ class ElasticsearchFactory(
 
   @PreDestroy
   fun destroy() {
+    logger.info("Closing ES client")
     restHighLevelClient.close()
     sniffer.close()
+    logger.info("Closed ES client")
   }
 }
