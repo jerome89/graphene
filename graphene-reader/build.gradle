@@ -37,7 +37,7 @@ sourceSets {
     main.java.srcDirs += 'src/main/java'
 }
 
-group = 'net.iponweb.disthene.reader'
+group = 'com.graphene.reader'
 version = '1.0.0'
 description = 'disthene-reader'
 sourceCompatibility = '1.8'
