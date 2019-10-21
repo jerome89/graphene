@@ -10,10 +10,11 @@ import java.util.ArrayList
  *
  * @since 1.0.0
  */
-@ConfigurationProperties("graphene.reader.store.key")
+@ConfigurationProperties("graphene.reader.store.key.handlers.elasticsearch-key-search-handler")
 class IndexProperty {
-  var name: String? = null
+  var clusterName: String? = null
   var index: String? = null
+  var tenant: String = "NONE"
   var type: String? = null
   var cluster: List<String> = ArrayList()
   var port: Int = 0
@@ -23,9 +24,10 @@ class IndexProperty {
 
   override fun toString(): String {
     return "IndexProperty{" +
-      "name=$name" +
+      "clusterName=$clusterName" +
       ", index=$index" +
       ", type=$type" +
+      ", tenant=$tenant" +
       ", cluster=$cluster" +
       ", port=$port" +
       ", scroll=$scroll" +
