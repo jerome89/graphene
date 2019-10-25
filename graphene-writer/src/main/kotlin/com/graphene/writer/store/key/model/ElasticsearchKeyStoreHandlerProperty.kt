@@ -4,6 +4,7 @@ import com.graphene.writer.config.IndexBulkConfiguration
 
 open class ElasticsearchKeyStoreHandlerProperty(
   open var clusterName: String,
+  open var templateIndexPattern: String,
   open var index: String,
   open var type: String,
   open var cluster: List<String>,

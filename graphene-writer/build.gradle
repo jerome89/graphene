@@ -31,7 +31,6 @@ dependencies {
     compile 'com.datastax.cassandra:cassandra-driver-core:3.1.0'
     compile 'com.google.guava:guava:18.0'
     compile 'joda-time:joda-time:2.8.2'
-    compile 'org.elasticsearch:elasticsearch:1.7.6'
     compile 'net.jpountz.lz4:lz4:1.2.0'
     compile 'commons-lang:commons-lang:2.6'
     compile 'com.rubiconproject.oss:jchronic:0.2.6'

@@ -1,4 +1,4 @@
-package com.graphene.writer.store.key.model
+package com.graphene.reader.service.index.model
 
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
@@ -6,14 +6,14 @@ import org.elasticsearch.client.NodeSelector
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.sniff.Sniffer
+import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
-
 @Component
 class ElasticsearchFactory(
-  private val property: SimpleKeyStoreHandlerProperty
+  val indexProperty: IndexProperty
 ) {
 
   private lateinit var restHighLevelClient: RestHighLevelClient
@@ -42,16 +42,18 @@ class ElasticsearchFactory(
       .build()
   }
 
+  @Bean
+  fun restHighLevelClient(): RestHighLevelClient = restHighLevelClient
+
+  @Bean
+  fun sniffer(restHighLevelClient: RestHighLevelClient): Sniffer = sniffer
+
   private fun httpHosts(): Array<HttpHost> {
     val httpHosts = mutableListOf<HttpHost>()
-    for (index in property.cluster.indices) {
-      httpHosts.add(HttpHost(property.cluster[index], 9200, "http"))
+    for (index in indexProperty.cluster.indices) {
+      httpHosts.add(HttpHost(indexProperty.cluster[index], 9200, "http"))
     }
     return httpHosts.toTypedArray()
-  }
-
-  fun restHighLevelClient(): RestHighLevelClient {
-    return restHighLevelClient
   }
 
   @PreDestroy
@@ -59,4 +61,5 @@ class ElasticsearchFactory(
     restHighLevelClient.close()
     sniffer.close()
   }
+
 }
