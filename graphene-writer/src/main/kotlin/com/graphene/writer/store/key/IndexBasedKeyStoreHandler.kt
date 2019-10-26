@@ -1,12 +1,10 @@
 package com.graphene.writer.store.key
 
 import com.graphene.writer.input.GrapheneMetric
+import com.graphene.writer.store.key.model.ElasticsearchClientFactory
 import com.graphene.writer.store.key.model.IndexBasedKeyStoreHandlerProperty
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest
-import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
-import org.elasticsearch.common.xcontent.XContentType
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
@@ -18,26 +16,17 @@ import org.springframework.stereotype.Component
 @Component
 @ConditionalOnProperty(prefix = "graphene.writer.store.key.handlers.index-based-key-store-handler", name = ["enabled"], havingValue = "true")
 class IndexBasedKeyStoreHandler(
+  val elasticsearchClientFactory: ElasticsearchClientFactory,
   val property: IndexBasedKeyStoreHandlerProperty
-) : AbstractElasticsearchKeyStoreHandler(property) {
+) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
-  override fun createTemplateIfNotExists() {
-    val putIndexTemplateRequest = PutIndexTemplateRequest(SimpleKeyStoreHandler.TEMPLATE_NAME)
-    putIndexTemplateRequest.patterns(listOf(property.templateIndexPattern))
-    putIndexTemplateRequest.source(SimpleKeyStoreHandler.SOURCE, XContentType.JSON)
-
-    getElasticsearchClient().putTemplate(putIndexTemplateRequest)
+  override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
+    return mutableListOf(GrapheneIndexRequest(metric!!.getId(), source(metric)))
   }
 
-  override fun mapToIndexRequests(metric: GrapheneMetric?): List<IndexRequest> {
-    val indexRequests = mutableListOf<IndexRequest>()
-    indexRequests.add(IndexRequest(currentIndexPointer(), property.type, metric!!.getId()).source(source(metric)))
-    return indexRequests
-  }
+  override fun templateSource(): String = SOURCE
 
-  override fun createIndexIfNotExists(index: String) {
-    getElasticsearchClient().createIndexIfNotExists("$index.0")
-  }
+  override fun templateName(): String = TEMPLATE_NAME
 
   private fun source(metric: GrapheneMetric): XContentBuilder {
     val graphiteKeyParts = metric.getGraphiteKeyParts()

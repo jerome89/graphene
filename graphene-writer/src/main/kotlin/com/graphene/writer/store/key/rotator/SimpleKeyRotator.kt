@@ -1,6 +1,6 @@
 package com.graphene.writer.store.key.rotator
 
-import com.graphene.writer.store.key.model.ElasticsearchClient
+import com.graphene.writer.store.key.model.ElasticsearchClientImpl
 import com.graphene.writer.store.key.model.ElasticsearchKeyStoreHandlerProperty
 import org.apache.log4j.Logger
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest
@@ -11,11 +11,11 @@ import org.elasticsearch.client.RestHighLevelClient
 
 class SimpleKeyRotator(
   var property: ElasticsearchKeyStoreHandlerProperty,
-  var elasticsearchClient: ElasticsearchClient
+  var elasticsearchClientImpl: ElasticsearchClientImpl
 ) : KeyRotator {
 
   private val logger = Logger.getLogger(SimpleKeyRotator::class.java)
-  private var restHighLevelClient: RestHighLevelClient = elasticsearchClient.restHighLevelClient()
+  private var restHighLevelClient: RestHighLevelClient = elasticsearchClientImpl.restHighLevelClient()
 
   override fun getCurrentPointer(): String {
     return "${property.index}.${property.tenant}.CURRENT"
@@ -30,7 +30,7 @@ class SimpleKeyRotator(
     }
 
     val aliasAction = AliasActions(AliasActions.Type.ADD)
-      .index(elasticsearchClient.getInitialIndex())
+      .index(elasticsearchClientImpl.getInitialIndex())
       .aliases(currentPointer, dateAlias)
 
     val indicesAliasesRequest = IndicesAliasesRequest()
