@@ -26,7 +26,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private lateinit var elasticsearchClient: ElasticsearchClient
   private lateinit var keyStoreScheduler: ScheduledExecutorService
-  private lateinit var keyRotatorScheduler: ScheduledExecutorService
   private lateinit var multiGetRequestContainer: MultiGetRequestContainer
   private lateinit var index: String
   private lateinit var type: String
@@ -141,7 +140,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   @PreDestroy
   fun shutdown() {
     keyStoreScheduler.shutdown()
-    keyRotatorScheduler.shutdown()
     logger.info("Sleeping for 10 seconds to allow leftovers to be written")
     try {
       Thread.sleep(10000)

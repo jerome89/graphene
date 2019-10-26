@@ -20,7 +20,7 @@ graphene:
       key:
         handlers:
           logging-key-store-handler:
-            enabled: false
+            enabled: true
             tenant: NONE
           simple-key-store-handler:
             enabled: true
@@ -36,7 +36,7 @@ graphene:
               actions: 10000
               interval: 5
           index-based-key-store-handler:
-            enabled: false
+            enabled: true
             tenant: NONE
             clusterName: "metric"
             cluster:

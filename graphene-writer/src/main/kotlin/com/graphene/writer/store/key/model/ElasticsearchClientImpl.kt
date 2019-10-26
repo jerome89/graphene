@@ -20,19 +20,16 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.sniff.Sniffer
 import org.elasticsearch.common.xcontent.XContentType
-import javax.annotation.PostConstruct
 
 class ElasticsearchClientImpl(
-  private val httpHosts: Array<HttpHost>
+  httpHosts: Array<HttpHost>
 ) : ElasticsearchClient {
-  private lateinit var restHighLevelClient: RestHighLevelClient
-
-  private lateinit var sniffer: Sniffer
 
   private val logger = Logger.getLogger(ElasticsearchClientImpl::class.java)
+  private var restHighLevelClient: RestHighLevelClient
+  private var sniffer: Sniffer
 
-  @PostConstruct
-  fun init() {
+  init {
     val restClientBuilder = RestClient.builder(*httpHosts)
       .setRequestConfigCallback { config ->
         config.setConnectTimeout(5_000)

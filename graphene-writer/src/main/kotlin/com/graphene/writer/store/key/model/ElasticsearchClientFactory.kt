@@ -11,13 +11,12 @@ class ElasticsearchClientFactory {
   lateinit var elasticsearchClients: MutableList<ElasticsearchClient>
 
   @PostConstruct
-  fun init(): Unit {
+  fun init() {
     elasticsearchClients = mutableListOf()
   }
 
   fun createElasticsearchClient(cluster: List<String>): ElasticsearchClient {
     val elasticsearchClientImpl = ElasticsearchClientImpl(httpHosts(cluster))
-    elasticsearchClientImpl.init()
 
     elasticsearchClients.add(elasticsearchClientImpl)
 
