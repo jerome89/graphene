@@ -1,6 +1,6 @@
 package com.graphene.writer.store.key.model
 
-import com.graphene.writer.store.key.GrapheneIndexRequest
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse
 import org.elasticsearch.action.bulk.BulkResponse
 import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.action.get.MultiGetResponse
@@ -18,5 +18,7 @@ interface ElasticsearchClient : Closeable {
   fun bulk(index: String, type: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse
 
   fun mget(multiGetRequest: MultiGetRequest, default: RequestOptions): MultiGetResponse
+
+  fun getIndices(): GetIndexResponse
 
 }

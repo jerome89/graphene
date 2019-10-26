@@ -30,7 +30,7 @@ class SimpleKeyRotator(
     }
 
     val aliasAction = AliasActions(AliasActions.Type.ADD)
-      .index(elasticsearchClientImpl.getInitialIndex())
+      .index(elasticsearchClientImpl.getInitialIndex(property.index))
       .aliases(currentPointer, dateAlias)
 
     val indicesAliasesRequest = IndicesAliasesRequest()

@@ -42,8 +42,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   @PostConstruct
   fun init() {
-    elasticsearchClient = elasticsearchClientFactory.createIndexRollingEsClient(property.cluster)
-
     index = property.index
     type = property.type
     templateIndexPattern = property.templateIndexPattern
@@ -51,6 +49,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     batchSize = property.bulk!!.actions
     flushInterval = property.bulk!!.interval
 
+    elasticsearchClient = elasticsearchClientFactory.createIndexRollingEsClient(property.cluster)
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
     elasticsearchClient.createIndexIfNotExists(property.index)
 
@@ -68,10 +67,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     keyStoreScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     keyStoreScheduler.scheduleWithFixedDelay(this, 3_000, 500, TimeUnit.MILLISECONDS)
   }
-
-  abstract fun templateSource(): String
-
-  abstract fun templateName(): String
 
   override fun handle(grapheneMetric: GrapheneMetric) {
     metrics.offer(grapheneMetric)
@@ -155,5 +150,9 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   }
 
   abstract fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest>
+
+  abstract fun templateSource(): String
+
+  abstract fun templateName(): String
 
 }

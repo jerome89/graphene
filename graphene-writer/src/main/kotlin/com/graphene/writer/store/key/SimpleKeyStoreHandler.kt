@@ -2,6 +2,7 @@ package com.graphene.writer.store.key
 
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.model.ElasticsearchClientFactory
+import com.graphene.writer.store.key.model.GrapheneIndexRequest
 import com.graphene.writer.store.key.model.SimpleKeyStoreHandlerProperty
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory

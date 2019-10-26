@@ -1,11 +1,11 @@
 package com.graphene.writer.store.key.model
 
-import com.graphene.writer.store.key.GrapheneIndexRequest
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.log4j.Logger
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest
 import org.elasticsearch.action.bulk.BulkRequest
 import org.elasticsearch.action.bulk.BulkResponse
@@ -25,8 +25,8 @@ class ElasticsearchClientImpl(
 ) : ElasticsearchClient {
 
   private lateinit var restHighLevelClient: RestHighLevelClient
-  private lateinit var sniffer: Sniffer
 
+  private lateinit var sniffer: Sniffer
   private val logger = Logger.getLogger(ElasticsearchClientImpl::class.java)
 
   @PostConstruct
@@ -54,6 +54,11 @@ class ElasticsearchClientImpl(
 
   fun restHighLevelClient(): RestHighLevelClient {
     return restHighLevelClient
+  }
+
+  override fun getIndices(): GetIndexResponse {
+    val request = GetIndexRequest().indices("*")
+    return restHighLevelClient.indices().get(request, RequestOptions.DEFAULT)
   }
 
   override fun bulk(index: String, type: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse {
