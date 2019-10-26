@@ -2,14 +2,14 @@ package com.graphene.writer.store.key
 
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.KeyStoreHandler
-import com.graphene.writer.store.key.model.ElasticsearchFactory
+import com.graphene.writer.store.key.model.ElasticsearchClient
 import com.graphene.writer.store.key.model.ElasticsearchKeyStoreHandlerProperty
 import com.graphene.writer.store.key.rotator.KeyRotator
 import com.graphene.writer.store.key.rotator.SimpleKeyRotator
 import com.graphene.writer.util.NamedThreadFactory
 import net.iponweb.disthene.reader.utils.DateTimeUtils
 import org.apache.log4j.Logger
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest
 import org.elasticsearch.action.bulk.BulkRequest
 import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.action.index.IndexRequest
@@ -25,14 +25,14 @@ import javax.annotation.PreDestroy
 
 // TODO duplicated branch node removing logic
 abstract class AbstractElasticsearchKeyStoreHandler(
-  private val elasticsearchFactory: ElasticsearchFactory,
   private val property: ElasticsearchKeyStoreHandlerProperty
 ) : KeyStoreHandler, Runnable {
 
   private val logger = Logger.getLogger(SimpleKeyStoreHandler::class.java)
 
-  private lateinit var client: RestHighLevelClient
   private lateinit var keyRotator: KeyRotator
+  private lateinit var elasticsearchClient: ElasticsearchClient
+  private lateinit var client: RestHighLevelClient
   private lateinit var keyStoreScheduler: ScheduledExecutorService
   private lateinit var keyRotatorScheduler: ScheduledExecutorService
   private lateinit var multiGetRequestContainer: MultiGetRequestContainer
@@ -47,8 +47,9 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   @PostConstruct
   fun init() {
-    client = elasticsearchFactory.restHighLevelClient()
-    keyRotator = SimpleKeyRotator(property, elasticsearchFactory)
+    elasticsearchClient = ElasticsearchClient(property)
+    elasticsearchClient.init()
+    client = elasticsearchClient.restHighLevelClient()
 
     index = property.index
     type = property.type
@@ -58,15 +59,43 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     // How to abstract this method calls
     // for index or alias is empty
-    client.indices().putTemplate(createTemplateIfNotExists(), RequestOptions.DEFAULT)
+    createTemplateIfNotExists()
     createIndexIfNotExists(property.index)
+
+    keyRotator = SimpleKeyRotator(property, elasticsearchClient)
     keyRotator.run()
+
+    // 프로퍼티에서 명시한 Index 중 가장 마지막 Offset 을 가져온다.
+    val latestIndex = getLatestIndex()
+    logger.info("latestIndex : $latestIndex")
+//    val aliasDate = elasticsearchClient.getAliasDate(latestIndex)
+
+
+    // 가장 마지막 Offset 의 Index 의 alias 를 확인한다.
+
 
     keyStoreScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     keyStoreScheduler.scheduleWithFixedDelay(this, 3_000, 500, TimeUnit.MILLISECONDS)
 
     keyRotatorScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(KeyRotator::class.simpleName!!))
     keyRotatorScheduler.scheduleWithFixedDelay(keyRotator, 3_000, 60_000, TimeUnit.MILLISECONDS)
+  }
+
+  private fun getLatestIndex(): String {
+    val request = GetIndexRequest().indices("*")
+    val response = client.indices().get(request, RequestOptions.DEFAULT)
+    var latestIndexPosition = 0
+    var latestIndex = "${property.index}.0"
+    for (index in response.indices) {
+      val indexNameAndPosition = index.split("\\.")
+      val indexName = indexNameAndPosition[0]
+
+      if (property.index == indexName && latestIndexPosition < indexNameAndPosition[1].toInt()) {
+        latestIndexPosition = indexNameAndPosition[1].toInt()
+        latestIndex = index
+      }
+    }
+    return latestIndex
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
@@ -89,7 +118,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   }
 
   private fun addToBatch(metric: GrapheneMetric) {
-    multiGetRequestContainer.add(index, type, metric)
+    multiGetRequestContainer.add(type, metric)
 
     if (batchSize <= multiGetRequestContainer.size() || lastFlushTimeSeconds < DateTimeUtils.currentTimeSeconds() - flushInterval) {
       flush()
@@ -128,9 +157,9 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     val metrics: MutableMap<String, GrapheneMetric> = mutableMapOf()
   ) {
 
-    fun add(index: String, type: String, metric: GrapheneMetric) {
+    fun add(type: String, metric: GrapheneMetric) {
       metrics[metric.getId()] = metric
-      multiGetRequest.add(MultiGetRequest.Item(index, type, metric.getId()))
+      multiGetRequest.add(MultiGetRequest.Item(keyRotator.getCurrentPointer(), type, metric.getId()))
     }
 
     fun size(): Int {
@@ -148,11 +177,17 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     } catch (ignored: InterruptedException) {
 
     }
+
+    elasticsearchClient.destroy()
   }
 
-  abstract fun mapToIndexRequests(metric: GrapheneMetric?) : List<IndexRequest>
+  fun getElasticsearchClient(): ElasticsearchClient = elasticsearchClient
 
-  abstract fun createTemplateIfNotExists(): PutIndexTemplateRequest
+  fun currentIndexPointer(): String = keyRotator.getCurrentPointer()
+
+  abstract fun mapToIndexRequests(metric: GrapheneMetric?): List<IndexRequest>
+
+  abstract fun createTemplateIfNotExists()
 
   abstract fun createIndexIfNotExists(index: String)
 

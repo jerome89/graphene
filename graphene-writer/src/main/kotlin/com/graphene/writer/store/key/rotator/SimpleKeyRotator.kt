@@ -1,6 +1,6 @@
 package com.graphene.writer.store.key.rotator
 
-import com.graphene.writer.store.key.model.ElasticsearchFactory
+import com.graphene.writer.store.key.model.ElasticsearchClient
 import com.graphene.writer.store.key.model.ElasticsearchKeyStoreHandlerProperty
 import org.apache.log4j.Logger
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest
@@ -11,22 +11,27 @@ import org.elasticsearch.client.RestHighLevelClient
 
 class SimpleKeyRotator(
   var property: ElasticsearchKeyStoreHandlerProperty,
-  var elasticsearchFactory: ElasticsearchFactory
+  var elasticsearchClient: ElasticsearchClient
 ) : KeyRotator {
 
   private val logger = Logger.getLogger(SimpleKeyRotator::class.java)
-  private var restHighLevelClient: RestHighLevelClient = elasticsearchFactory.restHighLevelClient()
+  private var restHighLevelClient: RestHighLevelClient = elasticsearchClient.restHighLevelClient()
+
+  override fun getCurrentPointer(): String {
+    return "${property.index}.${property.tenant}.CURRENT"
+  }
 
   override fun run() {
-    var currentAlias = "${property.index}.${property.tenant}.CURRENT"
+    var currentPointer = getCurrentPointer()
+    var dateAlias = "${property.index}.${property.tenant}.20191025"
 
-    if (existsAlias(property.index, currentAlias)) {
+    if (existsAlias(property.index, currentPointer)) {
       return
     }
 
     val aliasAction = AliasActions(AliasActions.Type.ADD)
-      .index(property.index)
-      .alias(currentAlias)
+      .index(elasticsearchClient.getInitialIndex())
+      .aliases(currentPointer, dateAlias)
 
     val indicesAliasesRequest = IndicesAliasesRequest()
     indicesAliasesRequest.addAliasAction(aliasAction)

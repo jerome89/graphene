@@ -1,10 +1,8 @@
 package com.graphene.writer.store.key
 
 import com.graphene.writer.input.GrapheneMetric
-import com.graphene.writer.store.key.model.ElasticsearchFactory
+import com.graphene.writer.store.key.model.ElasticsearchClient
 import com.graphene.writer.store.key.model.SimpleKeyStoreHandlerProperty
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.RequestOptions
@@ -22,9 +20,8 @@ import java.util.*
 @Component
 @ConditionalOnProperty(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler", name = ["enabled"], havingValue = "true")
 class SimpleKeyStoreHandler(
-  val elasticsearchFactory: ElasticsearchFactory,
   val property: SimpleKeyStoreHandlerProperty
-) : AbstractElasticsearchKeyStoreHandler(elasticsearchFactory, property) {
+) : AbstractElasticsearchKeyStoreHandler(property) {
 
   override fun mapToIndexRequests(metric: GrapheneMetric?): List<IndexRequest> {
     if (Objects.isNull(metric)) {
@@ -42,7 +39,7 @@ class SimpleKeyStoreHandler(
       graphiteKeySb.append(parts[depth])
       try {
         val graphiteKeyPart = graphiteKeySb.toString()
-        indexRequests.add(IndexRequest(property.index, property.type, metric.getTenant() + "_" + graphiteKeyPart)
+        indexRequests.add(IndexRequest(currentIndexPointer(), property.type, metric.getTenant() + "_" + graphiteKeyPart)
           .source(source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts))))
       } catch (e: Exception) {
         throw IllegalStateException("Invokes illegal state in map to index requests", e)
@@ -53,21 +50,15 @@ class SimpleKeyStoreHandler(
   }
 
   override fun createIndexIfNotExists(index: String) {
-    val restHighLevelClient = elasticsearchFactory.restHighLevelClient()
-
-    if (restHighLevelClient.indices().exists(GetIndexRequest().indices(index), RequestOptions.DEFAULT)) {
-      return
-    }
-
-    val createIndexRequest = CreateIndexRequest(index)
-    restHighLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT)
+    getElasticsearchClient().createIndexIfNotExists("$index.0")
   }
 
-  override fun createTemplateIfNotExists(): PutIndexTemplateRequest {
+  override fun createTemplateIfNotExists() {
     val putIndexTemplateRequest = PutIndexTemplateRequest(TEMPLATE_NAME)
     putIndexTemplateRequest.patterns(listOf(property.templateIndexPattern))
     putIndexTemplateRequest.source(SOURCE, XContentType.JSON)
-    return putIndexTemplateRequest
+
+    getElasticsearchClient().putTemplate(putIndexTemplateRequest)
   }
 
   private fun source(tenant: String, graphiteKeyPart: String, depth: Int, leaf: Boolean): XContentBuilder {

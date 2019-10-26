@@ -3,21 +3,22 @@ package com.graphene.writer.store.key.model
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.log4j.Logger
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest
 import org.elasticsearch.client.NodeSelector
+import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.sniff.Sniffer
-import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
-
-@Component
-class ElasticsearchFactory(
-  private val property: SimpleKeyStoreHandlerProperty
+class ElasticsearchClient(
+  private val property: ElasticsearchKeyStoreHandlerProperty
 ) {
 
-  private val logger = Logger.getLogger(ElasticsearchFactory::class.java)
+  private val logger = Logger.getLogger(ElasticsearchClient::class.java)
 
   private lateinit var restHighLevelClient: RestHighLevelClient
   private lateinit var sniffer: Sniffer
@@ -57,11 +58,28 @@ class ElasticsearchFactory(
     return restHighLevelClient
   }
 
+  fun createIndexIfNotExists(index: String) {
+    if (restHighLevelClient.indices().exists(GetIndexRequest().indices(index), RequestOptions.DEFAULT)) {
+      return
+    }
+
+    val createIndexRequest = CreateIndexRequest(index)
+    restHighLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT)
+  }
+
   @PreDestroy
   fun destroy() {
     logger.info("Closing ES client")
     restHighLevelClient.close()
     sniffer.close()
     logger.info("Closed ES client")
+  }
+
+  fun getInitialIndex(): String {
+    return "${property.index}.0"
+  }
+
+  fun putTemplate(putIndexTemplateRequest: PutIndexTemplateRequest) {
+    restHighLevelClient.indices().putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
   }
 }
