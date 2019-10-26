@@ -8,6 +8,7 @@ import com.graphene.writer.blacklist.BlacklistConfiguration
 import com.graphene.writer.input.graphite.property.GraphiteInputProperty
 import com.graphene.writer.store.data.StoreDataProperty
 import com.graphene.writer.store.key.property.IndexBasedKeyStoreHandlerProperty
+import com.graphene.writer.store.key.property.RotationProperty
 import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -28,6 +29,7 @@ import org.springframework.scheduling.annotation.EnableAsync
   CassandraDataStoreHandlerProperty::class,
   GraphiteInputProperty::class,
   StoreDataProperty::class,
+  RotationProperty::class,
   SimpleKeyStoreHandlerProperty::class,
   IndexBasedKeyStoreHandlerProperty::class
 )

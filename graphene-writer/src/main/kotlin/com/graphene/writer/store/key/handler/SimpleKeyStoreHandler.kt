@@ -3,6 +3,7 @@ package com.graphene.writer.store.key.handler
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
+import com.graphene.writer.store.key.property.RotationProperty
 import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
@@ -18,8 +19,9 @@ import java.util.*
 @ConditionalOnProperty(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler", name = ["enabled"], havingValue = "true")
 class SimpleKeyStoreHandler(
   val elasticsearchClientFactory: ElasticsearchClientFactory,
+  val rotationProperty: RotationProperty,
   val property: SimpleKeyStoreHandlerProperty
-) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
+) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, rotationProperty, property) {
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     if (Objects.isNull(metric)) {

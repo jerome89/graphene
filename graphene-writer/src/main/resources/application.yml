@@ -18,6 +18,9 @@ graphene:
           - 60s:5356800s
     store:
       key:
+        rotation:
+          strategy: "timeBasedRotation"
+          period: "1d"
         handlers:
           logging-key-store-handler:
             enabled: true

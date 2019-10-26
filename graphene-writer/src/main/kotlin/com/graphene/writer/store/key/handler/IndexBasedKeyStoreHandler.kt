@@ -4,6 +4,7 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.property.IndexBasedKeyStoreHandlerProperty
+import com.graphene.writer.store.key.property.RotationProperty
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -18,8 +19,9 @@ import org.springframework.stereotype.Component
 @ConditionalOnProperty(prefix = "graphene.writer.store.key.handlers.index-based-key-store-handler", name = ["enabled"], havingValue = "true")
 class IndexBasedKeyStoreHandler(
   val elasticsearchClientFactory: ElasticsearchClientFactory,
+  val rotationProperty: RotationProperty,
   val property: IndexBasedKeyStoreHandlerProperty
-) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
+) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, rotationProperty, property) {
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     return mutableListOf(GrapheneIndexRequest(metric!!.getId(), source(metric)))

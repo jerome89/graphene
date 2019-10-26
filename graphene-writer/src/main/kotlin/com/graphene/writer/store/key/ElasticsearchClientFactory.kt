@@ -1,5 +1,6 @@
 package com.graphene.writer.store.key
 
+import com.graphene.writer.store.key.property.RotationProperty
 import org.apache.http.HttpHost
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
@@ -23,8 +24,8 @@ class ElasticsearchClientFactory {
     return elasticsearchClientImpl
   }
 
-  fun createIndexRollingEsClient(cluster: List<String>): ElasticsearchClient {
-    return IndexRollingEsClient(createElasticsearchClient(cluster))
+  fun createIndexRollingEsClient(rotationProperty: RotationProperty, cluster: List<String>): ElasticsearchClient {
+    return IndexRollingEsClient(createElasticsearchClient(cluster), rotationProperty)
   }
 
   private fun httpHosts(cluster: List<String>): Array<HttpHost> {

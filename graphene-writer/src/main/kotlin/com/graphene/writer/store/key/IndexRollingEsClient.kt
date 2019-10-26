@@ -1,5 +1,7 @@
 package com.graphene.writer.store.key
 
+import com.graphene.writer.store.key.property.RotationProperty
+import com.graphene.writer.store.key.property.RotationStrategy
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse
 import org.elasticsearch.action.bulk.BulkResponse
 import org.elasticsearch.action.get.MultiGetRequest
@@ -7,8 +9,11 @@ import org.elasticsearch.action.get.MultiGetResponse
 import org.elasticsearch.client.RequestOptions
 
 class IndexRollingEsClient(
-  private val elasticsearchClient: ElasticsearchClient
+  private val elasticsearchClient: ElasticsearchClient,
+  private val rotationProperty: RotationProperty
 ) : ElasticsearchClient {
+
+  var rotationStrategy = RotationStrategy.of(rotationProperty)
 
   override fun addAlias(latestIndex: String, currentPointer: String, dateAlias: String) {
     elasticsearchClient.addAlias(latestIndex, currentPointer, dateAlias)
@@ -18,16 +23,12 @@ class IndexRollingEsClient(
     elasticsearchClient.createTemplateIfNotExists(templatePattern, templateName, templateSource)
   }
 
-  override fun getCurrentIndex(index: String, tenant: String): String {
-    return "${index}.${tenant}.CURRENT"
-  }
-
   override fun getLatestIndex(index: String): String {
     val response = getIndices()
     var latestIndexPosition = 0
-    var latestIndex = "$index.0"
+    var latestIndex = getIndexWithDate(index)
     for (responseIndex in response.indices) {
-      val indexNameAndPosition = responseIndex.split(".")
+      val indexNameAndPosition = responseIndex.split("_")
       val indexName = indexNameAndPosition[0]
 
       if (responseIndex == indexName && latestIndexPosition < indexNameAndPosition[1].toInt()) {
@@ -55,7 +56,7 @@ class IndexRollingEsClient(
   }
 
   override fun createIndexIfNotExists(index: String) {
-    elasticsearchClient.createIndexIfNotExists("$index.0")
+    elasticsearchClient.createIndexIfNotExists(getIndexWithDate(index))
   }
 
   override fun existsAlias(index: String, currentAlias: String): Boolean {
@@ -64,13 +65,25 @@ class IndexRollingEsClient(
 
   fun attachCurrentAliasToLatestIndex(index: String, tenant: String) {
     var currentAlias = getCurrentIndex(index, tenant)
-    var dateAlias = "${index}.${tenant}.20191026"
+    var dateAlias = getAliasWithDate(index, tenant)
 
     if (elasticsearchClient.existsAlias(index, currentAlias)) {
       return
     }
 
     elasticsearchClient.addAlias(getLatestIndex(index), currentAlias, dateAlias)
+  }
+
+  override fun getCurrentIndex(index: String, tenant: String): String {
+    return "${index}_${tenant}_CURRENT"
+  }
+
+  private fun getAliasWithDate(index: String, tenant: String): String {
+    return "${index}_${tenant}_${rotationStrategy.getDate()}"
+  }
+
+  private fun getIndexWithDate(index: String): String {
+    return "${index}_${rotationStrategy.getDate()}"
   }
 
 }

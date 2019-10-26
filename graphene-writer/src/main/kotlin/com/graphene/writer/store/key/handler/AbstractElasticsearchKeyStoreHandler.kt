@@ -7,6 +7,7 @@ import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.IndexRollingEsClient
 import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
+import com.graphene.writer.store.key.property.RotationProperty
 import com.graphene.writer.util.NamedThreadFactory
 import net.iponweb.disthene.reader.utils.DateTimeUtils
 import org.apache.log4j.Logger
@@ -23,6 +24,7 @@ import javax.annotation.PreDestroy
 // TODO duplicated branch node removing logic
 abstract class AbstractElasticsearchKeyStoreHandler(
   private val elasticsearchClientFactory: ElasticsearchClientFactory,
+  private val rotationProperty: RotationProperty,
   private val property: ElasticsearchKeyStoreHandlerProperty
 ) : KeyStoreHandler, Runnable {
 
@@ -52,7 +54,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     batchSize = property.bulk!!.actions
     flushInterval = property.bulk!!.interval
 
-    elasticsearchClient = elasticsearchClientFactory.createIndexRollingEsClient(property.cluster)
+    elasticsearchClient = elasticsearchClientFactory.createIndexRollingEsClient(rotationProperty, property.cluster)
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
     elasticsearchClient.createIndexIfNotExists(property.index)
 
