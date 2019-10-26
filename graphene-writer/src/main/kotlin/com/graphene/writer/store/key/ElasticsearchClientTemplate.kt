@@ -66,17 +66,7 @@ class ElasticsearchClientTemplate(
     return false
   }
 
-  override fun addAlias(latestIndex: String, currentPointer: String, dateAlias: String) {
-    val aliasAction = IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
-      .index(latestIndex)
-      .aliases(currentPointer, dateAlias)
-
-    val indicesAliasesRequest = IndicesAliasesRequest()
-    indicesAliasesRequest.addAliasAction(aliasAction)
-    restHighLevelClient.indices().updateAliases(indicesAliasesRequest, RequestOptions.DEFAULT)
-  }
-
-  override fun getCurrentIndex(index: String, tenant: String): String {
+  override fun getIndexWithDate(index: String, tenant: String): String {
     return index
   }
 
@@ -92,14 +82,14 @@ class ElasticsearchClientTemplate(
   override fun bulk(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse {
     val bulkRequest = BulkRequest()
     for (grapheneIndexRequest in grapheneIndexRequests) {
-      val indexRequest = IndexRequest(getLatestIndex(index), type, grapheneIndexRequest.id)
+      val indexRequest = IndexRequest(getLatestIndex(index, tenant), type, grapheneIndexRequest.id)
       indexRequest.source(grapheneIndexRequest.source)
       bulkRequest.add(indexRequest)
     }
     return restHighLevelClient.bulk(bulkRequest, default)
   }
 
-  override fun createIndexIfNotExists(index: String) {
+  override fun createIndexIfNotExists(index: String, tenant: String) {
     if (restHighLevelClient.indices().exists(GetIndexRequest().indices(index), RequestOptions.DEFAULT)) {
       return
     }
@@ -116,7 +106,7 @@ class ElasticsearchClientTemplate(
     restHighLevelClient.indices().putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
   }
 
-  override fun getLatestIndex(index: String): String {
+  override fun getLatestIndex(index: String, tenant: String): String {
     return index
   }
 

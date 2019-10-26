@@ -10,29 +10,25 @@ import org.elasticsearch.client.RequestOptions
 
 class IndexRollingEsClient(
   private val elasticsearchClient: ElasticsearchClient,
-  private val rotationProperty: RotationProperty
+  rotationProperty: RotationProperty
 ) : ElasticsearchClient {
 
   var rotationStrategy = RotationStrategy.of(rotationProperty)
-
-  override fun addAlias(latestIndex: String, currentPointer: String, dateAlias: String) {
-    elasticsearchClient.addAlias(latestIndex, currentPointer, dateAlias)
-  }
 
   override fun createTemplateIfNotExists(templatePattern: String, templateName: String, templateSource: String) {
     elasticsearchClient.createTemplateIfNotExists(templatePattern, templateName, templateSource)
   }
 
-  override fun getLatestIndex(index: String): String {
+  override fun getLatestIndex(index: String, tenant: String): String {
     val response = getIndices()
     var latestIndexPosition = 0
-    var latestIndex = getIndexWithDate(index)
+    var latestIndex = getIndexWithDate(index, tenant)
     for (responseIndex in response.indices) {
-      val indexNameAndPosition = responseIndex.split("_")
-      val indexName = indexNameAndPosition[0]
+      val indexPatterns = responseIndex.split("_")
+      val indexName = indexPatterns[0]
 
-      if (responseIndex == indexName && latestIndexPosition < indexNameAndPosition[1].toInt()) {
-        latestIndexPosition = indexNameAndPosition[1].toInt()
+      if (responseIndex == indexName && latestIndexPosition < indexPatterns[2].toInt()) {
+        latestIndexPosition = indexPatterns[2].toInt()
         latestIndex = responseIndex
       }
     }
@@ -44,7 +40,7 @@ class IndexRollingEsClient(
   }
 
   override fun bulk(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse {
-    return elasticsearchClient.bulk(getCurrentIndex(index, tenant), type, tenant, grapheneIndexRequests, default)
+    return elasticsearchClient.bulk(getIndexWithDate(index, tenant), type, tenant, grapheneIndexRequests, default)
   }
 
   override fun mget(multiGetRequest: MultiGetRequest, default: RequestOptions): MultiGetResponse {
@@ -55,35 +51,16 @@ class IndexRollingEsClient(
     elasticsearchClient.close()
   }
 
-  override fun createIndexIfNotExists(index: String) {
-    elasticsearchClient.createIndexIfNotExists(getIndexWithDate(index))
+  override fun createIndexIfNotExists(index: String, tenant: String) {
+    elasticsearchClient.createIndexIfNotExists(getIndexWithDate(index, tenant), tenant)
   }
 
   override fun existsAlias(index: String, currentAlias: String): Boolean {
     return elasticsearchClient.existsAlias(index, currentAlias)
   }
 
-  fun attachCurrentAliasToLatestIndex(index: String, tenant: String) {
-    var currentAlias = getCurrentIndex(index, tenant)
-    var dateAlias = getAliasWithDate(index, tenant)
-
-    if (elasticsearchClient.existsAlias(index, currentAlias)) {
-      return
-    }
-
-    elasticsearchClient.addAlias(getLatestIndex(index), currentAlias, dateAlias)
-  }
-
-  override fun getCurrentIndex(index: String, tenant: String): String {
-    return "${index}_${tenant}_CURRENT"
-  }
-
-  private fun getAliasWithDate(index: String, tenant: String): String {
+  override fun getIndexWithDate(index: String, tenant: String): String {
     return "${index}_${tenant}_${rotationStrategy.getDate()}"
-  }
-
-  private fun getIndexWithDate(index: String): String {
-    return "${index}_${rotationStrategy.getDate()}"
   }
 
 }

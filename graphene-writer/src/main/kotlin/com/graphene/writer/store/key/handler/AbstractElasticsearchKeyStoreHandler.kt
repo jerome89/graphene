@@ -5,7 +5,6 @@ import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.key.ElasticsearchClient
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
-import com.graphene.writer.store.key.IndexRollingEsClient
 import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
 import com.graphene.writer.store.key.property.RotationProperty
 import com.graphene.writer.util.NamedThreadFactory
@@ -56,14 +55,10 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     elasticsearchClient = elasticsearchClientFactory.createIndexRollingEsClient(rotationProperty, property.cluster)
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
-    elasticsearchClient.createIndexIfNotExists(property.index)
-
-    if (elasticsearchClient is IndexRollingEsClient) {
-      (elasticsearchClient as IndexRollingEsClient).attachCurrentAliasToLatestIndex(index, tenant)
-    }
+    elasticsearchClient.createIndexIfNotExists(index, tenant)
 
     // 프로퍼티에서 명시한 Index 중 가장 마지막 Offset 을 가져온다.
-    val latestIndex = elasticsearchClient.getLatestIndex(index)
+    val latestIndex = elasticsearchClient.getLatestIndex(index, tenant)
     logger.info("latestIndex : $latestIndex")
 //    val aliasDate = indexRollingClient.getAliasDate(latestIndex)
 
@@ -90,6 +85,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       }
     } catch (e: Exception) {
       logger.error("Encountered error in busy loop: ", e)
+      Thread.sleep(1000)
     }
   }
 
@@ -102,13 +98,18 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   }
 
   private fun flush() {
-    elasticsearchClient.createIndexIfNotExists(property.index)
+    elasticsearchClient.createIndexIfNotExists(index, tenant)
 
     val multiGetResponse = elasticsearchClient.mget(multiGetRequestContainer.multiGetRequest, RequestOptions.DEFAULT)
     val bulkRequest = mutableListOf<GrapheneIndexRequest>()
 
     for (response in multiGetResponse.responses) {
-      if (response.response.isExists || response.isFailed) {
+      if (response.isFailed) {
+        logger.error("Fail to check duplicated index because ${response.failure.message}")
+        continue
+      }
+
+      if (response.response.isExists) {
         continue
       }
 
@@ -135,7 +136,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     fun add(type: String, metric: GrapheneMetric) {
       metrics[metric.getId()] = metric
-      multiGetRequest.add(MultiGetRequest.Item(elasticsearchClient.getCurrentIndex(index, tenant), type, metric.getId()))
+      multiGetRequest.add(MultiGetRequest.Item(elasticsearchClient.getIndexWithDate(index, tenant), type, metric.getId()))
     }
 
     fun size(): Int {
