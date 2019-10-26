@@ -68,11 +68,13 @@ subprojects {
         compile 'net.jpountz.lz4:lz4:1.2.0'
         compile 'commons-lang:commons-lang:2.6'
         compile 'com.rubiconproject.oss:jchronic:0.2.6'
+        compile 'org.threeten:threeten-extra:1.5.0'
         compileOnly 'org.projectlombok:lombok:1.18.8'
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
         implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+        
         // Test
         testImplementation "org.jetbrains.kotlin:kotlin-test:${kotlinVersion}"
         testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}"
@@ -80,6 +82,7 @@ subprojects {
         testImplementation "org.junit.jupiter:junit-jupiter-params"
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'io.mockk:mockk:1.8.8'
+        testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
 
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     }
