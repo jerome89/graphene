@@ -7,8 +7,8 @@ import com.graphene.writer.input.graphite.property.CarbonProperty
 import com.graphene.writer.blacklist.BlacklistConfiguration
 import com.graphene.writer.input.graphite.property.GraphiteInputProperty
 import com.graphene.writer.store.data.StoreDataProperty
-import com.graphene.writer.store.key.model.IndexBasedKeyStoreHandlerProperty
-import com.graphene.writer.store.key.model.SimpleKeyStoreHandlerProperty
+import com.graphene.writer.store.key.property.IndexBasedKeyStoreHandlerProperty
+import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration

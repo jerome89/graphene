@@ -1,4 +1,4 @@
-package com.graphene.writer.store.key.model
+package com.graphene.writer.store.key
 
 import org.apache.http.HttpHost
 import org.springframework.stereotype.Component
@@ -16,7 +16,7 @@ class ElasticsearchClientFactory {
   }
 
   fun createElasticsearchClient(cluster: List<String>): ElasticsearchClient {
-    val elasticsearchClientImpl = ElasticsearchClientImpl(httpHosts(cluster))
+    val elasticsearchClientImpl = ElasticsearchClientTemplate(httpHosts(cluster))
 
     elasticsearchClients.add(elasticsearchClientImpl)
 
@@ -24,7 +24,7 @@ class ElasticsearchClientFactory {
   }
 
   fun createIndexRollingEsClient(cluster: List<String>): ElasticsearchClient {
-    return IndexRollingDecorator(createElasticsearchClient(cluster))
+    return IndexRollingEsClient(createElasticsearchClient(cluster))
   }
 
   private fun httpHosts(cluster: List<String>): Array<HttpHost> {

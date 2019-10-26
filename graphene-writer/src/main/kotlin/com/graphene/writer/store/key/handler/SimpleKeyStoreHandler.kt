@@ -1,9 +1,9 @@
-package com.graphene.writer.store.key
+package com.graphene.writer.store.key.handler
 
 import com.graphene.writer.input.GrapheneMetric
-import com.graphene.writer.store.key.model.ElasticsearchClientFactory
-import com.graphene.writer.store.key.model.GrapheneIndexRequest
-import com.graphene.writer.store.key.model.SimpleKeyStoreHandlerProperty
+import com.graphene.writer.store.key.ElasticsearchClientFactory
+import com.graphene.writer.store.key.GrapheneIndexRequest
+import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

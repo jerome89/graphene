@@ -1,4 +1,4 @@
-package com.graphene.writer.store.key.model
+package com.graphene.writer.store.key
 
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
@@ -21,11 +21,11 @@ import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.sniff.Sniffer
 import org.elasticsearch.common.xcontent.XContentType
 
-class ElasticsearchClientImpl(
+class ElasticsearchClientTemplate(
   httpHosts: Array<HttpHost>
 ) : ElasticsearchClient {
 
-  private val logger = Logger.getLogger(ElasticsearchClientImpl::class.java)
+  private val logger = Logger.getLogger(ElasticsearchClientTemplate::class.java)
   private var restHighLevelClient: RestHighLevelClient
   private var sniffer: Sniffer
 

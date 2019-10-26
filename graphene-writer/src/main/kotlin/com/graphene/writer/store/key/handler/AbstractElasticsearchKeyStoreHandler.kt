@@ -1,8 +1,12 @@
-package com.graphene.writer.store.key
+package com.graphene.writer.store.key.handler
 
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.KeyStoreHandler
-import com.graphene.writer.store.key.model.*
+import com.graphene.writer.store.key.ElasticsearchClient
+import com.graphene.writer.store.key.ElasticsearchClientFactory
+import com.graphene.writer.store.key.GrapheneIndexRequest
+import com.graphene.writer.store.key.IndexRollingEsClient
+import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
 import com.graphene.writer.util.NamedThreadFactory
 import net.iponweb.disthene.reader.utils.DateTimeUtils
 import org.apache.log4j.Logger
@@ -22,7 +26,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   private val property: ElasticsearchKeyStoreHandlerProperty
 ) : KeyStoreHandler, Runnable {
 
-  private val logger = Logger.getLogger(SimpleKeyStoreHandler::class.java)
+  private val logger = Logger.getLogger(AbstractElasticsearchKeyStoreHandler::class.java)
 
   private lateinit var elasticsearchClient: ElasticsearchClient
   private lateinit var keyStoreScheduler: ScheduledExecutorService
@@ -52,8 +56,8 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
     elasticsearchClient.createIndexIfNotExists(property.index)
 
-    if (elasticsearchClient is IndexRollingDecorator) {
-      (elasticsearchClient as IndexRollingDecorator).attachCurrentAliasToLatestIndex(index, tenant)
+    if (elasticsearchClient is IndexRollingEsClient) {
+      (elasticsearchClient as IndexRollingEsClient).attachCurrentAliasToLatestIndex(index, tenant)
     }
 
     // 프로퍼티에서 명시한 Index 중 가장 마지막 Offset 을 가져온다.

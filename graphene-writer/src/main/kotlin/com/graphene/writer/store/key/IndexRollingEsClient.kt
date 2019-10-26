@@ -1,4 +1,4 @@
-package com.graphene.writer.store.key.model
+package com.graphene.writer.store.key
 
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse
 import org.elasticsearch.action.bulk.BulkResponse
@@ -6,9 +6,9 @@ import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.action.get.MultiGetResponse
 import org.elasticsearch.client.RequestOptions
 
-class IndexRollingDecorator(
-  elasticsearchClient: ElasticsearchClient
-) : ElasticsearchClientDecorator(elasticsearchClient) {
+class IndexRollingEsClient(
+  private val elasticsearchClient: ElasticsearchClient
+) : ElasticsearchClient {
 
   override fun addAlias(latestIndex: String, currentPointer: String, dateAlias: String) {
     elasticsearchClient.addAlias(latestIndex, currentPointer, dateAlias)

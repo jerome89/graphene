@@ -1,4 +1,4 @@
-package com.graphene.writer.store.key.model
+package com.graphene.writer.store.key.property
 
 import com.graphene.writer.config.IndexBulkConfiguration
 import org.slf4j.LoggerFactory

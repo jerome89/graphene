@@ -1,4 +1,4 @@
-package com.graphene.writer.store.key.model
+package com.graphene.writer.store.key
 
 import org.elasticsearch.common.xcontent.XContentBuilder
 

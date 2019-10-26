@@ -1,4 +1,4 @@
-package com.graphene.writer.store.key.model
+package com.graphene.writer.store.key
 
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse
 import org.elasticsearch.action.bulk.BulkResponse
