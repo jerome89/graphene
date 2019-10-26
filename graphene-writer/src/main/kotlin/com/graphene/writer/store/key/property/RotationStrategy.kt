@@ -33,7 +33,7 @@ class TimeBasedRotationStrategy(
 
     return when(timeUnit) {
       DAY -> timePattern.print(dateTime)
-      else -> YearWeek.parse(timePattern.print(dateTime), DateTimeFormatter.ofPattern(DATE_FORMAT)).toString()
+      else -> YearWeek.parse(timePattern.print(dateTime), DateTimeFormatter.ofPattern(DATE_FORMAT)).toString().toLowerCase()
     }
   }
 

@@ -20,7 +20,7 @@ graphene:
       key:
         rotation:
           strategy: "timeBasedRotation"
-          period: "1d"
+          period: "1w"
         handlers:
           logging-key-store-handler:
             enabled: true
