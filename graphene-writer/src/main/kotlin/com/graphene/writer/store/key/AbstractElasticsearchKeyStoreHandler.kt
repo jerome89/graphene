@@ -3,7 +3,6 @@ package com.graphene.writer.store.key
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.key.model.*
-import com.graphene.writer.store.key.rotator.KeyRotator
 import com.graphene.writer.util.NamedThreadFactory
 import net.iponweb.disthene.reader.utils.DateTimeUtils
 import org.apache.log4j.Logger
@@ -25,7 +24,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private val logger = Logger.getLogger(SimpleKeyStoreHandler::class.java)
 
-  private lateinit var keyRotator: KeyRotator
   private lateinit var elasticsearchClient: ElasticsearchClient
   private lateinit var keyStoreScheduler: ScheduledExecutorService
   private lateinit var keyRotatorScheduler: ScheduledExecutorService
@@ -33,6 +31,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   private lateinit var index: String
   private lateinit var type: String
   private lateinit var templateIndexPattern: String
+  private lateinit var tenant: String
 
   private var lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
   private var batchSize: Int = 0
@@ -44,6 +43,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   fun init() {
     index = property.index
     type = property.type
+    tenant = property.tenant
     templateIndexPattern = property.templateIndexPattern
     multiGetRequestContainer = MultiGetRequestContainer()
     batchSize = property.bulk!!.actions
@@ -53,8 +53,9 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
     elasticsearchClient.createIndexIfNotExists(property.index)
 
-//    keyRotator = SimpleKeyRotator(property, indexRollingClient)
-//    keyRotator.run()
+    if (elasticsearchClient is IndexRollingDecorator) {
+      (elasticsearchClient as IndexRollingDecorator).attachCurrentAliasToLatestIndex(index, tenant)
+    }
 
     // 프로퍼티에서 명시한 Index 중 가장 마지막 Offset 을 가져온다.
     val latestIndex = elasticsearchClient.getLatestIndex(index)
@@ -114,7 +115,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       return
     }
 
-    val bulkResponse = elasticsearchClient.bulk(index, type, bulkRequest, RequestOptions.DEFAULT)
+    val bulkResponse = elasticsearchClient.bulk(index, type, tenant, bulkRequest, RequestOptions.DEFAULT)
     if (bulkResponse.hasFailures()) {
       logger.error("Fail to index metric key, reason : ${bulkResponse.buildFailureMessage()}")
     }
@@ -129,7 +130,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     fun add(type: String, metric: GrapheneMetric) {
       metrics[metric.getId()] = metric
-      multiGetRequest.add(MultiGetRequest.Item(keyRotator.getCurrentPointer(), type, metric.getId()))
+      multiGetRequest.add(MultiGetRequest.Item(elasticsearchClient.getCurrentIndex(index, tenant), type, metric.getId()))
     }
 
     fun size(): Int {

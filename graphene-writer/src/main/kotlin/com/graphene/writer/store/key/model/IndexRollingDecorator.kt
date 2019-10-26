@@ -10,8 +10,16 @@ class IndexRollingDecorator(
   elasticsearchClient: ElasticsearchClient
 ) : ElasticsearchClientDecorator(elasticsearchClient) {
 
+  override fun addAlias(latestIndex: String, currentPointer: String, dateAlias: String) {
+    elasticsearchClient.addAlias(latestIndex, currentPointer, dateAlias)
+  }
+
   override fun createTemplateIfNotExists(templatePattern: String, templateName: String, templateSource: String) {
     elasticsearchClient.createTemplateIfNotExists(templatePattern, templateName, templateSource)
+  }
+
+  override fun getCurrentIndex(index: String, tenant: String): String {
+    return "${index}.${tenant}.CURRENT"
   }
 
   override fun getLatestIndex(index: String): String {
@@ -34,8 +42,8 @@ class IndexRollingDecorator(
     return elasticsearchClient.getIndices()
   }
 
-  override fun bulk(index: String, type: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse {
-    return elasticsearchClient.bulk(index, type, grapheneIndexRequests, default)
+  override fun bulk(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse {
+    return elasticsearchClient.bulk(getCurrentIndex(index, tenant), type, tenant, grapheneIndexRequests, default)
   }
 
   override fun mget(multiGetRequest: MultiGetRequest, default: RequestOptions): MultiGetResponse {
@@ -48,6 +56,21 @@ class IndexRollingDecorator(
 
   override fun createIndexIfNotExists(index: String) {
     elasticsearchClient.createIndexIfNotExists("$index.0")
+  }
+
+  override fun existsAlias(index: String, currentAlias: String): Boolean {
+    return elasticsearchClient.existsAlias(index, currentAlias)
+  }
+
+  fun attachCurrentAliasToLatestIndex(index: String, tenant: String) {
+    var currentAlias = getCurrentIndex(index, tenant)
+    var dateAlias = "${index}.${tenant}.20191026"
+
+    if (elasticsearchClient.existsAlias(index, currentAlias)) {
+      return
+    }
+
+    elasticsearchClient.addAlias(getLatestIndex(index), currentAlias, dateAlias)
   }
 
 }

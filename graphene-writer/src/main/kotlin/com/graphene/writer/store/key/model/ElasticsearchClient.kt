@@ -13,12 +13,18 @@ interface ElasticsearchClient : Closeable {
 
   fun createTemplateIfNotExists(templatePattern: String, templateName: String, templateSource: String)
 
+  fun getCurrentIndex(index: String, tenant: String): String
+
   fun getLatestIndex(index: String): String
 
-  fun bulk(index: String, type: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse
+  fun bulk(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse
 
   fun mget(multiGetRequest: MultiGetRequest, default: RequestOptions): MultiGetResponse
 
   fun getIndices(): GetIndexResponse
+
+  fun addAlias(latestIndex: String, currentPointer: String, dateAlias: String)
+
+  fun existsAlias(index: String, currentAlias: String): Boolean
 
 }

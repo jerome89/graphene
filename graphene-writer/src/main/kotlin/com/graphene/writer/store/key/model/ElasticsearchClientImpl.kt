@@ -3,6 +3,8 @@ package com.graphene.writer.store.key.model
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.log4j.Logger
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest
+import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse
@@ -23,10 +25,10 @@ import javax.annotation.PostConstruct
 class ElasticsearchClientImpl(
   private val httpHosts: Array<HttpHost>
 ) : ElasticsearchClient {
-
   private lateinit var restHighLevelClient: RestHighLevelClient
 
   private lateinit var sniffer: Sniffer
+
   private val logger = Logger.getLogger(ElasticsearchClientImpl::class.java)
 
   @PostConstruct
@@ -52,8 +54,37 @@ class ElasticsearchClientImpl(
       .build()
   }
 
-  fun restHighLevelClient(): RestHighLevelClient {
-    return restHighLevelClient
+  override fun existsAlias(index: String, currentAlias: String): Boolean {
+    val alias = restHighLevelClient.indices().getAlias(GetAliasesRequest(currentAlias), RequestOptions.DEFAULT)
+    val aliases = alias.aliases
+
+    for (entry in aliases.entries) {
+      logger.debug("index : ${entry.key} / aliasMeta : ${entry.value}")
+
+      if (entry.key == index) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  override fun addAlias(latestIndex: String, currentPointer: String, dateAlias: String) {
+    val aliasAction = IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
+      .index(latestIndex)
+      .aliases(currentPointer, dateAlias)
+
+    val indicesAliasesRequest = IndicesAliasesRequest()
+    indicesAliasesRequest.addAliasAction(aliasAction)
+    restHighLevelClient.indices().updateAliases(indicesAliasesRequest, RequestOptions.DEFAULT)
+  }
+
+  override fun getCurrentIndex(index: String, tenant: String): String {
+    return index
+  }
+
+  override fun mget(multiGetRequest: MultiGetRequest, default: RequestOptions): MultiGetResponse {
+    return restHighLevelClient.mget(multiGetRequest, default)
   }
 
   override fun getIndices(): GetIndexResponse {
@@ -61,7 +92,7 @@ class ElasticsearchClientImpl(
     return restHighLevelClient.indices().get(request, RequestOptions.DEFAULT)
   }
 
-  override fun bulk(index: String, type: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse {
+  override fun bulk(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse {
     val bulkRequest = BulkRequest()
     for (grapheneIndexRequest in grapheneIndexRequests) {
       val indexRequest = IndexRequest(getLatestIndex(index), type, grapheneIndexRequest.id)
@@ -69,10 +100,6 @@ class ElasticsearchClientImpl(
       bulkRequest.add(indexRequest)
     }
     return restHighLevelClient.bulk(bulkRequest, default)
-  }
-
-  override fun mget(multiGetRequest: MultiGetRequest, default: RequestOptions): MultiGetResponse {
-    return restHighLevelClient.mget(multiGetRequest, default)
   }
 
   override fun createIndexIfNotExists(index: String) {
@@ -93,20 +120,7 @@ class ElasticsearchClientImpl(
   }
 
   override fun getLatestIndex(index: String): String {
-    val request = GetIndexRequest().indices("*")
-    val response = restHighLevelClient.indices().get(request, RequestOptions.DEFAULT)
-    var latestIndexPosition = 0
-    var latestIndex = "$index.0"
-    for (index in response.indices) {
-      val indexNameAndPosition = index.split("\\.")
-      val indexName = indexNameAndPosition[0]
-
-      if (index == indexName && latestIndexPosition < indexNameAndPosition[1].toInt()) {
-        latestIndexPosition = indexNameAndPosition[1].toInt()
-        latestIndex = index
-      }
-    }
-    return latestIndex
+    return index
   }
 
   override fun close() {
@@ -116,11 +130,4 @@ class ElasticsearchClientImpl(
     logger.info("Closed ES client")
   }
 
-  fun getInitialIndex(index: String): String {
-    return "$index.0"
-  }
-
-  fun putTemplate(putIndexTemplateRequest: PutIndexTemplateRequest) {
-    restHighLevelClient.indices().putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
-  }
 }
