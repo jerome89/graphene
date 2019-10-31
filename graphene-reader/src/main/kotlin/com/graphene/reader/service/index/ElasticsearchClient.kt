@@ -1,7 +1,9 @@
 package com.graphene.reader.service.index
 
 import com.graphene.reader.service.index.model.IndexProperty
+import com.graphene.reader.store.key.selector.KeySelector
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
+import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.unit.TimeValue
@@ -14,11 +16,14 @@ import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchScrollRequest
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
 @Component
+@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.elasticsearch-key-search-handler", name = ["enabled"], havingValue = "true")
 class ElasticsearchClient(
   private val client: RestHighLevelClient,
-  private val indexProperty: IndexProperty
+  private val indexProperty: IndexProperty,
+  private val keySelector: KeySelector
 ) {
 
   @Throws(TooMuchDataExpectedException::class)
@@ -27,7 +32,7 @@ class ElasticsearchClient(
     searchSourceBuilder.query(query)
     searchSourceBuilder.size(indexProperty.scroll)
 
-    val searchRequest = SearchRequest(indexProperty.index)
+    val searchRequest = SearchRequest(keySelector.select(indexProperty.index!!, indexProperty.tenant, 0, 0))
     searchRequest.source(searchSourceBuilder)
     searchRequest.scroll(TimeValue(indexProperty.timeout.toLong()))
 
@@ -39,10 +44,20 @@ class ElasticsearchClient(
 
   fun searchScroll(response: Response): Response {
     val scrollRequest = SearchScrollRequest(response.scrollId)
-    scrollRequest.scroll(TimeValue.timeValueSeconds(indexProperty.timeout.toLong()))
+    scrollRequest.scroll(TimeValue.timeValueMillis(indexProperty.timeout.toLong()))
 
     val searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
     return Response.of(searchResponse)
+  }
+
+  fun clearScroll(scrollIds: List<String>) {
+    val clearScrollRequest = ClearScrollRequest()
+    clearScrollRequest.scrollIds(scrollIds)
+
+    val clearScroll = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT)
+    if (!clearScroll.isSucceeded) {
+      logger.warn("[$scrollIds] scroll clears is failed.")
+    }
   }
 
   private fun throwIfExceededMaxPaths(response: SearchResponse) {

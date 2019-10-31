@@ -1,13 +1,15 @@
-package com.graphene.reader.service.index
+package com.graphene.reader.store.key
 
 import com.google.common.base.Joiner
 import com.graphene.common.HierarchyMetricPaths
+import com.graphene.reader.service.index.ElasticsearchClient
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
 import net.iponweb.disthene.reader.service.index.IndexService
 import net.iponweb.disthene.reader.utils.WildcardUtil
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 /**
@@ -16,7 +18,8 @@ import org.springframework.stereotype.Component
  * @author dark
  */
 @Component
-class ElasticsearchIndexService(
+@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.elasticsearch-key-search-handler", name = ["enabled"], havingValue = "true")
+class ElasticsearchKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient
 ) : IndexService {
 
@@ -35,7 +38,9 @@ class ElasticsearchIndexService(
 
     logger.debug("getPaths plain paths: " + result.size + ", wildcard paths: " + regExs.size)
 
-    if (regExs.size > 0) {
+    if (0 < regExs.size) {
+      val scrollIds = mutableListOf<String>()
+
       var response = elasticsearchClient.query(
         QueryBuilders.regexpQuery("path", Joiner.on("|").skipNulls().join(regExs))
       )
@@ -46,7 +51,10 @@ class ElasticsearchIndexService(
         }
 
         response = elasticsearchClient.searchScroll(response)
+        scrollIds.add(response.scrollId)
       }
+
+      elasticsearchClient.clearScroll(scrollIds)
     }
 
     return result
@@ -84,6 +92,6 @@ class ElasticsearchIndexService(
   }
 
   companion object {
-    internal val logger = LoggerFactory.getLogger(ElasticsearchIndexService::class.java)
+    internal val logger = LoggerFactory.getLogger(ElasticsearchKeySearchHandler::class.java)
   }
 }

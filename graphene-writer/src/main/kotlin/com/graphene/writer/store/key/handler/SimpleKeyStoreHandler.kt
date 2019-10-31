@@ -1,16 +1,12 @@
-package com.graphene.writer.store.key
+package com.graphene.writer.store.key.handler
 
 import com.graphene.writer.input.GrapheneMetric
-import com.graphene.writer.store.key.model.ElasticsearchFactory
-import com.graphene.writer.store.key.model.SimpleKeyStoreHandlerProperty
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest
-import org.elasticsearch.action.index.IndexRequest
-import org.elasticsearch.client.RequestOptions
+import com.graphene.writer.store.key.ElasticsearchClientFactory
+import com.graphene.writer.store.key.GrapheneIndexRequest
+import com.graphene.writer.store.key.property.RotationProperty
+import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
-import org.elasticsearch.common.xcontent.XContentType
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import java.util.*
@@ -22,16 +18,17 @@ import java.util.*
 @Component
 @ConditionalOnProperty(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler", name = ["enabled"], havingValue = "true")
 class SimpleKeyStoreHandler(
-  val elasticsearchFactory: ElasticsearchFactory,
+  val elasticsearchClientFactory: ElasticsearchClientFactory,
+  val rotationProperty: RotationProperty,
   val property: SimpleKeyStoreHandlerProperty
-) : AbstractElasticsearchKeyStoreHandler(elasticsearchFactory, property) {
+) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, rotationProperty, property) {
 
-  override fun mapToIndexRequests(metric: GrapheneMetric?): List<IndexRequest> {
+  override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     if (Objects.isNull(metric)) {
-      return Collections.emptyList<IndexRequest>()
+      return Collections.emptyList<GrapheneIndexRequest>()
     }
 
-    val indexRequests = mutableListOf<IndexRequest>()
+    val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
     val parts = metric!!.getGraphiteKeyParts()
     val graphiteKeySb = StringBuilder()
 
@@ -42,33 +39,19 @@ class SimpleKeyStoreHandler(
       graphiteKeySb.append(parts[depth])
       try {
         val graphiteKeyPart = graphiteKeySb.toString()
-        indexRequests.add(IndexRequest(property.index, property.type, metric.getTenant() + "_" + graphiteKeyPart)
-          .source(source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts))))
+        val id = "${metric.getTenant()}_$graphiteKeyPart"
+        grapheneIndexRequests.add(GrapheneIndexRequest(id, source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts))))
       } catch (e: Exception) {
         throw IllegalStateException("Invokes illegal state in map to index requests", e)
       }
     }
 
-    return indexRequests
+    return grapheneIndexRequests
   }
 
-  override fun createIndexIfNotExists(index: String) {
-    val restHighLevelClient = elasticsearchFactory.restHighLevelClient()
+  override fun templateName(): String = TEMPLATE_NAME
 
-    if (restHighLevelClient.indices().exists(GetIndexRequest().indices(index), RequestOptions.DEFAULT)) {
-      return
-    }
-
-    val createIndexRequest = CreateIndexRequest(index)
-    restHighLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT)
-  }
-
-  override fun createTemplateIfNotExists(): PutIndexTemplateRequest {
-    val putIndexTemplateRequest = PutIndexTemplateRequest(TEMPLATE_NAME)
-    putIndexTemplateRequest.patterns(listOf(property.templateIndexPattern))
-    putIndexTemplateRequest.source(SOURCE, XContentType.JSON)
-    return putIndexTemplateRequest
-  }
+  override fun templateSource(): String = SOURCE
 
   private fun source(tenant: String, graphiteKeyPart: String, depth: Int, leaf: Boolean): XContentBuilder {
     return XContentFactory.jsonBuilder()

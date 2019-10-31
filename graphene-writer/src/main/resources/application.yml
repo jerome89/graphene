@@ -18,11 +18,16 @@ graphene:
           - 60s:5356800s
     store:
       key:
+        rotation:
+          strategy: "timeBasedRotation"
+          period: "1w"
         handlers:
           logging-key-store-handler:
             enabled: true
+            tenant: none
           simple-key-store-handler:
             enabled: true
+            tenant: none
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
@@ -35,6 +40,7 @@ graphene:
               interval: 5
           index-based-key-store-handler:
             enabled: true
+            tenant: none
             clusterName: "metric"
             cluster:
               - "127.0.0.1"

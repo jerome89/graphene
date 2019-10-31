@@ -1,4 +1,4 @@
-package com.graphene.writer.store.key
+package com.graphene.writer.store.key.handler
 
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.KeyStoreHandler

@@ -33,8 +33,6 @@ subprojects {
 
     group = 'net.iponweb.disthene'
     version = '1.0.0'
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
 
     repositories {
         mavenCentral()
@@ -65,17 +63,18 @@ subprojects {
         compile 'com.datastax.cassandra:cassandra-driver-core:3.1.0'
         compile 'com.google.guava:guava:18.0'
         compile 'joda-time:joda-time:2.8.2'
-        compile 'org.elasticsearch.client:elasticsearch:6.4.3'
         compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client:6.4.3'
         compile 'org.elasticsearch.client:elasticsearch-rest-client-sniffer:6.4.3'
         compile 'net.jpountz.lz4:lz4:1.2.0'
         compile 'commons-lang:commons-lang:2.6'
         compile 'com.rubiconproject.oss:jchronic:0.2.6'
+        compile 'org.threeten:threeten-extra:1.5.0'
         compileOnly 'org.projectlombok:lombok:1.18.8'
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
         implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+        
         // Test
         testImplementation "org.jetbrains.kotlin:kotlin-test:${kotlinVersion}"
         testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}"
@@ -83,6 +82,7 @@ subprojects {
         testImplementation "org.junit.jupiter:junit-jupiter-params"
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'io.mockk:mockk:1.8.8'
+        testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
 
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     }

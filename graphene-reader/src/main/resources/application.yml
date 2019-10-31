@@ -13,15 +13,22 @@ graphene:
       humanReadableNumbers: true
     store:
       key:
-        name: "metric"
-        cluster:
-          - "127.0.0.1"
-        port: 9300
-        index: "simple-key-path"
-        type: "path"
-        scroll: 10000
-        timeout: 120000
-        maxPaths: 50000
+        handlers:
+          elasticsearch-key-search-handler:
+            key-selector:
+              type: "RollingKeySelector"
+              period: 0
+            enabled: true
+            tenant: NONE
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "simple-key-path"
+            type: "path"
+            scroll: 10000
+            timeout: 120000
+            maxPaths: 50000
       data:
         cluster:
           - "127.0.0.1"
