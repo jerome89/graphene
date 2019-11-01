@@ -11,30 +11,38 @@ graphene:
       rollups:
         - 60s:5356800s
       humanReadableNumbers: true
-    index:
-      name: "metric"
-      cluster:
-        - "127.0.0.1"
-      port: 9300
-      index: "metric"
-      type: "path"
-      scroll: 50000
-      timeout: 120000
-      maxPaths: 50000
     store:
-      cluster:
-        - "127.0.0.1"
-      port: 9042
-      userName: 'cassandra'
-      userPassword: 'cassandra'
-      keyspace: 'metric'
-      columnFamily: 'metric'
-      maxConnections: 2048
-      readTimeout: 10
-      connectTimeout: 10
-      maxRequests: 128
-      loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-      protocolVersion: "V2"
+      key:
+        handlers:
+          elasticsearch-key-search-handler:
+            key-selector:
+              type: "RollingKeySelector"
+              period: 0
+            enabled: true
+            tenant: NONE
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "simple-key-path"
+            type: "path"
+            scroll: 10000
+            timeout: 120000
+            maxPaths: 50000
+      data:
+        cluster:
+          - "127.0.0.1"
+        port: 9042
+        userName: 'cassandra'
+        userPassword: 'cassandra'
+        keyspace: 'metric'
+        columnFamily: 'metric'
+        maxConnections: 2048
+        readTimeout: 10
+        connectTimeout: 10
+        maxRequests: 128
+        loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
+        protocolVersion: "V2"
     throttling:
       # enable throttling
       throttlingEnabled: true

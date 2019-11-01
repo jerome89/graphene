@@ -14,7 +14,7 @@ import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.config.GrapheneReaderProperties;
 import net.iponweb.disthene.reader.config.Rollup;
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException;
-import com.graphene.reader.service.index.ElasticsearchIndexService;
+import com.graphene.reader.store.key.ElasticsearchKeySearchHandler;
 import net.iponweb.disthene.reader.service.stats.StatsService;
 import net.iponweb.disthene.reader.service.store.CassandraService;
 import net.iponweb.disthene.reader.utils.CollectionUtils;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class CassandraMetricService implements MetricService {
     final static Logger logger = Logger.getLogger(CassandraMetricService.class);
 
-    private ElasticsearchIndexService elasticsearchIndexService;
+    private ElasticsearchKeySearchHandler elasticsearchKeySearchHandler;
     private CassandraService cassandraService;
     private StatsService statsService;
 
@@ -43,8 +43,8 @@ public class CassandraMetricService implements MetricService {
 
     private ExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
-    public CassandraMetricService(ElasticsearchIndexService elasticsearchIndexService, CassandraService cassandraService, StatsService statsService, GrapheneReaderProperties grapheneReaderProperties) {
-        this.elasticsearchIndexService = elasticsearchIndexService;
+    public CassandraMetricService(ElasticsearchKeySearchHandler elasticsearchKeySearchHandler, CassandraService cassandraService, StatsService statsService, GrapheneReaderProperties grapheneReaderProperties) {
+        this.elasticsearchKeySearchHandler = elasticsearchKeySearchHandler;
         this.cassandraService = cassandraService;
         this.grapheneReaderProperties = grapheneReaderProperties;
         this.statsService = statsService;
@@ -52,7 +52,7 @@ public class CassandraMetricService implements MetricService {
 
     @Override
     public String getMetricsAsJson(String tenant, List<String> wildcards, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
-        Set<String> paths = elasticsearchIndexService.getPaths(tenant, wildcards);
+        Set<String> paths = elasticsearchKeySearchHandler.getPaths(tenant, wildcards);
 
         // Calculate rollup etc
         Long now = System.currentTimeMillis() * 1000;
@@ -119,7 +119,7 @@ public class CassandraMetricService implements MetricService {
 
     @Override
     public List<TimeSeries> getMetricsAsList(String tenant, List<String> wildcards, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
-        Set<String> paths = elasticsearchIndexService.getPaths(tenant, wildcards);
+        Set<String> paths = elasticsearchKeySearchHandler.getPaths(tenant, wildcards);
 
         statsService.incRenderPathsRead(tenant, paths.size());
 

@@ -15,6 +15,13 @@ these methods later to help you manage your metrics cost-effectively. It
 also supports multi-tenancy for metrics later, so that large numbers of
 metrics can be maintained and managed in isolated clusters.
 
+## Prerequisite
+
+| Storage       | Version |
+|---------------|---------|
+| Elasticsearch | 6.8.x   |
+| Cassandra     | 2.x.x   |
+
 ## Commit convention
 This project uses the git conventional commit rule provided by [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/)
 

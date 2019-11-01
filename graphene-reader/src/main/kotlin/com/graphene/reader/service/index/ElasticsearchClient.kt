@@ -1,57 +1,74 @@
 package com.graphene.reader.service.index
 
-import net.iponweb.disthene.reader.config.IndexConfiguration
+import com.graphene.reader.service.index.model.IndexProperty
+import com.graphene.reader.store.key.selector.KeySelector
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
+import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.client.transport.TransportClient
+import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHits
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import javax.annotation.PreDestroy
+import org.elasticsearch.client.RequestOptions
+import org.elasticsearch.search.builder.SearchSourceBuilder
+import org.elasticsearch.action.search.SearchRequest
+import org.elasticsearch.action.search.SearchScrollRequest
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
 @Component
+@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.elasticsearch-key-search-handler", name = ["enabled"], havingValue = "true")
 class ElasticsearchClient(
-  private val client: TransportClient,
-  private val indexConfiguration: IndexConfiguration
+  private val client: RestHighLevelClient,
+  private val indexProperty: IndexProperty,
+  private val keySelector: KeySelector
 ) {
 
   @Throws(TooMuchDataExpectedException::class)
   fun query(query: QueryBuilder): Response {
-    val searchResponse = client
-      .prepareSearch(indexConfiguration.index)
-      .setScroll(TimeValue(indexConfiguration.timeout.toLong()))
-      .setSize(indexConfiguration.scroll)
-      .setTypes(indexConfiguration.type)
-      .setQuery(query)
-      .execute()
-      .actionGet()
+    val searchSourceBuilder = SearchSourceBuilder()
+    searchSourceBuilder.query(query)
+    searchSourceBuilder.size(indexProperty.scroll)
 
+    val searchRequest = SearchRequest(keySelector.select(indexProperty.index!!, indexProperty.tenant, 0, 0))
+    searchRequest.source(searchSourceBuilder)
+    searchRequest.scroll(TimeValue(indexProperty.timeout.toLong()))
+
+    val searchResponse = client.search(searchRequest, RequestOptions.DEFAULT)
     throwIfExceededMaxPaths(searchResponse)
 
     return Response.of(searchResponse)
   }
 
   fun searchScroll(response: Response): Response {
-    val searchResponse = client
-      .prepareSearchScroll(response.scrollId)
-      .setScroll(TimeValue.timeValueMinutes(indexConfiguration.timeout.toLong()))
-      .execute()
-      .actionGet()
+    val scrollRequest = SearchScrollRequest(response.scrollId)
+    scrollRequest.scroll(TimeValue.timeValueMillis(indexProperty.timeout.toLong()))
 
+    val searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
     return Response.of(searchResponse)
+  }
+
+  fun clearScroll(scrollIds: List<String>) {
+    val clearScrollRequest = ClearScrollRequest()
+    clearScrollRequest.scrollIds(scrollIds)
+
+    val clearScroll = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT)
+    if (!clearScroll.isSucceeded) {
+      logger.warn("[$scrollIds] scroll clears is failed.")
+    }
   }
 
   private fun throwIfExceededMaxPaths(response: SearchResponse) {
     // if total hits exceeds maximum - abort right away returning empty array
-    if (response.hits.totalHits() > indexConfiguration.maxPaths) {
-      logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits())
+    if (response.hits.totalHits > indexProperty.maxPaths) {
+      logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits)
       throw TooMuchDataExpectedException(
         "Total number map paths exceeds the limit: "
-          + response.hits.totalHits()
+          + response.hits.totalHits
           + " (the limit is "
-          + indexConfiguration.maxPaths
+          + indexProperty.maxPaths
           + ")")
     }
   }

@@ -18,27 +18,35 @@ graphene:
           - 60s:5356800s
     store:
       key:
+        rotation:
+          strategy: "timeBasedRotation"
+          period: "1w"
         handlers:
           logging-key-store-handler:
             enabled: true
+            tenant: none
           simple-key-store-handler:
             enabled: true
+            tenant: none
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
             port: 9300
-            index: "metric"
+            template-index-pattern: "simple-key-path*"
+            index: "simple-key-path"
             type: "path"
             bulk:
               actions: 10000
               interval: 5
           index-based-key-store-handler:
             enabled: true
+            tenant: none
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
             port: 9300
-            index: "index-based-metric"
+            template-index-pattern: "index-based-key-path*"
+            index: "index-based-key-path"
             type: "path"
             bulk:
               actions: 10000

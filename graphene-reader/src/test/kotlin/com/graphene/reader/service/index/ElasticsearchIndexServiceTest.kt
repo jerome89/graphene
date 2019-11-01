@@ -1,13 +1,14 @@
 package com.graphene.reader.service.index
 
+import com.graphene.reader.store.key.ElasticsearchKeySearchHandler
 import io.mockk.every
 import io.mockk.mockk
 import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.search.aggregations.InternalAggregations
-import org.elasticsearch.search.facet.InternalFacets
-import org.elasticsearch.search.internal.InternalSearchHit
-import org.elasticsearch.search.internal.InternalSearchHits
-import org.elasticsearch.search.internal.InternalSearchResponse
+import org.elasticsearch.action.search.SearchResponseSections
+import org.elasticsearch.search.SearchHit
+import org.elasticsearch.search.SearchHits
+import org.elasticsearch.search.aggregations.Aggregations
+import org.elasticsearch.search.profile.SearchProfileShardResults
 import org.elasticsearch.search.suggest.Suggest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,13 +17,13 @@ import kotlin.test.assertEquals
 
 internal class ElasticsearchIndexServiceTest {
 
-  private lateinit var elasticsearchIndexService: ElasticsearchIndexService
+  private lateinit var elasticsearchKeySearchHandler: ElasticsearchKeySearchHandler
 
   private val elasticsearchClient: ElasticsearchClient = mockk()
 
   @BeforeEach
   internal fun setUp() {
-    elasticsearchIndexService = ElasticsearchIndexService(elasticsearchClient)
+    elasticsearchKeySearchHandler = ElasticsearchKeySearchHandler(elasticsearchClient)
   }
 
   @Test
@@ -40,7 +41,7 @@ internal class ElasticsearchIndexServiceTest {
     every { elasticsearchClient.searchScroll(any()) } answers { emptyResponse() }
 
     // when
-    val hierarchyMetricPath = elasticsearchIndexService.getHierarchyMetricPaths("NONE", "hosts.*.cpu.*")
+    val hierarchyMetricPath = elasticsearchKeySearchHandler.getHierarchyMetricPaths("NONE", "hosts.*.cpu.*")
 
     // then
     assertEquals(1, hierarchyMetricPath.size)
@@ -48,14 +49,15 @@ internal class ElasticsearchIndexServiceTest {
 
   private fun emptyResponse() = ElasticsearchClient.Response.of(searchResponse(emptyArray()))
 
-  private fun searchResponse(internalSearchHits: Array<InternalSearchHit>): SearchResponse {
-    val internalSearchResponse = InternalSearchResponse(
-      InternalSearchHits(internalSearchHits, internalSearchHits.size.toLong(), 0.0f),
-      InternalFacets(emptyList()),
-      InternalAggregations.EMPTY,
-      Suggest(),
+  private fun searchResponse(internalSearchHits: Array<SearchHit>): SearchResponse {
+    val internalSearchResponse = SearchResponseSections(
+      SearchHits(internalSearchHits, internalSearchHits.size.toLong(), 0.0f),
+      Aggregations(emptyList()),
+      Suggest(listOf()),
       false,
-      false
+      false,
+      SearchProfileShardResults(mapOf()),
+      0
     )
 
     return SearchResponse(
@@ -63,14 +65,16 @@ internal class ElasticsearchIndexServiceTest {
       UUID.randomUUID().toString(),
       10,
       10,
+      0,
       1000,
-      emptyArray()
+      null,
+      null
     )
   }
 
-  private fun internalSearchHit(pathPair: Pair<String, Any>): InternalSearchHit {
-    val internalSearchHit = mockk<InternalSearchHit>()
-    every { internalSearchHit.sourceAsMap() } answers { mapOf(Pair("@tenant", "NONE"), Pair("depth", 4), Pair("leaf", true), pathPair) }
+  private fun internalSearchHit(pathPair: Pair<String, Any>): SearchHit {
+    val internalSearchHit = mockk<SearchHit>()
+    every { internalSearchHit.sourceAsMap } answers { mapOf(Pair("@tenant", "NONE"), Pair("depth", 4), Pair("leaf", true), pathPair) }
     return internalSearchHit
   }
 }

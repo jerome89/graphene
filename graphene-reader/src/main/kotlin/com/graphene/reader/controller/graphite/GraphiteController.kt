@@ -5,12 +5,11 @@ import com.graphene.reader.controller.graphite.request.RenderRequest
 import com.graphene.reader.handler.RenderParameters
 import net.iponweb.disthene.reader.handler.RenderHandler
 import com.graphene.common.HierarchyMetricPaths
-import com.graphene.reader.service.index.ElasticsearchIndexService
+import com.graphene.reader.store.key.ElasticsearchKeySearchHandler
 import net.iponweb.disthene.reader.utils.MetricRule
 import org.apache.log4j.Logger
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.nio.charset.StandardCharsets
 
 /**
  *
@@ -23,7 +22,7 @@ import java.nio.charset.StandardCharsets
 @RestController
 class GraphiteController(
   private val renderHandler: RenderHandler,
-  private val elasticsearchIndexService: ElasticsearchIndexService
+  private val elasticsearchKeySearchHandler: ElasticsearchKeySearchHandler
 ) {
 
   private val logger = Logger.getLogger(GraphiteController::class.java)
@@ -44,6 +43,6 @@ class GraphiteController(
   }
 
   private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
-    return elasticsearchIndexService.getHierarchyMetricPaths(MetricRule.defaultTenant(), metricsFindRequest.query)
+    return elasticsearchKeySearchHandler.getHierarchyMetricPaths(MetricRule.defaultTenant(), metricsFindRequest.query)
   }
 }
