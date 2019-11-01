@@ -6,6 +6,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Test"
+          name: "Run test"
           command: |
-            echo "Hello circle ci!"
+            ./gradlew test
