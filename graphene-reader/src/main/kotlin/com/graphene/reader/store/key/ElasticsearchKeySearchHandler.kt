@@ -24,7 +24,7 @@ class ElasticsearchKeySearchHandler(
 ) : IndexService {
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getPaths(tenant: String, wildcards: List<String>): Set<String> {
+  override fun getPaths(tenant: String, wildcards: List<String>, from: Long, to: Long): Set<String> {
     val regExs = mutableListOf<String>()
     val result = mutableSetOf<String>()
 
@@ -42,7 +42,9 @@ class ElasticsearchKeySearchHandler(
       val scrollIds = mutableListOf<String>()
 
       var response = elasticsearchClient.query(
-        QueryBuilders.regexpQuery("path", Joiner.on("|").skipNulls().join(regExs))
+        QueryBuilders.regexpQuery("path", Joiner.on("|").skipNulls().join(regExs)),
+        from,
+        to
       )
 
       while (response.hits.hits.isNotEmpty()) {
@@ -61,11 +63,13 @@ class ElasticsearchKeySearchHandler(
   }
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getHierarchyMetricPaths(tenant: String, query: String): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
+  override fun getHierarchyMetricPaths(tenant: String, query: String, from: Long, to: Long): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
     val hierarchyMetricPaths = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
     try {
       var response = elasticsearchClient.query(
-        QueryBuilders.regexpQuery("path", WildcardUtil.getPathsRegExFromWildcard(query))
+        QueryBuilders.regexpQuery("path", WildcardUtil.getPathsRegExFromWildcard(query)),
+        from,
+        to
       )
 
       while (response.hits.hits.isNotEmpty()) {

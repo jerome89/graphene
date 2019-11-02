@@ -41,7 +41,7 @@ public class TargetEvaluator {
   public List<TimeSeries> visit(PathTarget pathTarget) throws EvaluationException {
     try {
       Set<String> paths =
-          indexService.getPaths(pathTarget.getTenant(), Lists.newArrayList(pathTarget.getPath()));
+          indexService.getPaths(pathTarget.getTenant(), Lists.newArrayList(pathTarget.getPath()), pathTarget.getFrom(), pathTarget.getTo());
 
       logger.debug("resolved paths : " + paths);
 

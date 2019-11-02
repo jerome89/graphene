@@ -52,6 +52,10 @@ public class DateTimeUtils {
     }
 
     public static long currentTimeSeconds() {
-        return System.currentTimeMillis() / 1000L;
+        return org.joda.time.DateTimeUtils.currentTimeMillis() / 1000L;
+    }
+
+    public static long currentTimeMillis() {
+        return org.joda.time.DateTimeUtils.currentTimeMillis();
     }
 }

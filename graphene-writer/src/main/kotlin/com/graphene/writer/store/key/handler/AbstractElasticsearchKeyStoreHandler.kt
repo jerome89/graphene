@@ -1,12 +1,12 @@
 package com.graphene.writer.store.key.handler
 
+import com.graphene.common.key.RotationProperty
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.key.ElasticsearchClient
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
-import com.graphene.writer.store.key.property.RotationProperty
 import com.graphene.writer.util.NamedThreadFactory
 import java.util.Objects
 import java.util.concurrent.ConcurrentLinkedQueue

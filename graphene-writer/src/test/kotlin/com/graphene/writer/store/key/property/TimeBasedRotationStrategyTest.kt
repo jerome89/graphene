@@ -1,5 +1,7 @@
 package com.graphene.writer.store.key.property
 
+import com.graphene.common.key.RotationProperty
+import com.graphene.common.key.TimeBasedRotationStrategy
 import io.kotlintest.tables.forAll
 import io.kotlintest.tables.headers
 import io.kotlintest.tables.row
