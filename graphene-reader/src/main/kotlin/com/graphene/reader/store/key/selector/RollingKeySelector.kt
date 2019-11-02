@@ -3,7 +3,6 @@ package com.graphene.reader.store.key.selector
 import com.graphene.common.key.RotationProperty
 import com.graphene.common.key.TimeBasedRotationStrategy
 import com.graphene.common.rule.GrapheneRules
-import org.joda.time.DateTime
 import org.springframework.stereotype.Component
 
 @Component

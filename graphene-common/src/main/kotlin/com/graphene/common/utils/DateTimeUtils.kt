@@ -1,9 +1,9 @@
 package com.graphene.common.utils
 
 import com.graphene.common.rule.GrapheneRules
+import java.text.SimpleDateFormat
 import java.util.regex.Pattern
 import org.joda.time.DateTimeUtils
-import java.text.SimpleDateFormat
 
 /**
  * @author Andrei Ivanov

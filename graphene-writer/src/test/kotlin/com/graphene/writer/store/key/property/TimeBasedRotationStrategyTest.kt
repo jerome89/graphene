@@ -61,7 +61,7 @@ internal class TimeBasedRotationStrategyTest {
   @Test
   internal fun `should calculate weeks between from and until`() {
     table(
-      headers("from", "to","expectedIndexes"),
+      headers("from", "to", "expectedIndexes"),
       row("2019-10-07 10:00:00", "2019-10-07 11:00:00", setOf("index_tenant_2019-w41")),
       row("2019-10-07 10:00:00", "2019-10-14 11:00:00", setOf("index_tenant_2019-w41", "index_tenant_2019-w42")),
       row("2019-10-07 10:00:00", "2019-10-21 11:00:00", setOf("index_tenant_2019-w41", "index_tenant_2019-w42", "index_tenant_2019-w43"))
@@ -80,7 +80,7 @@ internal class TimeBasedRotationStrategyTest {
   @Test
   internal fun `should calculate weeks between from and until when year is different`() {
     table(
-      headers("from", "to","expectedIndexes"),
+      headers("from", "to", "expectedIndexes"),
       row("2019-12-23 10:00:00", "2020-01-06 11:00:00", setOf("index_tenant_2019-w52", "index_tenant_2020-w1", "index_tenant_2020-w2")),
       row("2019-12-30 10:00:00", "2020-01-06 11:00:00", setOf("index_tenant_2020-w1", "index_tenant_2020-w2"))
     ).forAll { from, to, expectedIndexes ->

@@ -2,7 +2,6 @@ package com.graphene.common.key
 
 import java.time.format.DateTimeFormatter
 import org.joda.time.DateTime
-import org.joda.time.Instant
 import org.joda.time.format.DateTimeFormat
 import org.threeten.extra.YearWeek
 
@@ -33,27 +32,27 @@ class TimeBasedRotationStrategy(
 
     val indexes = mutableSetOf("${index}_${tenant}_${fromDateTime.weekyear}-w${fromDateTime.weekOfWeekyear}", "${index}_${tenant}_${toDateTime.weekyear}-w${toDateTime.weekOfWeekyear}")
     if (fromDateTime.weekyear == toDateTime.weekyear) {
-      for (week in fromDateTime.weekOfWeekyear .. toDateTime.weekOfWeekyear) {
-        indexes.add("${index}_${tenant}_${fromDateTime.weekyear}-w${week}")
+      for (week in fromDateTime.weekOfWeekyear..toDateTime.weekOfWeekyear) {
+        indexes.add("${index}_${tenant}_${fromDateTime.weekyear}-w$week")
       }
     } else {
-      for (year in fromDateTime.weekyear .. toDateTime.weekyear) {
+      for (year in fromDateTime.weekyear..toDateTime.weekyear) {
 
         if (year > fromDateTime.weekyear && year < toDateTime.weekyear) {
-          for (week in 1 .. 52) {
-            indexes.add("${index}_${tenant}_${year}-w${week}")
+          for (week in 1..52) {
+            indexes.add("${index}_${tenant}_$year-w$week")
           }
         }
 
         if (year == fromDateTime.weekyear) {
-          for (week in fromDateTime.weekOfWeekyear .. 52) {
-            indexes.add("${index}_${tenant}_${year}-w${week}")
+          for (week in fromDateTime.weekOfWeekyear..52) {
+            indexes.add("${index}_${tenant}_$year-w$week")
           }
         }
 
         if (year == toDateTime.weekyear) {
           for (week in 1..toDateTime.weekOfWeekyear) {
-            indexes.add("${index}_${tenant}_${year}-w${week}")
+            indexes.add("${index}_${tenant}_$year-w$week")
           }
         }
       }
