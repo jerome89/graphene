@@ -4,6 +4,7 @@ import com.graphene.common.rule.GrapheneRules
 import java.text.SimpleDateFormat
 import java.util.regex.Pattern
 import org.joda.time.DateTimeUtils
+import java.util.*
 
 /**
  * @author Andrei Ivanov
@@ -63,6 +64,8 @@ object DateTimeUtils {
   }
 
   fun from(formattedDate: String): Long {
-    return SimpleDateFormat(GrapheneRules.Date.DATE_FORMAT).parse(formattedDate).time
+    val simpleDateFormat = SimpleDateFormat(GrapheneRules.Date.DATE_FORMAT)
+    simpleDateFormat.timeZone = TimeZone.getTimeZone("UTC")
+    return simpleDateFormat.parse(formattedDate).time
   }
 }
