@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
-import net.iponweb.disthene.reader.utils.DateTimeUtils
+import com.graphene.common.utils.DateTimeUtils
 import org.apache.log4j.Logger
 import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.client.RequestOptions

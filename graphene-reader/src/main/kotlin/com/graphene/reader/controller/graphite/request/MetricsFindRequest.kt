@@ -1,6 +1,6 @@
 package com.graphene.reader.controller.graphite.request
 
-import net.iponweb.disthene.reader.utils.DateTimeUtils
+import com.graphene.common.utils.DateTimeUtils
 
 data class MetricsFindRequest(
   val query: String,

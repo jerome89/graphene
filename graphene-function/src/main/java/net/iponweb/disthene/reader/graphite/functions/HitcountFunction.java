@@ -6,7 +6,7 @@ import net.iponweb.disthene.reader.exceptions.InvalidArgumentException;
 import net.iponweb.disthene.reader.exceptions.TimeSeriesNotAlignedException;
 import net.iponweb.disthene.reader.graphite.Target;
 import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
-import net.iponweb.disthene.reader.utils.DateTimeUtils;
+import com.graphene.common.utils.DateTimeUtils;
 import net.iponweb.disthene.reader.utils.TimeSeriesUtils;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class HitcountFunction extends DistheneFunction {
     @Override
     public List<TimeSeries> evaluate(TargetEvaluator evaluator) throws EvaluationException {
         // parse interval
-        int interval = (int) Math.abs(DateTimeUtils.parseTimeOffset((String) arguments.get(1)));
+        int interval = (int) Math.abs(DateTimeUtils.INSTANCE.parseTimeOffset((String) arguments.get(1)));
 
         List<TimeSeries> processedArguments = new ArrayList<>();
         processedArguments.addAll(evaluator.eval((Target) arguments.get(0)));
@@ -96,7 +96,7 @@ public class HitcountFunction extends DistheneFunction {
             throw new InvalidArgumentException("hitcount: number of arguments is " + arguments.size() + ". Must be two or three.");
         if (!(arguments.get(0) instanceof Target))
             throw new InvalidArgumentException("hitcount: argument is " + arguments.get(0).getClass().getName() + ". Must be series");
-        if (!DateTimeUtils.testTimeOffset((String) arguments.get(1)))
+        if (!DateTimeUtils.INSTANCE.testTimeOffset((String) arguments.get(1)))
             throw new InvalidArgumentException("hitcount: interval cannot be parsed (" + arguments.get(1) + ")");
     }
 }
