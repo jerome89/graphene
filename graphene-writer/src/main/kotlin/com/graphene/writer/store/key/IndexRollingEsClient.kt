@@ -1,7 +1,7 @@
 package com.graphene.writer.store.key
 
-import com.graphene.writer.store.key.property.RotationProperty
-import com.graphene.writer.store.key.property.RotationStrategy
+import com.graphene.common.key.RotationProperty
+import com.graphene.common.key.RotationStrategy
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse
 import org.elasticsearch.action.bulk.BulkResponse
 import org.elasticsearch.action.get.MultiGetRequest

@@ -8,7 +8,7 @@ import net.iponweb.disthene.reader.graphite.PathTarget;
 import net.iponweb.disthene.reader.graphite.Target;
 import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
 import net.iponweb.disthene.reader.utils.CollectionUtils;
-import net.iponweb.disthene.reader.utils.DateTimeUtils;
+import com.graphene.common.utils.DateTimeUtils;
 import net.iponweb.disthene.reader.utils.TimeSeriesUtils;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class StdevFunction extends DistheneFunction {
         if (arguments.get(1) instanceof Double) {
             window = ((Double) arguments.get(1)).longValue();
         } else {
-            long offset = Math.abs(DateTimeUtils.parseTimeOffset((String) arguments.get(1)));
+            long offset = Math.abs(DateTimeUtils.INSTANCE.parseTimeOffset((String) arguments.get(1)));
             window = offset / step;
         }
 

@@ -27,12 +27,13 @@ class ElasticsearchClient(
 ) {
 
   @Throws(TooMuchDataExpectedException::class)
-  fun query(query: QueryBuilder): Response {
+  fun query(query: QueryBuilder, from: Long, to: Long): Response {
     val searchSourceBuilder = SearchSourceBuilder()
     searchSourceBuilder.query(query)
     searchSourceBuilder.size(indexProperty.scroll)
 
-    val searchRequest = SearchRequest(keySelector.select(indexProperty.index!!, indexProperty.tenant, 0, 0))
+    val selectedIndex = keySelector.select(indexProperty.index!!, indexProperty.tenant, from, to)
+    val searchRequest = SearchRequest(*selectedIndex.toTypedArray())
     searchRequest.source(searchSourceBuilder)
     searchRequest.scroll(TimeValue(indexProperty.timeout.toLong()))
 

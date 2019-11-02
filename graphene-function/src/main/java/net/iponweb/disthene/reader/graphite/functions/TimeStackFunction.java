@@ -5,7 +5,7 @@ import net.iponweb.disthene.reader.exceptions.EvaluationException;
 import net.iponweb.disthene.reader.exceptions.InvalidArgumentException;
 import net.iponweb.disthene.reader.graphite.Target;
 import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
-import net.iponweb.disthene.reader.utils.DateTimeUtils;
+import com.graphene.common.utils.DateTimeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class TimeStackFunction extends DistheneFunction {
     @Override
     public List<TimeSeries> evaluate(TargetEvaluator evaluator) throws EvaluationException {
         // parse offset
-        long offset = DateTimeUtils.parseTimeOffset((String) arguments.get(1));
+        long offset = DateTimeUtils.INSTANCE.parseTimeOffset((String) arguments.get(1));
         int startIndex = ((Double) arguments.get(2)).intValue();
         int endIndex = ((Double) arguments.get(3)).intValue();
 
@@ -49,7 +49,7 @@ public class TimeStackFunction extends DistheneFunction {
         if (arguments.size() != 4) throw new InvalidArgumentException("timeStack: number of arguments is " + arguments.size() + ". Must be four.");
         // argument cannot be a result of another function - it's not clear how to evaluate it in that case
         if (!(arguments.get(0) instanceof Target)) throw new InvalidArgumentException("timeStack: argument is " + arguments.get(0).getClass().getName() + ". Must be series wildcard");
-        if (!DateTimeUtils.testTimeOffset((String) arguments.get(1))) throw new InvalidArgumentException("timeStack: shift cannot be parsed (" + arguments.get(1) + ")");
+        if (!DateTimeUtils.INSTANCE.testTimeOffset((String) arguments.get(1))) throw new InvalidArgumentException("timeStack: shift cannot be parsed (" + arguments.get(1) + ")");
         if (!(arguments.get(2) instanceof Double)) throw new InvalidArgumentException("timeStack: argument is " + arguments.get(0).getClass().getName() + ". Must be a number");
         if (!(arguments.get(3) instanceof Double)) throw new InvalidArgumentException("timeStack: argument is " + arguments.get(0).getClass().getName() + ". Must be a number");
     }

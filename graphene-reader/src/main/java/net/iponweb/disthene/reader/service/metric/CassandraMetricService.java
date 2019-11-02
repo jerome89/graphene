@@ -51,9 +51,7 @@ public class CassandraMetricService implements MetricService {
     }
 
     @Override
-    public String getMetricsAsJson(String tenant, List<String> wildcards, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
-        Set<String> paths = elasticsearchKeySearchHandler.getPaths(tenant, wildcards);
-
+    public String getMetricsAsJson(String tenant, List<String> paths, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
         // Calculate rollup etc
         Long now = System.currentTimeMillis() * 1000;
         Long effectiveTo = Math.min(to, now);
@@ -119,7 +117,7 @@ public class CassandraMetricService implements MetricService {
 
     @Override
     public List<TimeSeries> getMetricsAsList(String tenant, List<String> wildcards, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
-        Set<String> paths = elasticsearchKeySearchHandler.getPaths(tenant, wildcards);
+        Set<String> paths = elasticsearchKeySearchHandler.getPaths(tenant, wildcards, from, to);
 
         statsService.incRenderPathsRead(tenant, paths.size());
 

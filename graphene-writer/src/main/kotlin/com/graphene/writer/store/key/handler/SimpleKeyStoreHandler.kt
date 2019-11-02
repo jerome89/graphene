@@ -1,9 +1,9 @@
 package com.graphene.writer.store.key.handler
 
+import com.graphene.common.key.RotationProperty
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
-import com.graphene.writer.store.key.property.RotationProperty
 import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
 import java.util.Collections
 import java.util.Objects

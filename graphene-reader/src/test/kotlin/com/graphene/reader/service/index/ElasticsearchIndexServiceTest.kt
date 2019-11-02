@@ -14,6 +14,7 @@ import org.elasticsearch.search.profile.SearchProfileShardResults
 import org.elasticsearch.search.suggest.Suggest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyLong
 
 internal class ElasticsearchIndexServiceTest {
 
@@ -37,11 +38,11 @@ internal class ElasticsearchIndexServiceTest {
           internalSearchHit(Pair("path", "hosts.i-c.cpu.usage"))))
     )
 
-    every { elasticsearchClient.query(any()) } answers { response }
+    every { elasticsearchClient.query(any(), any(), any()) } answers { response }
     every { elasticsearchClient.searchScroll(any()) } answers { emptyResponse() }
 
     // when
-    val hierarchyMetricPath = elasticsearchKeySearchHandler.getHierarchyMetricPaths("NONE", "hosts.*.cpu.*")
+    val hierarchyMetricPath = elasticsearchKeySearchHandler.getHierarchyMetricPaths("NONE", "hosts.*.cpu.*", anyLong(), anyLong())
 
     // then
     assertEquals(1, hierarchyMetricPath.size)

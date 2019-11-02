@@ -1,10 +1,10 @@
 package com.graphene.writer.store.key.handler
 
+import com.graphene.common.key.RotationProperty
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.property.IndexBasedKeyStoreHandlerProperty
-import com.graphene.writer.store.key.property.RotationProperty
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

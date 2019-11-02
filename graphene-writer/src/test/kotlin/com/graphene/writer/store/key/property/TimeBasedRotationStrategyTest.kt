@@ -1,5 +1,7 @@
 package com.graphene.writer.store.key.property
 
+import com.graphene.common.key.RotationProperty
+import com.graphene.common.key.TimeBasedRotationStrategy
 import io.kotlintest.tables.forAll
 import io.kotlintest.tables.headers
 import io.kotlintest.tables.row
@@ -54,6 +56,61 @@ internal class TimeBasedRotationStrategyTest {
       // then
       assertEquals(expectedIndexDate, timeBasedRotationStrategy.getDate())
     }
+  }
+
+  @Test
+  internal fun `should calculate weeks between from and until`() {
+    table(
+      headers("from", "to", "expectedIndexes"),
+      row("2019-10-07 10:00:00", "2019-10-07 11:00:00", setOf("index_tenant_2019-w41")),
+      row("2019-10-07 10:00:00", "2019-10-14 11:00:00", setOf("index_tenant_2019-w41", "index_tenant_2019-w42")),
+      row("2019-10-07 10:00:00", "2019-10-21 11:00:00", setOf("index_tenant_2019-w41", "index_tenant_2019-w42", "index_tenant_2019-w43"))
+    ).forAll { from, to, expectedIndexes ->
+      // given
+      val timeBasedRotationStrategy = TimeBasedRotationStrategy(RotationProperty(period = "1w"))
+
+      // when
+      val indexes = timeBasedRotationStrategy.getRangeIndex("index", "tenant", com.graphene.common.utils.DateTimeUtils.from(from), com.graphene.common.utils.DateTimeUtils.from(to))
+
+      // then
+      assertEquals(expectedIndexes, indexes)
+    }
+  }
+
+  @Test
+  internal fun `should calculate weeks between from and until when year is different`() {
+    table(
+      headers("from", "to", "expectedIndexes"),
+      row("2019-12-23 10:00:00", "2020-01-06 11:00:00", setOf("index_tenant_2019-w52", "index_tenant_2020-w1", "index_tenant_2020-w2")),
+      row("2019-12-30 10:00:00", "2020-01-06 11:00:00", setOf("index_tenant_2020-w1", "index_tenant_2020-w2"))
+    ).forAll { from, to, expectedIndexes ->
+      // given
+      val timeBasedRotationStrategy = TimeBasedRotationStrategy(RotationProperty(period = "1w"))
+
+      // when
+      val indexes = timeBasedRotationStrategy.getRangeIndex("index", "tenant", com.graphene.common.utils.DateTimeUtils.from(from), com.graphene.common.utils.DateTimeUtils.from(to))
+
+      // then
+      assertEquals(expectedIndexes, indexes)
+    }
+  }
+
+  @Test
+  internal fun `should calculate weeks between from and until when year is different2`() {
+    // given
+    val timeBasedRotationStrategy = TimeBasedRotationStrategy(RotationProperty(period = "1w"))
+
+    // when
+    val indexes = timeBasedRotationStrategy.getRangeIndex("index", "tenant", com.graphene.common.utils.DateTimeUtils.from("2019-12-23 10:00:00"), com.graphene.common.utils.DateTimeUtils.from("2021-01-08 10:00:00"))
+
+    // then
+    val givenWeekOf2019 = 1
+    val givenWeekOf2021 = 1
+    assertEquals(givenWeekOf2019 + MAXIMUM_WEEK_OF_YEAR + givenWeekOf2021, indexes.size)
+  }
+
+  companion object {
+    const val MAXIMUM_WEEK_OF_YEAR = 52
   }
 
   private fun setCurrentMillisFixed(date: String) {

@@ -17,9 +17,9 @@ graphene:
           elasticsearch-key-search-handler:
             key-selector:
               type: "RollingKeySelector"
-              period: 0
+              period: "1w"
             enabled: true
-            tenant: NONE
+            tenant: none
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
