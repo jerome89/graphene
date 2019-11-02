@@ -47,6 +47,8 @@ class GraphiteController(
   }
 
   private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
-    return elasticsearchKeySearchHandler.getHierarchyMetricPaths(MetricRule.defaultTenant(), metricsFindRequest.query, metricsFindRequest.from!!, metricsFindRequest.until!!)
+    val from = metricsFindRequest.from * 1_000
+    val to = metricsFindRequest.until * 1_000
+    return elasticsearchKeySearchHandler.getHierarchyMetricPaths(MetricRule.defaultTenant(), metricsFindRequest.query, from, to)
   }
 }

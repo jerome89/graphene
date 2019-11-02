@@ -1,6 +1,6 @@
 package com.graphene.writer.store.key
 
-import com.graphene.writer.store.key.property.RotationProperty
+import com.graphene.common.key.RotationProperty
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import org.apache.http.HttpHost
