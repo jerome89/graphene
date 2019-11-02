@@ -2,11 +2,10 @@ package com.graphene.writer.blacklist
 
 import com.google.common.base.Joiner
 import com.graphene.writer.input.GrapheneMetric
-import org.springframework.stereotype.Component
-
 import java.util.HashMap
 import java.util.regex.Pattern
 import javax.annotation.PostConstruct
+import org.springframework.stereotype.Component
 
 /**
  * @author Andrei Ivanov

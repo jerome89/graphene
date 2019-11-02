@@ -8,5 +8,4 @@ package com.graphene.writer.input
 interface MetricConverter<T> {
 
   fun convert(metric: T): GrapheneMetric
-
 }

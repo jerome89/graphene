@@ -62,5 +62,4 @@ class IndexRollingEsClient(
   override fun getIndexWithDate(index: String, tenant: String): String {
     return "${index}_${tenant}_${rotationStrategy.getDate()}"
   }
-
 }

@@ -2,6 +2,13 @@ package com.graphene.writer.event
 
 import com.graphene.writer.config.StatsProperty
 import com.graphene.writer.util.NamedThreadFactory
+import java.util.HashMap
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.atomic.AtomicLong
+import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 import org.apache.log4j.Logger
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -9,12 +16,6 @@ import org.springframework.context.event.EventListener
 import org.springframework.jmx.export.annotation.ManagedAttribute
 import org.springframework.jmx.export.annotation.ManagedResource
 import org.springframework.stereotype.Component
-
-import javax.annotation.PreDestroy
-import java.util.HashMap
-import java.util.concurrent.*
-import java.util.concurrent.atomic.AtomicLong
-import javax.annotation.PostConstruct
 
 /**
  * @author Andrei Ivanov

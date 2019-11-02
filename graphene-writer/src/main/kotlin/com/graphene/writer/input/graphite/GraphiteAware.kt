@@ -1,10 +1,10 @@
 package com.graphene.writer.input.graphite
 
-import java.util.*
+import java.util.StringJoiner
 
 interface GraphiteAware {
 
-  fun getTags() : Map<String, String>
+  fun getTags(): Map<String, String>
 
   fun getGraphiteKey(): String {
     val graphiteKey = StringJoiner(GraphiteMetric.DOT)

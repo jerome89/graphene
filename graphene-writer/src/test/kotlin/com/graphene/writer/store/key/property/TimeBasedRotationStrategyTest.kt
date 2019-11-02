@@ -4,10 +4,10 @@ import io.kotlintest.tables.forAll
 import io.kotlintest.tables.headers
 import io.kotlintest.tables.row
 import io.kotlintest.tables.table
-import org.joda.time.DateTimeUtils
-import org.junit.jupiter.api.Test
 import java.text.SimpleDateFormat
 import kotlin.test.assertEquals
+import org.joda.time.DateTimeUtils
+import org.junit.jupiter.api.Test
 
 internal class TimeBasedRotationStrategyTest {
 
@@ -60,5 +60,4 @@ internal class TimeBasedRotationStrategyTest {
     val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date).time
     DateTimeUtils.setCurrentMillisFixed(currentTime)
   }
-
 }

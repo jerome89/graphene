@@ -1,10 +1,10 @@
 package com.graphene.writer.input.graphite.property
 
 import com.graphene.writer.config.Rollup
+import java.util.ArrayList
+import javax.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-import javax.annotation.PostConstruct
-import java.util.ArrayList
 
 /**
  * @author Andrei Ivanov

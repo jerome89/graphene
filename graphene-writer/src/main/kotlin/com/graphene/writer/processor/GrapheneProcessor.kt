@@ -1,8 +1,8 @@
 package com.graphene.writer.processor
 
-import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.blacklist.BlacklistService
 import com.graphene.writer.event.GrapheneDataStoreEvent
+import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async

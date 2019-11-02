@@ -1,5 +1,7 @@
 package com.graphene.reader.service.index.model
 
+import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.elasticsearch.client.NodeSelector
@@ -8,8 +10,6 @@ import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.sniff.Sniffer
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
-import javax.annotation.PreDestroy
 
 @Component
 class ElasticsearchFactory(
@@ -61,5 +61,4 @@ class ElasticsearchFactory(
     restHighLevelClient.close()
     sniffer.close()
   }
-
 }

@@ -1,11 +1,10 @@
 package com.graphene.writer.config
 
-import org.slf4j.LoggerFactory
-import org.springframework.boot.context.properties.ConfigurationProperties
-
-import javax.annotation.PostConstruct
 import java.net.InetAddress
 import java.net.UnknownHostException
+import javax.annotation.PostConstruct
+import org.slf4j.LoggerFactory
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
  * @author Andrei Ivanov
@@ -29,7 +28,6 @@ class StatsProperty {
     } catch (e: UnknownHostException) {
       hostname = "unknown"
     }
-
   }
 
   override fun toString(): String {

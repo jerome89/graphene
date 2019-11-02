@@ -1,9 +1,9 @@
 package com.graphene.writer.store.key.property
 
+import java.time.format.DateTimeFormatter
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.threeten.extra.YearWeek
-import java.time.format.DateTimeFormatter
 
 interface RotationStrategy {
 
@@ -31,7 +31,7 @@ class TimeBasedRotationStrategy(
   override fun getDate(): String {
     val dateTime = DateTime()
 
-    return when(timeUnit) {
+    return when (timeUnit) {
       DAY -> timePattern.print(dateTime)
       else -> YearWeek.parse(timePattern.print(dateTime), DateTimeFormatter.ofPattern(DATE_FORMAT)).toString().toLowerCase()
     }
@@ -41,5 +41,4 @@ class TimeBasedRotationStrategy(
     const val DATE_FORMAT = "yyyyMMdd"
     const val DAY = 'd'
   }
-
 }

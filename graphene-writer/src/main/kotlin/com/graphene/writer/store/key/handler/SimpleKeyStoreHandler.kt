@@ -5,11 +5,12 @@ import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.property.RotationProperty
 import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
+import java.util.Collections
+import java.util.Objects
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
-import java.util.*
 
 /**
  * @author Andrei Ivanov
@@ -99,5 +100,4 @@ class SimpleKeyStoreHandler(
       }
     """
   }
-
 }

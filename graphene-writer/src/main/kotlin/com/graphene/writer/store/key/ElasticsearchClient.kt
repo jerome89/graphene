@@ -1,11 +1,11 @@
 package com.graphene.writer.store.key
 
+import java.io.Closeable
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse
 import org.elasticsearch.action.bulk.BulkResponse
 import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.action.get.MultiGetResponse
 import org.elasticsearch.client.RequestOptions
-import java.io.Closeable
 
 interface ElasticsearchClient : Closeable {
 
@@ -24,5 +24,4 @@ interface ElasticsearchClient : Closeable {
   fun getIndices(): GetIndexResponse
 
   fun existsAlias(index: String, currentAlias: String): Boolean
-
 }

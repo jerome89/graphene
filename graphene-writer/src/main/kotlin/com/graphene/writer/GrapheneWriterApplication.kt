@@ -1,11 +1,11 @@
 package com.graphene.writer
 
+import com.graphene.writer.blacklist.BlacklistConfiguration
 import com.graphene.writer.config.GrapheneWriterConfiguration
 import com.graphene.writer.config.StatsProperty
-import com.graphene.writer.store.data.CassandraDataStoreHandlerProperty
 import com.graphene.writer.input.graphite.property.CarbonProperty
-import com.graphene.writer.blacklist.BlacklistConfiguration
 import com.graphene.writer.input.graphite.property.GraphiteInputProperty
+import com.graphene.writer.store.data.CassandraDataStoreHandlerProperty
 import com.graphene.writer.store.data.StoreDataProperty
 import com.graphene.writer.store.key.property.IndexBasedKeyStoreHandlerProperty
 import com.graphene.writer.store.key.property.RotationProperty

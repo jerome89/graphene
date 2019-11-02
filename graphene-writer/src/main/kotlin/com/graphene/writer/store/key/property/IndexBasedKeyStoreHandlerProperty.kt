@@ -1,9 +1,9 @@
 package com.graphene.writer.store.key.property
 
 import com.graphene.writer.config.IndexBulkConfiguration
+import javax.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-import javax.annotation.PostConstruct
 
 @ConfigurationProperties(prefix = "graphene.writer.store.key.handlers.index-based-key-store-handler")
 data class IndexBasedKeyStoreHandlerProperty(
@@ -32,5 +32,4 @@ data class IndexBasedKeyStoreHandlerProperty(
   companion object {
     private val logger = LoggerFactory.getLogger(IndexBasedKeyStoreHandlerProperty::class.java)
   }
-
 }

@@ -3,7 +3,6 @@ package com.graphene.writer.store.key
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.log4j.Logger
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest
@@ -116,5 +115,4 @@ class ElasticsearchClientTemplate(
     sniffer.close()
     logger.info("Closed ES client")
   }
-
 }

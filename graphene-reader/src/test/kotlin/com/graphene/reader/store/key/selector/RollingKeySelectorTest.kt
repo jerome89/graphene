@@ -6,6 +6,5 @@ internal class RollingKeySelectorTest {
 
   @Test
   internal fun name() {
-
   }
 }

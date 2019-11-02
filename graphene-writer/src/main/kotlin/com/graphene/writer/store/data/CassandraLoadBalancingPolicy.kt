@@ -1,6 +1,10 @@
 package com.graphene.writer.store.data
 
-import com.datastax.driver.core.policies.*
+import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy
+import com.datastax.driver.core.policies.LatencyAwarePolicy
+import com.datastax.driver.core.policies.LoadBalancingPolicy
+import com.datastax.driver.core.policies.RoundRobinPolicy
+import com.datastax.driver.core.policies.TokenAwarePolicy
 
 class CassandraLoadBalancingPolicy {
 

@@ -1,8 +1,7 @@
 package com.graphene.reader.service.index.model
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-
 import java.util.ArrayList
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
  * @author Andrei Ivanov

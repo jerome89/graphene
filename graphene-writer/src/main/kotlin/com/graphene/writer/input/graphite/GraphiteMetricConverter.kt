@@ -1,9 +1,9 @@
 package com.graphene.writer.input.graphite
 
-import com.graphene.writer.input.MetricConverter
 import com.graphene.writer.input.GrapheneMetric
+import com.graphene.writer.input.MetricConverter
+import java.util.Collections
 import net.iponweb.disthene.reader.utils.MetricRule
-import java.util.*
 
 class GraphiteMetricConverter : MetricConverter<GraphiteMetric> {
 

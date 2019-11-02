@@ -1,10 +1,9 @@
 package com.graphene.writer.store.data
 
+import java.util.ArrayList
+import javax.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-
-import javax.annotation.PostConstruct
-import java.util.ArrayList
 
 /**
  * @author Andrei Ivanov

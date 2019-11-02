@@ -8,17 +8,17 @@ import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
 import com.graphene.writer.store.key.property.RotationProperty
 import com.graphene.writer.util.NamedThreadFactory
-import net.iponweb.disthene.reader.utils.DateTimeUtils
-import org.apache.log4j.Logger
-import org.elasticsearch.action.get.MultiGetRequest
-import org.elasticsearch.client.RequestOptions
-import java.util.*
+import java.util.Objects
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
+import net.iponweb.disthene.reader.utils.DateTimeUtils
+import org.apache.log4j.Logger
+import org.elasticsearch.action.get.MultiGetRequest
+import org.elasticsearch.client.RequestOptions
 
 // TODO duplicated branch node removing logic
 abstract class AbstractElasticsearchKeyStoreHandler(
@@ -61,7 +61,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     val latestIndex = elasticsearchClient.getLatestIndex(index, tenant)
     logger.info("latestIndex : $latestIndex")
 //    val aliasDate = indexRollingClient.getAliasDate(latestIndex)
-
 
     // 가장 마지막 Offset 의 Index 의 alias 를 확인한다.
 
@@ -151,7 +150,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     try {
       Thread.sleep(10000)
     } catch (ignored: InterruptedException) {
-
     }
   }
 
@@ -160,5 +158,4 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   abstract fun templateSource(): String
 
   abstract fun templateName(): String
-
 }

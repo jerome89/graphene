@@ -9,10 +9,9 @@ class RollingKeySelector(
 
   override fun select(index: String, tenant: String, from: Long, to: Long): String {
     if (keySelectorProperty.period == "0") {
-      return "${index}.${tenant}.CURRENT"
+      return "$index.$tenant.CURRENT"
     }
 
-    return "${index}.${tenant}.CURRENT"
+    return "$index.$tenant.CURRENT"
   }
-
 }

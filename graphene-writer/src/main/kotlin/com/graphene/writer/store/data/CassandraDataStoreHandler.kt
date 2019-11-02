@@ -1,18 +1,21 @@
 package com.graphene.writer.store.data
 
-import com.datastax.driver.core.*
+import com.datastax.driver.core.BoundStatement
+import com.datastax.driver.core.Cluster
+import com.datastax.driver.core.PreparedStatement
+import com.datastax.driver.core.ResultSet
+import com.datastax.driver.core.Session
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.input.graphite.property.CarbonProperty
 import com.graphene.writer.store.DataStoreHandler
-import org.apache.log4j.Logger
-
-import javax.annotation.PreDestroy
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
+import org.apache.log4j.Logger
 
 /**
  * @author Andrei Ivanov

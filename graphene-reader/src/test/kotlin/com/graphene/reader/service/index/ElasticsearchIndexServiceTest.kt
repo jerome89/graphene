@@ -3,6 +3,8 @@ package com.graphene.reader.service.index
 import com.graphene.reader.store.key.ElasticsearchKeySearchHandler
 import io.mockk.every
 import io.mockk.mockk
+import java.util.UUID
+import kotlin.test.assertEquals
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.action.search.SearchResponseSections
 import org.elasticsearch.search.SearchHit
@@ -12,8 +14,6 @@ import org.elasticsearch.search.profile.SearchProfileShardResults
 import org.elasticsearch.search.suggest.Suggest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
-import kotlin.test.assertEquals
 
 internal class ElasticsearchIndexServiceTest {
 

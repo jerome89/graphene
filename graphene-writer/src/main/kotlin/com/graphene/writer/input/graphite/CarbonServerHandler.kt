@@ -1,18 +1,18 @@
 package com.graphene.writer.input.graphite
 
 import com.google.common.base.CharMatcher
+import com.graphene.writer.config.Rollup
+import com.graphene.writer.domain.Metric
+import com.graphene.writer.input.graphite.property.CarbonProperty
 import com.graphene.writer.processor.GrapheneProcessor
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.CharsetUtil
-import com.graphene.writer.domain.Metric
-import com.graphene.writer.config.Rollup
-import com.graphene.writer.input.graphite.property.CarbonProperty
+import javax.annotation.PostConstruct
 import org.apache.log4j.Logger
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
 
 /**
  * @author Andrei Ivanov

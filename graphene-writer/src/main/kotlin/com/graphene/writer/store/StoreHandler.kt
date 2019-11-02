@@ -10,7 +10,6 @@ import com.graphene.writer.input.GrapheneMetric
 interface StoreHandler {
 
   fun handle(grapheneMetric: GrapheneMetric)
-
 }
 
 interface KeyStoreHandler : StoreHandler

@@ -12,7 +12,6 @@ class MetricKey(val tenant: String, val path: String, val rollup: Int, val perio
     val metricKey = o as MetricKey?
 
     return period == metricKey!!.period && rollup == metricKey.rollup && timestamp == metricKey.timestamp && path == metricKey.path && tenant == metricKey.tenant
-
   }
 
   override fun hashCode(): Int {

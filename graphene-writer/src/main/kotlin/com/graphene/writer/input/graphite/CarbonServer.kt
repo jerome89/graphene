@@ -2,17 +2,18 @@ package com.graphene.writer.input.graphite
 
 import com.graphene.writer.input.graphite.property.GraphiteInputProperty
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.channel.*
+import io.netty.channel.ChannelHandlerContext
+import io.netty.channel.ChannelInitializer
+import io.netty.channel.ChannelOption
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.DelimiterBasedFrameDecoder
 import io.netty.handler.codec.Delimiters
-import org.apache.log4j.Logger
-import org.springframework.stereotype.Component
-
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
+import org.apache.log4j.Logger
+import org.springframework.stereotype.Component
 
 /**
  * @author Andrei Ivanov

@@ -1,7 +1,7 @@
 package com.graphene.common
 
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import org.junit.jupiter.api.Test
 
 internal class HierarchyMetricPathsTest {
 

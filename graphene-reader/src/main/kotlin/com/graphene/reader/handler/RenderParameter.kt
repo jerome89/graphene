@@ -1,12 +1,12 @@
 package com.graphene.reader.handler
 
 import com.graphene.reader.controller.graphite.request.RenderRequest
+import java.util.Objects
 import net.iponweb.disthene.reader.exceptions.InvalidParameterValueException
 import net.iponweb.disthene.reader.format.Format
 import net.iponweb.disthene.reader.utils.DateUtils
 import org.apache.log4j.Logger
 import org.joda.time.DateTimeZone
-import java.util.*
 
 data class RenderParameter(
   var tenant: String? = null,
@@ -89,5 +89,4 @@ object RenderParameters {
   }
 
   private fun getTenant(): String? = "NONE"
-
 }

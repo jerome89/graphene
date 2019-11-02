@@ -1,6 +1,13 @@
 package com.graphene.writer.store.data
 
-import com.datastax.driver.core.*
+import com.datastax.driver.core.Cluster
+import com.datastax.driver.core.ConsistencyLevel
+import com.datastax.driver.core.HostDistance
+import com.datastax.driver.core.PoolingOptions
+import com.datastax.driver.core.ProtocolOptions
+import com.datastax.driver.core.ProtocolVersion
+import com.datastax.driver.core.QueryOptions
+import com.datastax.driver.core.SocketOptions
 import org.apache.log4j.Logger
 
 class CassandraFactory {
@@ -53,5 +60,4 @@ class CassandraFactory {
       .setReadTimeoutMillis(cassandraDataStoreHandlerProperty.readTimeout * 1000)
       .setConnectTimeoutMillis(cassandraDataStoreHandlerProperty.connectTimeout * 1000)
   }
-
 }
