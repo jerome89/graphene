@@ -1,28 +1,22 @@
 package com.graphene.writer.store.key.handler
 
-import com.graphene.common.key.RotationProperty
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
-import com.graphene.writer.store.key.property.SimpleKeyStoreHandlerProperty
+import com.graphene.writer.store.key.KeyStoreHandlerProperty
 import java.util.Collections
 import java.util.Objects
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
 
 /**
  * @author Andrei Ivanov
  * @author dark
  */
-@Component
-@ConditionalOnProperty(prefix = "graphene.writer.store.key.handlers.simple-key-store-handler", name = ["enabled"], havingValue = "true")
 class SimpleKeyStoreHandler(
   val elasticsearchClientFactory: ElasticsearchClientFactory,
-  val rotationProperty: RotationProperty,
-  val property: SimpleKeyStoreHandlerProperty
-) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, rotationProperty, property) {
+  val property: KeyStoreHandlerProperty
+) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     if (Objects.isNull(metric)) {

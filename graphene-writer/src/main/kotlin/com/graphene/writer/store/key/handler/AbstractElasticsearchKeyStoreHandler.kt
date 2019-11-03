@@ -1,41 +1,39 @@
 package com.graphene.writer.store.key.handler
 
-import com.graphene.common.key.RotationProperty
 import com.graphene.common.utils.DateTimeUtils
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.key.ElasticsearchClient
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
+import com.graphene.writer.store.key.KeyStoreHandlerProperty
 import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
 import com.graphene.writer.util.NamedThreadFactory
+import net.iponweb.disthene.reader.utils.Jsons
+import org.apache.log4j.Logger
+import org.elasticsearch.action.get.MultiGetRequest
+import org.elasticsearch.client.RequestOptions
 import java.util.Objects
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import javax.annotation.PostConstruct
-import javax.annotation.PreDestroy
-import org.apache.log4j.Logger
-import org.elasticsearch.action.get.MultiGetRequest
-import org.elasticsearch.client.RequestOptions
 
 // TODO duplicated branch node removing logic
 abstract class AbstractElasticsearchKeyStoreHandler(
-  private val elasticsearchClientFactory: ElasticsearchClientFactory,
-  private val rotationProperty: RotationProperty,
-  private val property: ElasticsearchKeyStoreHandlerProperty
+  elasticsearchClientFactory: ElasticsearchClientFactory,
+  keyStoreHandlerProperty: KeyStoreHandlerProperty
 ) : KeyStoreHandler, Runnable {
 
   private val logger = Logger.getLogger(AbstractElasticsearchKeyStoreHandler::class.java)
 
-  private lateinit var elasticsearchClient: ElasticsearchClient
-  private lateinit var keyStoreScheduler: ScheduledExecutorService
-  private lateinit var multiGetRequestContainer: MultiGetRequestContainer
-  private lateinit var index: String
-  private lateinit var type: String
-  private lateinit var templateIndexPattern: String
-  private lateinit var tenant: String
+  private var elasticsearchClient: ElasticsearchClient
+  private var keyStoreScheduler: ScheduledExecutorService
+  private var multiGetRequestContainer: MultiGetRequestContainer
+  private var index: String
+  private var type: String
+  private var templateIndexPattern: String
+  private var tenant: String
 
   private var lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
   private var batchSize: Int = 0
@@ -43,17 +41,18 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private val metrics = ConcurrentLinkedQueue<GrapheneMetric>()
 
-  @PostConstruct
-  fun init() {
+  init {
+    val property = Jsons.from(keyStoreHandlerProperty.handler["property"], ElasticsearchKeyStoreHandlerProperty::class.java)
+
     index = property.index
     type = property.type
-    tenant = property.tenant
+    tenant = keyStoreHandlerProperty.tenant
     templateIndexPattern = property.templateIndexPattern
     multiGetRequestContainer = MultiGetRequestContainer()
     batchSize = property.bulk!!.actions
     flushInterval = property.bulk!!.interval
 
-    elasticsearchClient = elasticsearchClientFactory.createIndexRollingEsClient(rotationProperty, property.cluster)
+    elasticsearchClient = elasticsearchClientFactory.createIndexRollingEsClient(keyStoreHandlerProperty.rotation, listOf(property.cluster))
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
     elasticsearchClient.createIndexIfNotExists(index, tenant)
 
@@ -143,8 +142,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     }
   }
 
-  @PreDestroy
-  fun shutdown() {
+  override fun close() {
     keyStoreScheduler.shutdown()
     logger.info("Sleeping for 10 seconds to allow leftovers to be written")
     try {

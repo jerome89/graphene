@@ -1,14 +1,32 @@
 package com.graphene.writer.store.key.property
 
 import com.graphene.writer.config.IndexBulkConfiguration
+import javax.annotation.PostConstruct
+import org.slf4j.LoggerFactory
 
-open class ElasticsearchKeyStoreHandlerProperty(
-  open var clusterName: String,
-  open var tenant: String,
-  open var templateIndexPattern: String,
-  open var index: String,
-  open var type: String,
-  open var cluster: List<String>,
-  open var port: Int,
-  open var bulk: IndexBulkConfiguration?
-)
+class ElasticsearchKeyStoreHandlerProperty(
+  var enabled: Boolean = false,
+  var isCache: Boolean = false,
+  var expire: Long = 0,
+  var clusterName: String = "graphene",
+  var templateIndexPattern: String = "metric*",
+  var index: String = "metric",
+  var type: String = "path",
+  var cluster: String = "127.0.0.1",
+  var port: Int = 9300,
+  var bulk: IndexBulkConfiguration? = null
+) {
+
+  @PostConstruct
+  fun init() {
+    logger.info("Load Graphene ElasticsearchKeyStoreHandlerProperty : {}", toString())
+  }
+
+  override fun toString(): String {
+    return "ElasticsearchKeyStoreHandlerProperty(enabled=$enabled, isCache=$isCache, expire=$expire, clusterName='$clusterName', index='$index', type='$type', cluster=$cluster, port=$port, bulk=$bulk)"
+  }
+
+  companion object {
+    private val logger = LoggerFactory.getLogger(ElasticsearchKeyStoreHandlerProperty::class.java)
+  }
+}

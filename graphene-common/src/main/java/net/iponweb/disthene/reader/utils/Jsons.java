@@ -3,6 +3,8 @@ package net.iponweb.disthene.reader.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.iponweb.disthene.reader.exceptions.ParsingException;
 
+import java.io.IOException;
+
 public class Jsons {
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -16,6 +18,14 @@ public class Jsons {
     try {
       return MAPPER.writeValueAsString(value);
     } catch (Exception e) {
+      throw new ParsingException(e);
+    }
+  }
+
+  public static <T> T from(Object value, Class<T> valueType) {
+    try {
+      return MAPPER.readValue(stringify(value), valueType);
+    } catch (IOException e) {
       throw new ParsingException(e);
     }
   }

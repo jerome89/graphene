@@ -18,39 +18,48 @@ graphene:
           - 60s:5356800s
     store:
       key:
-        rotation:
-          strategy: "timeBasedRotation"
-          period: "1w"
         handlers:
           logging-key-store-handler:
-            enabled: true
             tenant: none
+            rotation:
+              strategy: "timeBasedRotation"
+              period: "1d"
+            handler:
+              type: "LoggingKeyStoreHandler"
           simple-key-store-handler:
-            enabled: true
             tenant: none
-            clusterName: "metric"
-            cluster:
-              - "127.0.0.1"
-            port: 9300
-            template-index-pattern: "simple-key-path*"
-            index: "simple-key-path"
-            type: "path"
-            bulk:
-              actions: 10000
-              interval: 5
+            rotation:
+              strategy: "timeBasedRotation"
+              period: "1w"
+            handler:
+              type: "SimpleKeyStoreHandler"
+              property:
+                clusterName: "metric"
+                cluster: "127.0.0.1"
+                port: 9300
+                templateIndexPattern: "simple-key-path*"
+                index: "simple-key-path"
+                type: "path"
+                bulk:
+                  actions: 10000
+                  interval: 5
           index-based-key-store-handler:
-            enabled: true
             tenant: none
-            clusterName: "metric"
-            cluster:
-              - "127.0.0.1"
-            port: 9300
-            template-index-pattern: "index-based-key-path*"
-            index: "index-based-key-path"
-            type: "path"
-            bulk:
-              actions: 10000
-              interval: 5
+            rotation:
+              strategy: "timeBasedRotation"
+              period: "1w"
+            handler:
+              type: "IndexBasedKeyStoreHandler"
+              property:
+                clusterName: "metric"
+                cluster: "127.0.0.1"
+                port: 9300
+                templateIndexPattern: "index-based-key-path*"
+                index: "index-based-key-path"
+                type: "path"
+                bulk:
+                  actions: 10000
+                  interval: 5
       data:
         rollup: 60s
         retention: 30d

@@ -14,7 +14,6 @@ import com.graphene.writer.store.DataStoreHandler
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import javax.annotation.PostConstruct
-import javax.annotation.PreDestroy
 import org.apache.log4j.Logger
 
 /**
@@ -83,8 +82,7 @@ class CassandraDataStoreHandler(
       grapheneMetric.timestamp)
   }
 
-  @PreDestroy
-  fun shutdown() {
+  override fun close() {
     doShutdown()
   }
 

@@ -2,6 +2,7 @@ package com.graphene.common.rule
 
 object GrapheneRules {
   const val DEFAULT_ROTATION_STRATEGY = "timeBasedRotation"
+  const val DEFAULT_TENANT = "NONE"
 
   object Date {
     const val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"

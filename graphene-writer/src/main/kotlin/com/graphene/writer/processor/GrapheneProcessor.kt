@@ -4,16 +4,27 @@ import com.graphene.writer.blacklist.BlacklistService
 import com.graphene.writer.event.GrapheneDataStoreEvent
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
+import com.graphene.writer.store.key.StoreHandlerFactory
+import javax.annotation.PostConstruct
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import javax.annotation.PreDestroy
 
 @Component
 class GrapheneProcessor(
   val blacklistService: BlacklistService,
   val applicationEventPublisher: ApplicationEventPublisher,
-  val storeHandlers: List<StoreHandler>
+  val storeHandlerFactory: StoreHandlerFactory
 ) {
+
+  var storeHandlers: MutableList<StoreHandler> = mutableListOf()
+
+  @PostConstruct
+  fun init() {
+    storeHandlers.addAll(storeHandlerFactory.keyStoreHandlers())
+    storeHandlers.addAll(storeHandlerFactory.dataStoreHandlers())
+  }
 
   @Async("grapheneProcessorExecutor")
   fun process(grapheneMetric: GrapheneMetric) {
@@ -26,5 +37,12 @@ class GrapheneProcessor(
     }
 
     applicationEventPublisher.publishEvent(GrapheneDataStoreEvent(grapheneMetric))
+  }
+
+  @PreDestroy
+  fun destroy() {
+    for (storeHandler in storeHandlers) {
+      storeHandler.close()
+    }
   }
 }
