@@ -30,7 +30,7 @@ graphene:
             tenant: none
             rotation:
               strategy: "timeBasedRotation"
-              period: "1w"
+              period: "0"
             handler:
               type: "SimpleKeyStoreHandler"
               property:

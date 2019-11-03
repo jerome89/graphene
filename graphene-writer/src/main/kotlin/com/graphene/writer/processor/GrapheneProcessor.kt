@@ -6,10 +6,10 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
 import com.graphene.writer.store.key.StoreHandlerFactory
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
-import javax.annotation.PreDestroy
 
 @Component
 class GrapheneProcessor(

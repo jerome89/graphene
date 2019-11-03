@@ -11,7 +11,6 @@ import java.io.Closeable
 interface StoreHandler : Closeable {
 
   fun handle(grapheneMetric: GrapheneMetric)
-
 }
 
 interface KeyStoreHandler : StoreHandler
