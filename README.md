@@ -1,5 +1,7 @@
 ![Graphene](docs/logo/GrapheneSignature.png)   
-[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)  [![CircleCI](https://circleci.com/gh/graphene-monitoring/graphene.svg?style=svg)](https://circleci.com/gh/graphene-monitoring/graphene)
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)  
+[![CircleCI](https://circleci.com/gh/graphene-monitoring/graphene.svg?style=svg)](https://circleci.com/gh/graphene-monitoring/graphene)   
+[![Join the chat at https://gitter.im/graphene-community/community](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/graphene-community/community)
 
 ## What is Graphene?
 Graphene is a java version of [Graphite](https://graphiteapp.org). To
