@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  graphene-reader:
+    image: dark0096/graphene-reader:1.2.0
+    environment:
+      GRAPHENE_DATA_CASSANDRA_CLUSTER: 'cassandra'
+      GRAPHENE_INDEX_ELASTICSEARCH_CLUSTER: 'elasticsearch'
+      GRAPHENE_CARBON_HOST: 'graphene-writer'
+      GRAPHENE_HEAP_OPTS: '-Xmx1G -Xms1G'
+    ports:
+      - 8080:8080
+    container_name: graphene-reader

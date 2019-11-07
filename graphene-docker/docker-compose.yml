@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  cassandra:
+    image: launcher.gcr.io/google/cassandra2
+    ports:
+      - 7000:7000
+      - 7199:7199
+      - 9042:9042
+      - 9160:9160
+    environment:
+      CASSANDRA_CLUSTER_NAME: metric
+    container_name: cassandra
+  elasticsearch:
+    image: elasticsearch:6.8.3
+    volumes:
+      - ./../infra/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      discovery.type: "single-node"
+    container_name: elasticsearch
+  cerebro:
+    image: lmenezes/cerebro:0.8.3
+    ports:
+      - 9000:9000
+    container_name: cerebro
+  graphene-reader:
+    image: dark0096/graphene-reader:1.2.0
+    links:
+      - cassandra:cassandra
+      - elasticsearch:elasticsearch
+    environment:
+      GRAPHENE_DATA_CASSANDRA_CLUSTER: 'cassandra'
+      GRAPHENE_INDEX_ELASTICSEARCH_CLUSTER: 'elasticsearch'
+      GRAPHENE_CARBON_HOST: 'graphene-writer'
+      GRAPHENE_HEAP_OPTS: '-Xmx1G -Xms1G'
+    ports:
+      - 8080:8080
+    container_name: graphene-reader
+  graphene-writer:
+    image: dark0096/graphene-writer:1.2.0
+    links:
+      - cassandra:cassandra
+      - elasticsearch:elasticsearch
+    environment:
+      GRAPHENE_DATA_CASSANDRA_CLUSTER: 'cassandra'
+      GRAPHENE_INDEX_ELASTICSEARCH_CLUSTER: 'elasticsearch'
+      GRAPHENE_CARBON_HOST: 'graphene-writer'
+      GRAPHENE_HEAP_OPTS: '-Xmx1G -Xms1G'
+    ports:
+      - 2003:2003
+    container_name: graphene-writer
+  grafana:
+    image: grafana/grafana:6.3.5
+    ports:
+      - 80:3000
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+    container_name: grafana
