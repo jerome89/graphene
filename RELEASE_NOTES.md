@@ -1,17 +1,35 @@
-# 1.1.2
+# 1.2.0
+
+## Feature
+- Reduce unnecessary copy operation when using StringBuilder to make response. [#5](https://github.com/graphene-monitoring/graphene/pull/5)
+- Support multiple handlers using property. [#6](https://github.com/graphene-monitoring/graphene/pull/6)
+- Add the index based key store handler for performance. [#7](https://github.com/graphene-monitoring/graphene/pull/7)
+- The Controller just uses the content set in FullHttpResponse and change it to String AGAIN to make response body to be handled by Spring's RestController, which are all unnecessary. [#10](https://github.com/graphene-monitoring/graphene/pull/10)
+- Support elasticsearch 6.x.x with index template and create automatically index. [#11](https://github.com/graphene-monitoring/graphene/pull/11)
+- Add index rotating feature with the tenant ( daily, weekly ). [#13](https://github.com/graphene-monitoring/graphene/pull/13)
+- Support rotating index query. [#14](https://github.com/graphene-monitoring/graphene/pull/14)
+- Add multi-key store handler. [#15](https://github.com/graphene-monitoring/graphene/pull/15)
 
 ## Bug fix
-- Fix metrics/find API duplicated path issue [#3](https://github.com/graphene-monitoring/graphene/pull/3)
+- If time-series data is empty, Graphene returns ']' single string. [#8](https://github.com/graphene-monitoring/graphene/pull/8)
+
+## Refactoring
+- Try entire code refactoring to apply index based key store handler
+
+- Massive performance and stability improvements
+
+# 1.1.2
 
 ## Feature
 - aliasByNode function now supports minus index [#2](https://github.com/graphene-monitoring/graphene/pull/2)
+
+## Bug fix
+- Fix metrics/find API duplicated path issue [#3](https://github.com/graphene-monitoring/graphene/pull/3)
 
 # 1.1.1
 
 ## Feature
 - Remove local aggregation and rollup feature
-
-## Bug fix
 
 # 1.1.0
 
