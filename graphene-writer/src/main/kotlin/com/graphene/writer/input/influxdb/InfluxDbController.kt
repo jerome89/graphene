@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
-@RestController
+//@RestController
 class InfluxDbController(
   private val grapheneProcessor: GrapheneProcessor
 ) {
@@ -18,7 +18,7 @@ class InfluxDbController(
 //    influxDbMetricConverter = InfluxDbMetricConverter()
 //  }
 
-  @PostMapping("/write")
+//  @PostMapping("/write")
   fun write(
     @RequestParam(name = "db") db: String,
     @RequestParam(name = "consistency", required = false) consistency: String?,
