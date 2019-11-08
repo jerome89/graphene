@@ -20,7 +20,11 @@ RUN wget https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VER
 ##################################
 WORKDIR /tmp
 
-RUN git clone https://github.com/graphene-monitoring/graphene && \
+RUN git clone https://github.com/graphene-monitoring/graphene
+
+WORKDIR /tmp/graphene
+
+RUN git fetch && \
     git checkout -b $GRAPHENE_VERSION $GRAPHENE_VERSION
 
 ##################################
