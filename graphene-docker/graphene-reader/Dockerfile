@@ -4,7 +4,7 @@ FROM gradle:5.5.1-jdk8
 #         Program version       #
 #################################
 ENV GRAPHENE_TYPE=graphene-reader
-ENV GRAPHENE_VERSION=1.0.0
+ENV GRAPHENE_VERSION=1.2.0
 ENV CONFD_VERSION=0.16.0
 
 #################################
@@ -20,7 +20,8 @@ RUN wget https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VER
 ##################################
 WORKDIR /tmp
 
-RUN git clone https://github.com/graphene-monitoring/graphene
+RUN git clone https://github.com/graphene-monitoring/graphene && \
+    git checkout -b $GRAPHENE_VERSION $GRAPHENE_VERSION
 
 ##################################
 ##         Graphene build        #
