@@ -1,0 +1,59 @@
+debug: true
+
+logging:
+  level:
+    org.springframework: {{getv "/log/level" "INFO"}}
+    net.iponweb.disthene: {{getv "/log/level" "INFO"}}
+
+graphene:
+  reader:
+    render:
+      rollups:
+        - "{{getv "/render/rollups" "60s:5356800s"}}"
+      humanReadableNumbers: true
+    store:
+      key:
+        handlers:
+          elasticsearch-key-search-handler:
+            key-selector:
+              type: "RollingKeySelector"
+              period: "1w"
+            enabled: true
+            tenant: none
+            clusterName: "{{getv "/index/elasticsearch/cluster/name" "metric"}}"
+            cluster:
+              - "{{getv "/index/elasticsearch/cluster" "elasticsearch"}}"
+            port: 9300
+            index: "simple-key-path"
+            type: "path"
+            scroll: 10000
+            timeout: 120000
+            maxPaths: 50000
+      data:
+        cluster:
+          - "{{getv "/data/cassandra/cluster" "cassandra"}}"
+        port: 9042
+        userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
+        userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
+        keyspace: "{{getv "/data/cassandra/keyspace" "metric"}}"
+        columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
+        maxConnections: 2048
+        readTimeout: 10
+        connectTimeout: 10
+        maxRequests: 128
+        loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
+        protocolVersion: "V2"
+    throttling:
+      # enable throttling
+      throttlingEnabled: true
+      # total qps limit - i.e. number of allowed requests per second
+      totalQPS: 30
+      #default tenant qps limit
+      defaultQPS: 5
+      # qps per tenant
+      tenants:
+        "my_favorite_tenant": 25
+      #exceptions
+      exceptions:
+        - "testtenant"
+        - "graphite_cluster"

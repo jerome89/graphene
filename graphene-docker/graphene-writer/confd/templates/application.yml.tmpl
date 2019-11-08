@@ -2,8 +2,9 @@ debug: true
 
 logging:
   level:
-    org.springframework: DEBUG
-    net.iponweb.disthene: DEBUG
+    org.springframework: {{getv "/log/level" "INFO"}}
+    net.iponweb.disthene: {{getv "/log/level" "INFO"}}
+    com.graphene: {{getv "/log/level" "INFO"}}
 
 graphene:
   writer:
@@ -34,15 +35,15 @@ graphene:
             handler:
               type: "SimpleKeyStoreHandler"
               property:
-                clusterName: "metric"
-                cluster: "127.0.0.1"
+                clusterName: "{{getv "/index/elasticsearch/cluster/name" "metric"}}"
+                cluster: "{{getv "/index/elasticsearch/cluster" "elasticsearch"}}"
                 port: 9300
-                templateIndexPattern: "simple-key-path*"
-                index: "simple-key-path"
+                templateIndexPattern: "metric*"
+                index: "metric"
                 type: "path"
                 bulk:
                   actions: 10000
-                  interval: 5
+                  interval: 1
           index-based-key-store-handler:
             tenant: none
             rotation:
@@ -51,27 +52,27 @@ graphene:
             handler:
               type: "IndexBasedKeyStoreHandler"
               property:
-                clusterName: "metric"
-                cluster: "127.0.0.1"
+                clusterName: "{{getv "/index/elasticsearch/cluster/name" "metric"}}"
+                cluster: "{{getv "/index/elasticsearch/cluster" "elasticsearch"}}"
                 port: 9300
                 templateIndexPattern: "index-based-key-path*"
                 index: "index-based-key-path"
                 type: "path"
                 bulk:
                   actions: 10000
-                  interval: 5
+                  interval: 1
       data:
         rollup: 60s
         retention: 30d
         handlers:
           cassandra:
             cluster:
-              - "127.0.0.1"
+              - "{{getv "/data/cassandra/cluster" "127.0.0.1"}}"
             port: 9042
-            userName: 'cassandra'
-            userPassword: 'cassandra'
-            keyspace: 'metric'
-            columnFamily: 'metric'
+            userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
+            userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
+            keyspace: "{{getv "/data/cassandra/keyspace" "metric"}}"
+            columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
             maxConnections: 2048
             pool: 1
             readTimeout: 10
@@ -81,8 +82,8 @@ graphene:
             protocolVersion: "V2"
     stats:
       interval: 60
-      tenant: "graphene"
-      hostname: "localhost"
+      tenant: "NONE"
+      hostname: "{{getenv "HOST_NAME"}}"
       log: true
 server:
   port: 8081

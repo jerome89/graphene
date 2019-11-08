@@ -7,4 +7,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class RotationProperty(
   var strategy: String = GrapheneRules.DEFAULT_ROTATION_STRATEGY,
   var period: String = GrapheneRules.Key.ROTATION_NONE
-)
+) {
+
+  fun disableRotation(): Boolean {
+    return period == "0"
+  }
+}

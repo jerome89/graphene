@@ -27,6 +27,10 @@ class IndexRollingEsClient(
       val indexPatterns = responseIndex.split("_")
       val indexName = indexPatterns[0]
 
+      if (isNotRotatedIndex(indexPatterns)) {
+        continue
+      }
+
       if (responseIndex == indexName && latestIndexPosition < indexPatterns[2].toInt()) {
         latestIndexPosition = indexPatterns[2].toInt()
         latestIndex = responseIndex
@@ -34,6 +38,8 @@ class IndexRollingEsClient(
     }
     return latestIndex
   }
+
+  private fun isNotRotatedIndex(indexPatterns: List<String>) = 3 != indexPatterns.size
 
   override fun getIndices(): GetIndexResponse {
     return elasticsearchClient.getIndices()
