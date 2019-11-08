@@ -15,7 +15,6 @@
 
 ## Refactoring
 - Try entire code refactoring to apply index based key store handler
-
 - Massive performance and stability improvements
 
 # 1.1.2
