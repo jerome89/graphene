@@ -4,7 +4,7 @@ import com.graphene.writer.processor.GrapheneProcessor
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
-//@RestController
+// @RestController
 class InfluxDbController(
   private val grapheneProcessor: GrapheneProcessor
 ) {
