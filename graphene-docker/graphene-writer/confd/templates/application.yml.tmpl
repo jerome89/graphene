@@ -83,7 +83,7 @@ graphene:
     stats:
       interval: 60
       tenant: "NONE"
-      hostname: "{{getenv "HOST_NAME"}}"
+      hostname: "{{getenv "HOST_NAME" "localhost"}}"
       log: true
 server:
   port: 8081
