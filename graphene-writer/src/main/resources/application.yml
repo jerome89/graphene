@@ -42,7 +42,7 @@ graphene:
                 type: "path"
                 bulk:
                   actions: 10000
-                  interval: 5
+                  interval: 500
           index-based-key-store-handler:
             tenant: none
             rotation:
@@ -59,7 +59,7 @@ graphene:
                 type: "path"
                 bulk:
                   actions: 10000
-                  interval: 5
+                  interval: 500
       data:
         rollup: 60s
         retention: 30d

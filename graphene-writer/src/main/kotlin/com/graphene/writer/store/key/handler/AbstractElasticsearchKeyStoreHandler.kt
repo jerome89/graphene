@@ -19,7 +19,6 @@ import org.apache.log4j.Logger
 import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.client.RequestOptions
 
-// TODO duplicated branch node removing logic
 abstract class AbstractElasticsearchKeyStoreHandler(
   elasticsearchClientFactory: ElasticsearchClientFactory,
   keyStoreHandlerProperty: KeyStoreHandlerProperty
@@ -35,7 +34,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   private var templateIndexPattern: String
   private var tenant: String
 
-  private var lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
+  private var lastFlushTimeMillis = DateTimeUtils.currentTimeMillis()
   private var batchSize: Int = 0
   private var flushInterval: Long = 0
 
@@ -55,13 +54,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     elasticsearchClient = elasticsearchClient(keyStoreHandlerProperty, elasticsearchClientFactory, property)
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
     elasticsearchClient.createIndexIfNotExists(index, tenant)
-
-    // 프로퍼티에서 명시한 Index 중 가장 마지막 Offset 을 가져온다.
-    val latestIndex = elasticsearchClient.getLatestIndex(index, tenant)
-    logger.info("latestIndex : $latestIndex")
-//    val aliasDate = indexRollingClient.getAliasDate(latestIndex)
-
-    // 가장 마지막 Offset 의 Index 의 alias 를 확인한다.
 
     keyStoreScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     keyStoreScheduler.scheduleWithFixedDelay(this, 3_000, 500, TimeUnit.MILLISECONDS)
@@ -86,7 +78,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
         addToBatch(metric)
       }
 
-      if (0 < multiGetRequestContainer.size()) {
+      if (batchSize <= multiGetRequestContainer.size() || lastFlushTimeMillis < DateTimeUtils.currentTimeMillis() - flushInterval) {
         flush()
       }
     } catch (e: Exception) {
@@ -97,13 +89,13 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private fun addToBatch(metric: GrapheneMetric) {
     multiGetRequestContainer.add(type, metric)
-
-    if (batchSize <= multiGetRequestContainer.size() || lastFlushTimeSeconds < DateTimeUtils.currentTimeSeconds() - flushInterval) {
-      flush()
-    }
   }
 
   private fun flush() {
+    if (0 >= multiGetRequestContainer.size()) {
+      return
+    }
+
     elasticsearchClient.createIndexIfNotExists(index, tenant)
 
     val multiGetResponse = elasticsearchClient.mget(multiGetRequestContainer.multiGetRequest, RequestOptions.DEFAULT)
@@ -132,7 +124,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       logger.error("Fail to index metric key, reason : ${bulkResponse.buildFailureMessage()}")
     }
     multiGetRequestContainer = MultiGetRequestContainer()
-    lastFlushTimeSeconds = DateTimeUtils.currentTimeSeconds()
+    lastFlushTimeMillis = DateTimeUtils.currentTimeMillis()
   }
 
   private inner class MultiGetRequestContainer(
