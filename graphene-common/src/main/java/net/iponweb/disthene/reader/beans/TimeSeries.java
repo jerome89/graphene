@@ -11,9 +11,7 @@ public class TimeSeries {
     private Long from;
     private Long to;
     private int step;
-
     private Double[] values = new Double[0];
-
     private Map<TimeSeriesOption, Object> options = new HashMap<>();
 
     public TimeSeries(String name, Long from, Long to, int step) {
@@ -86,7 +84,6 @@ public class TimeSeries {
                 ", from=" + from +
                 ", to=" + to +
                 ", step=" + step +
-                ", values=" + Arrays.toString(values) +
                 '}';
     }
 }

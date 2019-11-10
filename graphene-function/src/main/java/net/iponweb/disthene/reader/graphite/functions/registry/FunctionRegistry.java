@@ -68,6 +68,8 @@ public class FunctionRegistry {
         registry.put("log", LogarithmFunction.class);
         registry.put("lowestAverage", LowestAverageFunction.class);
         registry.put("lowestCurrent", LowestCurrentFunction.class);
+        registry.put("mapSeries", MapSeriesFunction.class);
+        registry.put("map", MapSeriesFunction.class);
         registry.put("maximumAbove", MaximumAboveFunction.class);
         registry.put("maximumBelow", MaximumBelowFunction.class);
         registry.put("minimumAbove", MinimumAboveFunction.class);
@@ -89,6 +91,8 @@ public class FunctionRegistry {
         registry.put("perSecond", PerSecondFunction.class);
         registry.put("pow", PowFunction.class);
         registry.put("rangeOfSeries", RangeOfSeriesFunction.class);
+        registry.put("reduceSeries", ReduceSeriesFunction.class);
+        registry.put("reduce", ReduceSeriesFunction.class);
         registry.put("removeAbovePercentile", RemoveAbovePercentileFunction.class);
         registry.put("removeAboveValue", RemoveAboveValueFunction.class);
         registry.put("removeBelowPercentile", RemoveBelowPercentileFunction.class);

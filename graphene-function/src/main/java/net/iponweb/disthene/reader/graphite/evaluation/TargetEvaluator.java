@@ -38,6 +38,10 @@ public class TargetEvaluator {
     return target.evaluate(this);
   }
 
+  public List<List<TimeSeries>> evalByGroup(Target target) throws  EvaluationException {
+      return target.evalByGroup(this);
+  }
+
   public List<TimeSeries> visit(PathTarget pathTarget) throws EvaluationException {
     try {
       Set<String> paths =
