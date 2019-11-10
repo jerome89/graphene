@@ -51,7 +51,8 @@ class IndexBasedKeyStoreHandler(
       {
         "settings": {
           "number_of_replicas": 0,
-          "number_of_shards": 5
+          "number_of_shards": 5,
+          "auto_expand_replicas": "0-1"
         }
       }
     """

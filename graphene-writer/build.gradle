@@ -44,6 +44,6 @@ sourceSets {
 }
 
 group = 'net.iponweb.disthene'
-version = '1.2.0'
+version = '1.2.1'
 description = 'disthene'
 sourceCompatibility = '1.8'
