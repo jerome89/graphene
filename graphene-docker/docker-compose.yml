@@ -14,7 +14,7 @@ services:
       CASSANDRA_CLUSTER_NAME: metric
     container_name: cassandra
   elasticsearch:
-    image: elasticsearch:6.8.3
+    image: elasticsearch:6.7.1
     volumes:
       - ./infra/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
