@@ -126,7 +126,6 @@ public class RenderHandler {
 
         for(Target target : targets) {
             List<TimeSeries> eval = evaluator.eval(target);
-            logger.info("TimeSeries : " + eval);
             results.addAll(eval);
         }
 
