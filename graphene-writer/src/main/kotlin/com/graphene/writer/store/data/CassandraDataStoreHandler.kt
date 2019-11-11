@@ -79,7 +79,7 @@ class CassandraDataStoreHandler(
       rollup,
       period,
       grapheneMetric.getGraphiteKey(),
-      grapheneMetric.timestamp)
+      grapheneMetric.timestampSeconds)
   }
 
   override fun close() {

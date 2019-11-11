@@ -1,6 +1,11 @@
 package com.graphene.common.rule
 
 object GrapheneRules {
+
+  fun index(index: String, tenant: String, timestamp: String): String {
+    return "${index}_${tenant}_$timestamp"
+  }
+
   const val DEFAULT_ROTATION_STRATEGY = "timeBasedRotation"
   const val DEFAULT_TENANT = "NONE"
 

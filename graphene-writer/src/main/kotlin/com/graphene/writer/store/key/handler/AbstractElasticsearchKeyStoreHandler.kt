@@ -53,18 +53,14 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     elasticsearchClient = elasticsearchClient(keyStoreHandlerProperty, elasticsearchClientFactory, property)
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
-    elasticsearchClient.createIndexIfNotExists(index, tenant)
+    elasticsearchClient.createIndexIfNotExists(index, tenant, DateTimeUtils.currentTimeMillis(), DateTimeUtils.currentTimeMillis())
 
     keyStoreScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     keyStoreScheduler.scheduleWithFixedDelay(this, 3_000, 500, TimeUnit.MILLISECONDS)
   }
 
   private fun elasticsearchClient(keyStoreHandlerProperty: KeyStoreHandlerProperty, elasticsearchClientFactory: ElasticsearchClientFactory, property: ElasticsearchKeyStoreHandlerProperty): ElasticsearchClient {
-    return if (keyStoreHandlerProperty.rotation.disableRotation()) {
-      elasticsearchClientFactory.createElasticsearchClient(listOf(property.cluster))
-    } else {
-      elasticsearchClientFactory.createIndexRollingEsClient(keyStoreHandlerProperty.rotation, listOf(property.cluster))
-    }
+    return elasticsearchClientFactory.createElasticsearchClient(keyStoreHandlerProperty.rotation, listOf(property.cluster))
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
@@ -96,7 +92,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       return
     }
 
-    elasticsearchClient.createIndexIfNotExists(index, tenant)
+    elasticsearchClient.createIndexIfNotExists(index, tenant, multiGetRequestContainer.from, multiGetRequestContainer.to)
 
     val multiGetResponse = elasticsearchClient.mget(multiGetRequestContainer.multiGetRequest, RequestOptions.DEFAULT)
     val bulkRequest = mutableListOf<GrapheneIndexRequest>()
@@ -111,7 +107,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
         continue
       }
 
-      val metric = multiGetRequestContainer.metrics[response.id]
+      val metric = multiGetRequestContainer.metrics["${response.index}_${response.id}"]
       bulkRequest.addAll(mapToGrapheneIndexRequests(metric))
     }
 
@@ -129,12 +125,32 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private inner class MultiGetRequestContainer(
     val multiGetRequest: MultiGetRequest = MultiGetRequest(),
-    val metrics: MutableMap<String, GrapheneMetric> = mutableMapOf()
+    val metrics: MutableMap<Index, GrapheneMetric> = mutableMapOf(),
+    var from: Long? = null,
+    var to: Long? = null
   ) {
 
     fun add(type: String, metric: GrapheneMetric) {
-      metrics[metric.getId()] = metric
-      multiGetRequest.add(MultiGetRequest.Item(elasticsearchClient.getIndexWithDate(index, tenant), type, metric.getId()))
+      val timestampMillis = metric.timestampMillis()
+      val indexWithDate = elasticsearchClient.getIndexWithDate(index, tenant, timestampMillis)
+
+      if (!metrics.contains("${indexWithDate}_${metric.getId()}")) {
+        metrics["${indexWithDate}_${metric.getId()}"] = metric
+        multiGetRequest.add(MultiGetRequest.Item(indexWithDate, type, metric.getId()))
+
+        if (Objects.isNull(from) && Objects.isNull(to)) {
+          from = timestampMillis
+          to = timestampMillis
+        }
+
+        if (timestampMillis < from!!) {
+          from = timestampMillis
+        }
+
+        if (to!! < timestampMillis) {
+          to = timestampMillis
+        }
+      }
     }
 
     fun size(): Int {
@@ -157,3 +173,5 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   abstract fun templateName(): String
 }
+
+typealias Index = String

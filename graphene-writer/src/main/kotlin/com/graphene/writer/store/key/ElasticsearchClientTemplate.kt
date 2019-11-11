@@ -1,10 +1,11 @@
 package com.graphene.writer.store.key
 
+import com.graphene.common.key.RotationProperty
+import com.graphene.common.key.RotationStrategy
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.log4j.Logger
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest
@@ -17,16 +18,19 @@ import org.elasticsearch.client.NodeSelector
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.indices.CreateIndexRequest
 import org.elasticsearch.client.sniff.Sniffer
 import org.elasticsearch.common.xcontent.XContentType
 
 class ElasticsearchClientTemplate(
-  httpHosts: Array<HttpHost>
-) : ElasticsearchClient {
+  httpHosts: Array<HttpHost>,
+  rotationProperty: RotationProperty
+) : ElasticsearchClient, RotatedIndexAware {
 
   private val logger = Logger.getLogger(ElasticsearchClientTemplate::class.java)
   private var restHighLevelClient: RestHighLevelClient
   private var sniffer: Sniffer
+  private var rotationStrategy = RotationStrategy.of(rotationProperty)
 
   init {
     val restClientBuilder = RestClient.builder(*httpHosts)
@@ -65,8 +69,16 @@ class ElasticsearchClientTemplate(
     return false
   }
 
-  override fun getIndexWithDate(index: String, tenant: String): String {
-    return index
+  override fun getIndexWithCurrentDate(index: String, tenant: String): String {
+    return rotationStrategy.getIndexWithCurrentDate(index, tenant)
+  }
+
+  override fun getIndexWithDate(index: String, tenant: String, timestampMillis: Long): String {
+    return rotationStrategy.getIndexWithDate(index, tenant, timestampMillis)
+  }
+
+  override fun getRangeIndex(index: String, tenant: String, from: Long, to: Long): Set<String> {
+    return rotationStrategy.getRangeIndex(index, tenant, from, to)
   }
 
   override fun mget(multiGetRequest: MultiGetRequest, default: RequestOptions): MultiGetResponse {
@@ -81,20 +93,23 @@ class ElasticsearchClientTemplate(
   override fun bulk(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse {
     val bulkRequest = BulkRequest()
     for (grapheneIndexRequest in grapheneIndexRequests) {
-      val indexRequest = IndexRequest(getLatestIndex(index, tenant), type, grapheneIndexRequest.id)
+      val indexRequest = IndexRequest(getIndexWithDate(index, tenant, grapheneIndexRequest.timestampMillis), type, grapheneIndexRequest.id)
       indexRequest.source(grapheneIndexRequest.source)
       bulkRequest.add(indexRequest)
     }
     return restHighLevelClient.bulk(bulkRequest, default)
   }
 
-  override fun createIndexIfNotExists(index: String, tenant: String) {
-    if (restHighLevelClient.indices().exists(GetIndexRequest().indices(index), RequestOptions.DEFAULT)) {
-      return
-    }
+  override fun createIndexIfNotExists(index: String, tenant: String, from: Long?, to: Long?) {
+    val rangeIndices = getRangeIndex(index, tenant, from!!, to!!)
+    for (rangeIndex in rangeIndices) {
+      if (restHighLevelClient.indices().exists(GetIndexRequest().indices(rangeIndex), RequestOptions.DEFAULT)) {
+        continue
+      }
 
-    val createIndexRequest = CreateIndexRequest(index)
-    restHighLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT)
+      val createIndexRequest = CreateIndexRequest(rangeIndex)
+      restHighLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT)
+    }
   }
 
   override fun createTemplateIfNotExists(templateIndexPattern: String, templateName: String, templateSource: String) {
@@ -103,10 +118,6 @@ class ElasticsearchClientTemplate(
     putIndexTemplateRequest.source(templateSource, XContentType.JSON)
 
     restHighLevelClient.indices().putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT)
-  }
-
-  override fun getLatestIndex(index: String, tenant: String): String {
-    return index
   }
 
   override fun close() {
