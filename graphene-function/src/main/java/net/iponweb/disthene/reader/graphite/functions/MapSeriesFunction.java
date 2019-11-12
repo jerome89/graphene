@@ -33,7 +33,7 @@ public class MapSeriesFunction extends DistheneFunction {
 
         int[] mapNodes = new int[arguments.size() - 1];
         for (int i = 1; i < arguments.size(); i++) {
-            mapNodes[i] = (int) arguments.get(i);
+            mapNodes[i - 1] = ((Double) arguments.get(i)).intValue();
         }
 
         List<List<TimeSeries>> result = Lists.newArrayList();
@@ -79,7 +79,7 @@ public class MapSeriesFunction extends DistheneFunction {
         for (int i = 1; i < arguments.size(); i++) {
             Optional<Object> argMatchNode = Optional.ofNullable(arguments.get(i));
             Object arg = argMatchNode.orElse(null);
-            check(arg instanceof Integer || arg instanceof String,
+            check(arg instanceof Double || arg instanceof String,
                 "mapSeries: Argument is " +
                 getClassName(arg) + ". Must be a number or String.");
         }

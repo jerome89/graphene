@@ -17,6 +17,7 @@ import java.util.Optional;
 
 /**
  * @author Andrei Ivanov
+ * @author jerome89
  */
 public class SumSeriesFunction extends DistheneFunction {
 
@@ -38,7 +39,7 @@ public class SumSeriesFunction extends DistheneFunction {
     }
 
     private List<TimeSeries> compute(List<TimeSeries> timeSeriesList) {
-        TimeSeries resultTimeSeries = createResultTimeSeries(timeSeriesList);
+        TimeSeries resultTimeSeries = createResultTimeSeries(timeSeriesList.get(0));
         for (int i = 0; i < resultTimeSeries.getValues().length; i++) {
             List<Double> pointsToSum = new ArrayList<>(timeSeriesList.size());
             for (TimeSeries ts : timeSeriesList) {
@@ -49,8 +50,7 @@ public class SumSeriesFunction extends DistheneFunction {
         return Collections.singletonList(resultTimeSeries);
     }
 
-    private TimeSeries createResultTimeSeries(List<TimeSeries> timeSeriesList) {
-        TimeSeries representative = timeSeriesList.get(0);
+    private TimeSeries createResultTimeSeries(TimeSeries representative) {
         int step = representative.getStep();
         int length = representative.getValues().length;
         TimeSeries resultTimeSeries = new TimeSeries(getText(), from, to, step);
@@ -69,7 +69,7 @@ public class SumSeriesFunction extends DistheneFunction {
             "sumSeries: number of arguments is " +
                 arguments.size() + ". Must be at least one.");
 
-        for(Object argument : arguments) {
+        for (Object argument : arguments) {
             Object argSeries = Optional.ofNullable(argument).orElse(null);
             check(argSeries instanceof Target,
                 "sumSeries: argument is " +

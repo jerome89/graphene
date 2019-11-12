@@ -17,13 +17,18 @@ import java.util.regex.Pattern;
 
 import static net.iponweb.disthene.reader.graphite.functions.registry.FunctionRegistry.getFunction;
 
+/**
+ * @author jerome89
+ * @author dark
+ */
 public class ReduceSeriesFunction extends DistheneFunction {
 
     public ReduceSeriesFunction(String text) {
         super(text, "reduceSeries");
     }
 
-    private static List<String> allowedFunctions = Arrays.asList("sumSeries");
+    private static List<String> allowedFunctions =
+        Arrays.asList("sumSeries", "averageSeries", "diffSeries", "asPercent", "divideSeries");
 
     @Override
     public List<TimeSeries> evaluate(TargetEvaluator evaluator) throws EvaluationException {
@@ -37,10 +42,7 @@ public class ReduceSeriesFunction extends DistheneFunction {
             throw new EvaluationException(e);
         }
 
-        int reduceNode = (int) arguments.get(2);
-        if (reduceNode < 0) {
-            reduceNode += TimeSeriesUtils.DOT_PATTERN.split(processedArguments.get(0).get(0).getName()).length;
-        }
+        int argReduceNode = ((Double) arguments.get(2)).intValue();
 
         List<Pattern> patterns = new ArrayList<>(arguments.size() - 3);
 
@@ -52,6 +54,12 @@ public class ReduceSeriesFunction extends DistheneFunction {
 
         for (List<TimeSeries> timeSeriesList : processedArguments) {
             List<TimeSeries> seriesListToCompute = new ArrayList<>();
+            int reduceNode = argReduceNode;
+
+            if (reduceNode < 0) {
+                reduceNode += TimeSeriesUtils.DOT_PATTERN.split(timeSeriesList.get(0).getName()).length;
+            }
+
             for (TimeSeries ts : timeSeriesList) {
                 String[] nodes = TimeSeriesUtils.DOT_PATTERN.split(ts.getName());
                 for (Pattern pattern : patterns) {
@@ -60,11 +68,16 @@ public class ReduceSeriesFunction extends DistheneFunction {
                     }
                 }
             }
+
             try {
                 resultTimeSeriesList.addAll(functionToReduce.computeDirectly(seriesListToCompute));
             } catch (UnsupportedMethodException e) {
                 throw new EvaluationException(e);
             }
+        }
+
+        for (TimeSeries ts : resultTimeSeriesList) {
+            ts.setName(getText());
         }
 
         return resultTimeSeriesList;
@@ -86,15 +99,16 @@ public class ReduceSeriesFunction extends DistheneFunction {
         check(argFunctionName.orElse(null) instanceof String,
             "reduceSeries: Second argument is " +
             getClassName(argFunctionName.orElse(null)) + ". Must be String.");
+
         String functionName = (String) argFunctionName.get();
         check(allowedFunctions.contains(functionName),
             "reduceSeries: function " +
                 functionName + " is not allowed to be used with reduceSeries.");
 
         Optional<Object> argReduceNode = Optional.ofNullable(arguments.get(2));
-        check(argReduceNode.orElse(null) instanceof Integer,
+        check(argReduceNode.orElse(null) instanceof Double,
         "reduceSeries: Third argument is " +
-            getClassName(argReduceNode.orElse(null)) + ". Must be an Integer.");
+            getClassName(argReduceNode.orElse(null)) + ". Must be a Number.");
 
         for (int i = 3; i < arguments.size(); i++) {
             Optional<Object> argReduceMatcher = Optional.ofNullable(arguments.get(i));

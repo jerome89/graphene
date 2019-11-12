@@ -11,9 +11,11 @@ import net.iponweb.disthene.reader.utils.TimeSeriesUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Andrei Ivanov
+ * @author jerome89
  */
 public class DiffSeriesFunction extends DistheneFunction {
 
@@ -29,43 +31,40 @@ public class DiffSeriesFunction extends DistheneFunction {
             processedArguments.addAll(evaluator.eval((Target) target));
         }
 
-        if (processedArguments.size() == 0) return new ArrayList<>();
-        if (processedArguments.size() == 1) return processedArguments;
+        if (processedArguments.size() <= 1) return processedArguments;
 
-        if (!TimeSeriesUtils.checkAlignment(processedArguments)) {
-            throw new TimeSeriesNotAlignedException();
-        }
+        return compute(processedArguments);
+    }
 
-        TimeSeries minuend = processedArguments.get(0);
-        List<TimeSeries> subtrahends = processedArguments.subList(1, processedArguments.size());
-
-        int length = minuend.getValues().length;
-        long from = minuend.getFrom();
-        long to = minuend.getTo();
-        int step = minuend.getStep();
-
-        TimeSeries resultTimeSeries = new TimeSeries(getText(), from, to, step);
-        Double[] values = minuend.getValues();
-
-
-        for (TimeSeries ts : subtrahends) {
-            for (int i = 0; i < length; i++) {
-                if (values[i] != null && ts.getValues()[i] != null) {
-                    values[i] -= ts.getValues()[i];
+    private List<TimeSeries> compute(List<TimeSeries> timeSeriesList) {
+        TimeSeries resultTimeSeries = timeSeriesList.get(0);
+        for (int i = 1; i < timeSeriesList.size(); i++) {
+            for (int j = 0; j < resultTimeSeries.getValues().length; j++) {
+                if (null != resultTimeSeries.getValues()[j] && null != timeSeriesList.get(i).getValues()[j]) {
+                    resultTimeSeries.getValues()[j] -= timeSeriesList.get(i).getValues()[j];
                 }
             }
         }
-
-        resultTimeSeries.setValues(values);
+        resultTimeSeries.setName(getText());
         return Collections.singletonList(resultTimeSeries);
     }
 
     @Override
-    public void checkArguments() throws InvalidArgumentException {
-        if (arguments.size() < 2) throw new InvalidArgumentException("diffSeries: number of arguments is " + arguments.size() + ". Must be at least 2.");
+    public List<TimeSeries> computeDirectly(List<TimeSeries> timeSeriesList) {
+        return compute(timeSeriesList);
+    }
 
-        for(Object argument : arguments) {
-            if (!(argument instanceof Target)) throw new InvalidArgumentException("diffSeries: argument is " + argument.getClass().getName() + ". Must be series");
+    @Override
+    public void checkArguments() throws InvalidArgumentException {
+        check(arguments.size() >= 2,
+            "diffSeries: number of arguments is " +
+                arguments.size() + ". Must be at least 2.");
+
+        for (Object argument : arguments) {
+            Object argSeries = Optional.ofNullable(argument).orElse(null);
+            check(argSeries instanceof Target,
+                "diffSeries: argument is " +
+                    getClassName(argSeries) + ". Must be series");
         }
     }
 }
