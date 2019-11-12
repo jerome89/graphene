@@ -20,13 +20,6 @@ graphene:
     store:
       key:
         handlers:
-          logging-key-store-handler:
-            tenant: none
-            rotation:
-              strategy: "timeBasedRotation"
-              period: "1d"
-            handler:
-              type: "LoggingKeyStoreHandler"
           simple-key-store-handler:
             tenant: none
             rotation:
@@ -43,7 +36,7 @@ graphene:
                 type: "path"
                 bulk:
                   actions: 10000
-                  interval: 1
+                  interval: 500
           index-based-key-store-handler:
             tenant: none
             rotation:
@@ -60,7 +53,7 @@ graphene:
                 type: "path"
                 bulk:
                   actions: 10000
-                  interval: 1
+                  interval: 500
       data:
         rollup: 60s
         retention: 30d

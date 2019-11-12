@@ -38,6 +38,6 @@ class InfluxDbController(
 //    var measurement: String,
 //    var tags: Map<String, String>,
 //    var fields: Map<String, Double>,
-//    var timestamp: Long
+//    var timestampSeconds: Long
   )
 }

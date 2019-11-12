@@ -8,13 +8,15 @@ services:
       - 7199:7199
       - 9042:9042
       - 9160:9160
+    volumes:
+      - ./.docker/cassandra:/var/lib/cassandra
     environment:
       CASSANDRA_CLUSTER_NAME: metric
     container_name: cassandra
   elasticsearch:
-    image: elasticsearch:6.8.3
+    image: elasticsearch:6.7.1
     volumes:
-      - ./../infra/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./infra/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - 9200:9200
       - 9300:9300
@@ -27,7 +29,7 @@ services:
       - 9000:9000
     container_name: cerebro
   graphene-reader:
-    image: dark0096/graphene-reader:1.2.0
+    image: dark0096/graphene-reader:1.2.1
     links:
       - cassandra:cassandra
       - elasticsearch:elasticsearch
@@ -40,7 +42,7 @@ services:
       - 8080:8080
     container_name: graphene-reader
   graphene-writer:
-    image: dark0096/graphene-writer:1.2.0
+    image: dark0096/graphene-writer:1.2.1
     links:
       - cassandra:cassandra
       - elasticsearch:elasticsearch

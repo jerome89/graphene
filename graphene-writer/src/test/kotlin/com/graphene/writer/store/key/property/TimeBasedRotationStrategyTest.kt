@@ -17,8 +17,8 @@ internal class TimeBasedRotationStrategyTest {
   internal fun `should return current time with day unit`() {
     table(
       headers("currentTime", "expectedIndexDate"),
-      row("2019-10-01 00:00:00", "20191001"),
-      row("2019-10-02 00:00:00", "20191002")
+      row("2019-10-01 00:00:00", "index_tenant_20191001"),
+      row("2019-10-02 00:00:00", "index_tenant_20191002")
     ).forAll { currentTime, expectedIndexDate ->
       // given
       val rotationProperty = RotationProperty(period = "1d")
@@ -28,7 +28,7 @@ internal class TimeBasedRotationStrategyTest {
       val timeBasedRotationStrategy = TimeBasedRotationStrategy(rotationProperty)
 
       // then
-      assertEquals(expectedIndexDate, timeBasedRotationStrategy.getDate())
+      assertEquals(expectedIndexDate, timeBasedRotationStrategy.getIndexWithCurrentDate("index", "tenant"))
     }
   }
 
@@ -36,15 +36,15 @@ internal class TimeBasedRotationStrategyTest {
   internal fun `should return current time with week unit`() {
     table(
       headers("currentTime", "expectedIndexDate"),
-      row("2019-10-01 00:00:00", "2019-w40"),
-      row("2019-10-02 00:00:00", "2019-w40"),
-      row("2019-10-03 00:00:00", "2019-w40"),
-      row("2019-10-04 00:00:00", "2019-w40"),
-      row("2019-10-05 00:00:00", "2019-w40"),
-      row("2019-10-06 00:00:00", "2019-w40"),
-      row("2019-10-07 00:00:00", "2019-w41"),
-      row("2020-01-01 00:00:00", "2020-w01"),
-      row("2020-01-08 00:00:00", "2020-w02")
+      row("2019-10-01 00:00:00", "index_tenant_2019-w40"),
+      row("2019-10-02 00:00:00", "index_tenant_2019-w40"),
+      row("2019-10-03 00:00:00", "index_tenant_2019-w40"),
+      row("2019-10-04 00:00:00", "index_tenant_2019-w40"),
+      row("2019-10-05 00:00:00", "index_tenant_2019-w40"),
+      row("2019-10-06 00:00:00", "index_tenant_2019-w40"),
+      row("2019-10-07 00:00:00", "index_tenant_2019-w41"),
+      row("2020-01-01 00:00:00", "index_tenant_2020-w01"),
+      row("2020-01-08 00:00:00", "index_tenant_2020-w02")
     ).forAll { currentTime, expectedIndexDate ->
       // given
       val rotationProperty = RotationProperty(period = "1w")
@@ -54,7 +54,7 @@ internal class TimeBasedRotationStrategyTest {
       val timeBasedRotationStrategy = TimeBasedRotationStrategy(rotationProperty)
 
       // then
-      assertEquals(expectedIndexDate, timeBasedRotationStrategy.getDate())
+      assertEquals(expectedIndexDate, timeBasedRotationStrategy.getIndexWithCurrentDate("index", "tenant"))
     }
   }
 
@@ -107,6 +107,31 @@ internal class TimeBasedRotationStrategyTest {
     val givenWeekOf2019 = 1
     val givenWeekOf2021 = 1
     assertEquals(givenWeekOf2019 + MAXIMUM_WEEK_OF_YEAR + givenWeekOf2021, indexes.size)
+  }
+
+  @Test
+  internal fun `should calculate weeks based on time milliseconds`() {
+    table(
+      headers("currentTime", "expectedIndexDate"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2019-10-01 00:00:00"), "index_tenant_2019-w40"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2019-10-02 00:00:00"), "index_tenant_2019-w40"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2019-10-03 00:00:00"), "index_tenant_2019-w40"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2019-10-04 00:00:00"), "index_tenant_2019-w40"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2019-10-05 00:00:00"), "index_tenant_2019-w40"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2019-10-06 00:00:00"), "index_tenant_2019-w40"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2019-10-07 00:00:00"), "index_tenant_2019-w41"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2020-01-01 00:00:00"), "index_tenant_2020-w01"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2020-01-08 00:00:00"), "index_tenant_2020-w02")
+    ).forAll { currentTime, expectedIndexDate ->
+      // given
+      val rotationProperty = RotationProperty(period = "1w")
+
+      // when
+      val timeBasedRotationStrategy = TimeBasedRotationStrategy(rotationProperty)
+
+      // then
+      assertEquals(expectedIndexDate, timeBasedRotationStrategy.getIndexWithDate("index", "tenant", currentTime))
+    }
   }
 
   companion object {

@@ -13,12 +13,12 @@ import org.elasticsearch.common.xcontent.XContentFactory
  * @since 1.0.0
  */
 class IndexBasedKeyStoreHandler(
-  val elasticsearchClientFactory: ElasticsearchClientFactory,
+  private val elasticsearchClientFactory: ElasticsearchClientFactory,
   val property: KeyStoreHandlerProperty
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
-    return mutableListOf(GrapheneIndexRequest(metric!!.getId(), source(metric)))
+    return mutableListOf(GrapheneIndexRequest(metric!!.getId(), source(metric), metric.timestampMillis()))
   }
 
   override fun templateSource(): String = SOURCE
@@ -51,7 +51,8 @@ class IndexBasedKeyStoreHandler(
       {
         "settings": {
           "number_of_replicas": 0,
-          "number_of_shards": 5
+          "number_of_shards": 5,
+          "auto_expand_replicas": "0-1"
         }
       }
     """

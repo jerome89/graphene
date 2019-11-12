@@ -1,3 +1,10 @@
+# 1.2.1
+
+## Refactoring
+- Modify bulk interval unit to milliseconds
+- Bump up elasticsearch client version to 6.8.1
+- Add auto_expand_replicas property
+
 # 1.2.0
 
 ## Feature

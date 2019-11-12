@@ -16,16 +16,12 @@ class ElasticsearchClientFactory {
     elasticsearchClients = mutableListOf()
   }
 
-  fun createElasticsearchClient(cluster: List<String>): ElasticsearchClient {
-    val elasticsearchClientImpl = ElasticsearchClientTemplate(httpHosts(cluster))
+  fun createElasticsearchClient(rotationProperty: RotationProperty, cluster: List<String>): ElasticsearchClient {
+    val elasticsearchClientImpl = ElasticsearchClientTemplate(httpHosts(cluster), rotationProperty)
 
     elasticsearchClients.add(elasticsearchClientImpl)
 
     return elasticsearchClientImpl
-  }
-
-  fun createIndexRollingEsClient(rotationProperty: RotationProperty, cluster: List<String>): ElasticsearchClient {
-    return IndexRollingEsClient(createElasticsearchClient(cluster), rotationProperty)
   }
 
   private fun httpHosts(cluster: List<String>): Array<HttpHost> {

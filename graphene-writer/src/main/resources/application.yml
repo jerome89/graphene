@@ -29,6 +29,22 @@ graphene:
           simple-key-store-handler:
             tenant: none
             rotation:
+              strategy: "noOpRotation"
+            handler:
+              type: "SimpleKeyStoreHandler"
+              property:
+                clusterName: "metric"
+                cluster: "127.0.0.1"
+                port: 9300
+                templateIndexPattern: "simple-key-path*"
+                index: "simple-key-path"
+                type: "path"
+                bulk:
+                  actions: 10000
+                  interval: 500
+          rotated-simple-key-store-handler:
+            tenant: none
+            rotation:
               strategy: "timeBasedRotation"
               period: "1w"
             handler:
@@ -42,7 +58,7 @@ graphene:
                 type: "path"
                 bulk:
                   actions: 10000
-                  interval: 5
+                  interval: 500
           index-based-key-store-handler:
             tenant: none
             rotation:
@@ -59,7 +75,7 @@ graphene:
                 type: "path"
                 bulk:
                   actions: 10000
-                  interval: 5
+                  interval: 500
       data:
         rollup: 60s
         retention: 30d
