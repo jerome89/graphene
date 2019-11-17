@@ -1,17 +1,14 @@
 package net.iponweb.disthene.reader.graphite.functions;
 
 import net.iponweb.disthene.reader.beans.TimeSeries;
-import net.iponweb.disthene.reader.exceptions.EvaluationException;
 import net.iponweb.disthene.reader.exceptions.InvalidArgumentException;
 import net.iponweb.disthene.reader.exceptions.InvalidFunctionException;
 import net.iponweb.disthene.reader.exceptions.UnsupportedMethodException;
 import net.iponweb.disthene.reader.graphite.Target;
-import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
 import net.iponweb.disthene.reader.graphite.functions.registry.FunctionRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Andrei Ivanov
