@@ -3,83 +3,74 @@ package net.iponweb.disthene.reader.graphite.functions;
 import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.exceptions.EvaluationException;
 import net.iponweb.disthene.reader.exceptions.InvalidArgumentException;
-import net.iponweb.disthene.reader.exceptions.TimeSeriesNotAlignedException;
 import net.iponweb.disthene.reader.graphite.Target;
 import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
-import net.iponweb.disthene.reader.utils.TimeSeriesUtils;
+import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Andrei Ivanov
+ * @author jerome89
  */
 public class AsPercentFunction extends DistheneFunction {
+
+    private boolean isTotalPresent = false;
+    private boolean isTotalSeries = false;
 
     public AsPercentFunction(String text) {
         super(text, "asPercent");
     }
 
+    private final static Logger logger = Logger.getLogger(AsPercentFunction.class);
+
     @Override
     public List<TimeSeries> evaluate(TargetEvaluator evaluator) throws EvaluationException {
-        List<TimeSeries> processedArguments = new ArrayList<>();
-        processedArguments.addAll(evaluator.eval((Target) arguments.get(0)));
+        List<TimeSeries> processedArguments = new ArrayList<>(evaluator.eval((Target) arguments.get(0)));
 
         if (processedArguments.size() == 0) return new ArrayList<>();
 
-        if (!TimeSeriesUtils.checkAlignment(processedArguments)) {
-            throw new TimeSeriesNotAlignedException();
+        setParameters();
+
+        double[] total = new double[processedArguments.get(0).getValues().length];
+
+        if (! isTotalPresent) {
+            setTotalFromSeries(processedArguments, total);
         }
 
-
-
-
-        int length = processedArguments.get(0).getValues().length;
-        double[] total = new double[length];
-
-        if (arguments.size() > 1 && (arguments.get(1) instanceof Target)) {
-            List<TimeSeries> totalSeries = new ArrayList<>();
-            totalSeries.addAll(evaluator.eval((Target) arguments.get(1)));
-
-            if (totalSeries.size() == 0) {
-                return Collections.emptyList();
+        if (isTotalPresent && isTotalSeries) {
+            List<TimeSeries> totalSeriesList = new ArrayList<>(evaluator.eval((Target) arguments.get(1)));
+            if (totalSeriesList.size() == 0) {
+                return new ArrayList<>();
             }
-
-            if (!TimeSeriesUtils.checkAlignment(totalSeries)) {
-                throw new TimeSeriesNotAlignedException();
-            }
-
-            if (totalSeries.get(0).getValues().length != length) throw new TimeSeriesNotAlignedException();
-
-            for (int i = 0; i < length; i++) {
-                total[i] = 0;
-                for (TimeSeries ts : totalSeries) {
-                    if (ts.getValues()[i] != null) {
-                        total[i] += ts.getValues()[i];
-                    }
-                }
-            }
-        } else if (arguments.size() > 1 && (arguments.get(1) instanceof Double)) {
-            double value = (Double) arguments.get(1);
-            for (int i = 0; i < length; i++) {
-                total[i] = value;
-            }
-        } else {
-            for (int i = 0; i < length; i++) {
-                total[i] = 0;
-                for (TimeSeries ts : processedArguments) {
-                    if (ts.getValues()[i] != null) {
-                        total[i] += ts.getValues()[i];
-                    }
-                }
-            }
+            setTotalFromSeries(totalSeriesList, total);
         }
 
+        if (isTotalPresent && ! isTotalSeries) {
+            Arrays.fill(total, (Double) arguments.get(1));
+        }
 
-        for (TimeSeries ts : processedArguments) {
-            for (int i = 0; i < length; i++) {
-                if (ts.getValues()[i] != null ) {
+        return compute(processedArguments, total);
+    }
+
+    @Override
+    public List<TimeSeries> computeDirectly(List<TimeSeries> timeSeriesList) {
+        if (timeSeriesList.size() != 2) {
+            logger.warn("AsPercent: computeDirectly method needs to take 2 series to calculate result properly.");
+            return new ArrayList<>();
+        }
+
+        TimeSeries dividend = timeSeriesList.get(0);
+        double[] total = new double[dividend.getValues().length];
+        setTotalFromSeries(Collections.singletonList(timeSeriesList.get(1)), total);
+
+        return compute(Collections.singletonList(timeSeriesList.get(0)), total);
+    }
+
+    private List<TimeSeries> compute(List<TimeSeries> timeSeriesList, double[] total) {
+        for (TimeSeries ts : timeSeriesList) {
+            for (int i = 0; i < total.length; i++) {
+                if (null != ts.getValues()[i]) {
                     if (total[i] != 0) {
                         ts.getValues()[i] = (ts.getValues()[i] / total[i]) * 100;
                     } else {
@@ -96,14 +87,49 @@ public class AsPercentFunction extends DistheneFunction {
                 setResultingName(ts);
             }
         }
+        return timeSeriesList;
+    }
 
-        return processedArguments;
+    private void setTotalFromSeries(List<TimeSeries> totalSeriesList, double[] total) {
+        for (int i = 0; i < total.length; i++) {
+            total[i] = 0;
+            for (TimeSeries ts : totalSeriesList) {
+                if (null != ts.getValues()[i]) {
+                    total[i] += ts.getValues()[i];
+                }
+            }
+        }
+    }
+
+    private void setParameters() {
+        if (arguments.size() > 1) {
+            isTotalPresent = true;
+        }
+
+        if (arguments.get(1) instanceof Target) {
+            isTotalSeries = true;
+        }
     }
 
     @Override
     public void checkArguments() throws InvalidArgumentException {
-        if (arguments.size() > 2 || arguments.size() == 0) throw new InvalidArgumentException("asPercent: number of arguments is " + arguments.size() + ". Must be 1.");
-        if (!(arguments.get(0) instanceof Target)) throw new InvalidArgumentException("asPercent: argument is " + arguments.get(0).getClass().getName() + ". Must be series");
-        if (arguments.size() > 1 && !(arguments.get(1) instanceof Target) && !(arguments.get(1) instanceof Double)) throw new InvalidArgumentException("asPercent: argument is " + arguments.get(1).getClass().getName() + ". Must be series or number");
+        check(arguments.size() > 0,
+            "asPercent: number of arguments is " + arguments.size() + ". Must be at least one.");
+
+        Optional<Object> argSeries = Optional.ofNullable(arguments.get(0));
+        check(argSeries.orElse(null) instanceof Target,
+            "asPercent: First argument is  " +
+            getClassName(argSeries.orElse(null)) + ". Must be a series.");
+
+        Optional<Object> argTotal = Optional.ofNullable(arguments.get(1));
+        check(argTotal.orElse(null) instanceof Target || argTotal.orElse(null) instanceof Double,
+            "asPercent: Second argument is " +
+            getClassName(argTotal.orElse(null)) + ". Must be series or number.");
+
+        for (int i = 2; i < arguments.size(); i++) {
+            Optional<Object> argNode = Optional.ofNullable(arguments.get(i));
+            check(argNode.orElse(null) instanceof Double,
+                "asPercent: argument is " + getClassName(argNode.orElse(null)) + ". Must be a number.");
+        }
     }
 }

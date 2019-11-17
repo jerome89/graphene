@@ -37,10 +37,18 @@ public class MapSeriesFunction extends DistheneFunction {
         }
 
         List<List<TimeSeries>> result = Lists.newArrayList();
-        Map<String, List<TimeSeries>> mappedTimeSeriesList = Maps.newHashMap();
 
+        for (Map.Entry<String, List<TimeSeries>> entry : createMappedTimeSeriesList(processedArguments, mapNodes).entrySet()) {
+            result.add(entry.getValue());
+        }
+
+        return result;
+    }
+
+    private Map<String, List<TimeSeries>> createMappedTimeSeriesList(List<TimeSeries> seriesListToMap, int[] mapNodes) {
+        Map<String, List<TimeSeries>> mappedTimeSeriesList = Maps.newHashMap();
         for (int node : mapNodes) {
-            for (TimeSeries ts : processedArguments) {
+            for (TimeSeries ts : seriesListToMap) {
                 String[] nameSplitNodes = TimeSeriesUtils.DOT_PATTERN.split(ts.getName());
                 String mappingKey;
 
@@ -57,12 +65,7 @@ public class MapSeriesFunction extends DistheneFunction {
                 }
             }
         }
-
-        for (Map.Entry<String, List<TimeSeries>> entry : mappedTimeSeriesList.entrySet()) {
-            result.add(entry.getValue());
-        }
-
-        return result;
+        return mappedTimeSeriesList;
     }
 
 

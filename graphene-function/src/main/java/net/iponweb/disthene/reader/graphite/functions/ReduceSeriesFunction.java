@@ -50,6 +50,13 @@ public class ReduceSeriesFunction extends DistheneFunction {
             patterns.add(Pattern.compile((String) arguments.get(i)));
         }
 
+        return reduce(processedArguments, functionToReduce, argReduceNode, patterns);
+    }
+
+    private List<TimeSeries> reduce(List<List<TimeSeries>> processedArguments,
+                                    DistheneFunction functionToReduce,
+                                    int argReduceNode,
+                                    List<Pattern> patterns) throws EvaluationException {
         List<TimeSeries> resultTimeSeriesList = new ArrayList<>(processedArguments.size());
 
         for (List<TimeSeries> timeSeriesList : processedArguments) {
@@ -79,7 +86,6 @@ public class ReduceSeriesFunction extends DistheneFunction {
         for (TimeSeries ts : resultTimeSeriesList) {
             ts.setName(getText());
         }
-
         return resultTimeSeriesList;
     }
 
