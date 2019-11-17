@@ -45,7 +45,7 @@ class AbsoluteFunctionTest : DistheneFunctionTestHelper() {
   }
 
   @Test
-  override fun `should check invalid arguments by function's rule`() {
+  override fun `should throw an exception if invalid arguments by function's rule`() {
     // given
     val table = table(
       headers("argument"),
@@ -62,7 +62,7 @@ class AbsoluteFunctionTest : DistheneFunctionTestHelper() {
   }
 
   @Test
-  override fun `should pass valid arguments by function's rule`() {
+  override fun `shouldn't throw an exception if an argument is valid arguments by function's rule`() {
     // given
     val pathTarget = PathTarget(
       TIME_SERIES_NAME_1,

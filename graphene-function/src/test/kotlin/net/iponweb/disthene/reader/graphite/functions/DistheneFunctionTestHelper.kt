@@ -20,8 +20,8 @@ abstract class DistheneFunctionTestHelper {
   private lateinit var pathTarget: PathTarget
 
   internal abstract fun `should evaluate time series data by function`()
-  internal abstract fun `should check invalid arguments by function's rule`()
-  internal abstract fun `should pass valid arguments by function's rule`()
+  internal abstract fun `should throw an exception if invalid arguments by function's rule`()
+  internal abstract fun `shouldn't throw an exception if an argument is valid arguments by function's rule`()
 
   fun targetEvaluator(): TargetEvaluator {
     return targetEvaluator
