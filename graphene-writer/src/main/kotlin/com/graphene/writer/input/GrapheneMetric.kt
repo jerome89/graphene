@@ -12,7 +12,7 @@ data class GrapheneMetric(
   val meta: Map<String, String>,
   internal val tags: Map<String, String>,
   val value: Double,
-  val timestamp: Long
+  val timestampSeconds: Long
 ) : GraphiteAware {
 
   override fun getTags(): Map<String, String> {
@@ -25,6 +25,10 @@ data class GrapheneMetric(
 
   fun getTenant(): String {
     return meta.getOrDefault(TENANT, MetricRule.defaultTenant())
+  }
+
+  fun timestampMillis(): Long {
+    return timestampSeconds * 1_000
   }
 
   companion object {

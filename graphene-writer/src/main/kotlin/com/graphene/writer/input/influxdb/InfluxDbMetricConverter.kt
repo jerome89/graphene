@@ -12,7 +12,7 @@
 //      Collections.emptyMap(),
 //      convertTags(metric),
 //      metric.value,
-//      metric.timestamp
+//      metric.timestampSeconds
 //    )
 //  }
 //

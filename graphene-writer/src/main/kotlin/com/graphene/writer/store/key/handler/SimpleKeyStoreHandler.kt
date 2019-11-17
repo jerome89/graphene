@@ -35,7 +35,7 @@ class SimpleKeyStoreHandler(
       try {
         val graphiteKeyPart = graphiteKeySb.toString()
         val id = "${metric.getTenant()}_$graphiteKeyPart"
-        grapheneIndexRequests.add(GrapheneIndexRequest(id, source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts))))
+        grapheneIndexRequests.add(GrapheneIndexRequest(id, source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts)), metric.timestampMillis()))
       } catch (e: Exception) {
         throw IllegalStateException("Invokes illegal state in map to index requests", e)
       }

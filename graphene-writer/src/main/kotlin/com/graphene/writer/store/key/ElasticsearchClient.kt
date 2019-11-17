@@ -7,15 +7,11 @@ import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.action.get.MultiGetResponse
 import org.elasticsearch.client.RequestOptions
 
-interface ElasticsearchClient : Closeable {
+interface ElasticsearchClient : Closeable, RotatedIndexAware {
 
-  fun createIndexIfNotExists(index: String, tenant: String)
+  fun createIndexIfNotExists(index: String, tenant: String, from: Long?, to: Long?)
 
   fun createTemplateIfNotExists(templatePattern: String, templateName: String, templateSource: String)
-
-  fun getIndexWithDate(index: String, tenant: String): String
-
-  fun getLatestIndex(index: String, tenant: String): String
 
   fun bulk(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse
 
@@ -24,4 +20,13 @@ interface ElasticsearchClient : Closeable {
   fun getIndices(): GetIndexResponse
 
   fun existsAlias(index: String, currentAlias: String): Boolean
+}
+
+interface RotatedIndexAware {
+
+  fun getIndexWithCurrentDate(index: String, tenant: String): String
+
+  fun getIndexWithDate(index: String, tenant: String, timestampMillis: Long): String
+
+  fun getRangeIndex(index: String, tenant: String, from: Long, to: Long): Set<String>
 }
