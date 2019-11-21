@@ -17,7 +17,7 @@ graphene:
           elasticsearch-key-search-handler:
             key-selector:
               type: "RollingKeySelector"
-              period: "0"
+              period: "1w"
             enabled: true
             tenant: none
             clusterName: "{{getv "/index/elasticsearch/cluster/name" "metric"}}"

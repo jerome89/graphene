@@ -1,3 +1,12 @@
+# 1.3.0
+
+## Feature
+- support past metric indexing based on metric timestamp. [#18](https://github.com/graphene-monitoring/graphene/pull/18)
+- full support for MapSeries, ReduceSeries functions. [#19](https://github.com/graphene-monitoring/graphene/pull/19)
+
+## Bug fix
+- Index is not determined by metric's timestamp when writing. [#17](https://github.com/graphene-monitoring/graphene/issues/17)
+
 # 1.2.1
 
 ## Refactoring
