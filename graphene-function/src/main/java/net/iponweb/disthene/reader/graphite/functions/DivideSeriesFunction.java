@@ -4,17 +4,18 @@ import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.exceptions.EvaluationException;
 import net.iponweb.disthene.reader.exceptions.InvalidArgumentException;
 import net.iponweb.disthene.reader.exceptions.MultipleDivisorsException;
-import net.iponweb.disthene.reader.exceptions.TimeSeriesNotAlignedException;
 import net.iponweb.disthene.reader.graphite.Target;
 import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
-import net.iponweb.disthene.reader.utils.TimeSeriesUtils;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Andrei Ivanov
+ * @author jerome89
  */
 public class DivideSeriesFunction extends DistheneFunction {
 
@@ -22,58 +23,54 @@ public class DivideSeriesFunction extends DistheneFunction {
         super(text, "divideSeries");
     }
 
+    private final static Logger logger = Logger.getLogger(DivideSeriesFunction.class);
+
     @Override
     public List<TimeSeries> evaluate(TargetEvaluator evaluator) throws EvaluationException {
-        List<TimeSeries> dividends = new ArrayList<>();
-        dividends.addAll(evaluator.eval((Target) arguments.get(0)));
+        List<TimeSeries> dividends = new ArrayList<>(evaluator.eval((Target) arguments.get(0)));
 
         if (dividends.size() == 0) return Collections.emptyList();
 
-        List<TimeSeries> divisors = evaluator.eval((Target) arguments.get(1));
-        if (divisors.size() == 0) return Collections.emptyList();
-        if (divisors.size() != 1) throw new MultipleDivisorsException();
-        TimeSeries divisor = divisors.get(0);
+        List<TimeSeries> divisor = evaluator.eval((Target) arguments.get(1));
+        if (divisor.size() == 0) return Collections.emptyList();
+        if (divisor.size() != 1) throw new MultipleDivisorsException();
 
+        return compute(dividends, divisor.get(0));
+    }
 
-        List<TimeSeries> tmp = new ArrayList<>();
-        tmp.addAll(dividends);
-        tmp.add(divisor);
-        if (!TimeSeriesUtils.checkAlignment(tmp)) {
-            throw new TimeSeriesNotAlignedException();
-        }
-
-        List<TimeSeries> result = new ArrayList<>();
-        int length = divisor.getValues().length;
-        long from = divisor.getFrom();
-        long to = divisor.getTo();
-        int step = divisor.getStep();
-
+    private List<TimeSeries> compute(List<TimeSeries> dividends, TimeSeries divisor) {
         for (TimeSeries ts : dividends) {
-            Double[] values = new Double[length];
-            TimeSeries resultTimeSeries = new TimeSeries(getText(), from, to, step);
-
-            for (int i = 0; i < length; i++) {
-
-                if (divisor.getValues()[i] == null || ts.getValues()[i] == null || divisor.getValues()[i] == 0) {
-                    values[i] = null;
+            for (int i = 0; i < divisor.getValues().length; i++) {
+                if (null == divisor.getValues()[i] || null == ts.getValues()[i] || divisor.getValues()[i] == 0) {
+                    ts.getValues()[i] = null;
                 } else {
-                    values[i] = ts.getValues()[i] / divisor.getValues()[i];
+                    ts.getValues()[i] = ts.getValues()[i] / divisor.getValues()[i];
                 }
             }
+            ts.setName(getText());
+        }
+        return dividends;
+    }
 
-            resultTimeSeries.setValues(values);
-            result.add(resultTimeSeries);
+    @Override
+    public List<TimeSeries> computeDirectly(List<TimeSeries> seriesListToCompute) {
+        if (seriesListToCompute.size() != 2) {
+            logger.warn("divideSeries: computeDirectly method should provide length 2 list of TimeSeries");
+            return Collections.emptyList();
         }
 
-        return result;
+        return compute(Collections.singletonList(seriesListToCompute.get(0)), seriesListToCompute.get(1));
     }
 
     @Override
     public void checkArguments() throws InvalidArgumentException {
-        if (arguments.size() > 2 || arguments.size() < 1) throw new InvalidArgumentException("divideSeries: number of arguments is " + arguments.size() + ". Must be 2.");
+        check(arguments.size() == 2,
+            "divideSeries: number of arguments is " + arguments.size() + ". Must be two.");
 
-        for(Object argument : arguments) {
-            if (!(argument instanceof Target)) throw new InvalidArgumentException("divideSeries: argument is " + argument.getClass().getName() + ". Must be series");
+        for (Object arg : arguments) {
+            Optional<Object> argSeries = Optional.ofNullable(arg);
+            check(argSeries.orElse(null) instanceof Target,
+                "divideSeries: argument is " + getClassName(argSeries.orElse(null)) + ". Must be series");
         }
     }
 }

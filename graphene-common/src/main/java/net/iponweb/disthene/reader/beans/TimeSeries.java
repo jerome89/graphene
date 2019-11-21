@@ -11,16 +11,19 @@ public class TimeSeries {
     private Long from;
     private Long to;
     private int step;
-
-    private Double[] values = new Double[0];
-
+    private Double[] values;
     private Map<TimeSeriesOption, Object> options = new HashMap<>();
 
     public TimeSeries(String name, Long from, Long to, int step) {
+        this(name, from, to, step, new Double[0]);
+    }
+
+    public TimeSeries(String name, Long from, Long to, int step, Double[] values) {
         this.name = name;
         this.from = from;
         this.to = to;
         this.step = step;
+        this.values = values;
     }
 
     public String getName() {
@@ -86,7 +89,6 @@ public class TimeSeries {
                 ", from=" + from +
                 ", to=" + to +
                 ", step=" + step +
-                ", values=" + Arrays.toString(values) +
                 '}';
     }
 }

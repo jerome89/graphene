@@ -3,12 +3,12 @@ package net.iponweb.disthene.reader.graphite.functions;
 import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.exceptions.InvalidArgumentException;
 import net.iponweb.disthene.reader.exceptions.InvalidFunctionException;
+import net.iponweb.disthene.reader.exceptions.UnsupportedMethodException;
 import net.iponweb.disthene.reader.graphite.Target;
 import net.iponweb.disthene.reader.graphite.functions.registry.FunctionRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Andrei Ivanov
@@ -29,7 +29,11 @@ public abstract class DistheneFunction extends Target {
         arguments.add(argument);
     }
 
-    public abstract void checkArguments() throws  InvalidArgumentException;
+    public List<TimeSeries> computeDirectly(List<TimeSeries> timeSeriesList) throws UnsupportedMethodException {
+        throw new UnsupportedMethodException("Cannot call this method on " + this.name);
+    }
+
+    public abstract void checkArguments() throws InvalidArgumentException;
 
     @Override
     public String toString() {

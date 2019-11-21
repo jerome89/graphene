@@ -2,6 +2,7 @@ package net.iponweb.disthene.reader.graphite;
 
 import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.exceptions.EvaluationException;
+import net.iponweb.disthene.reader.exceptions.UnsupportedMethodException;
 import net.iponweb.disthene.reader.graphite.evaluation.EvaluationContext;
 import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
 
@@ -26,6 +27,10 @@ public abstract class Target {
     }
 
     public abstract List<TimeSeries> evaluate(TargetEvaluator evaluator) throws EvaluationException;
+
+    public List<List<TimeSeries>> evalByGroup(TargetEvaluator evaluator) throws EvaluationException {
+        throw new EvaluationException(new UnsupportedMethodException("Only allowed to call this method in MapSeries Function!"));
+    }
 
     public String getText() {
         return text;

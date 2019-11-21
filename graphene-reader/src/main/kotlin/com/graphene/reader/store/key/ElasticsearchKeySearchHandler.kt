@@ -43,8 +43,8 @@ class ElasticsearchKeySearchHandler(
 
       var response = elasticsearchClient.query(
         QueryBuilders.regexpQuery("path", Joiner.on("|").skipNulls().join(regExs)),
-        from,
-        to
+        from * 1000L,
+        to * 1000L
       )
 
       while (response.hits.hits.isNotEmpty()) {
