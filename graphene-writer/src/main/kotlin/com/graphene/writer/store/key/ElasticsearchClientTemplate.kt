@@ -5,6 +5,7 @@ import com.graphene.common.key.RotationStrategy
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.log4j.Logger
+import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse
@@ -98,6 +99,21 @@ class ElasticsearchClientTemplate(
       bulkRequest.add(indexRequest)
     }
     return restHighLevelClient.bulk(bulkRequest, default)
+  }
+
+  override fun bulkAsync(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions) {
+    val bulkRequest = BulkRequest()
+    for (grapheneIndexRequest in grapheneIndexRequests) {
+      val indexRequest = IndexRequest(getIndexWithDate(index, tenant, grapheneIndexRequest.timestampMillis), type, grapheneIndexRequest.id)
+      indexRequest.source(grapheneIndexRequest.source)
+      bulkRequest.add(indexRequest)
+    }
+
+    restHighLevelClient.bulkAsync(bulkRequest, default, ActionListener.wrap({
+      logger.info("Succeed to ${it.items.size} index")
+    }, {
+      logger.error("Fail to index", it)
+    }))
   }
 
   override fun createIndexIfNotExists(index: String, tenant: String, from: Long?, to: Long?) {

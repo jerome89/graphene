@@ -115,10 +115,8 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       return
     }
 
-    val bulkResponse = elasticsearchClient.bulk(index, type, tenant, bulkRequest, RequestOptions.DEFAULT)
-    if (bulkResponse.hasFailures()) {
-      logger.error("Fail to index metric key, reason : ${bulkResponse.buildFailureMessage()}")
-    }
+    elasticsearchClient.bulkAsync(index, type, tenant, bulkRequest, RequestOptions.DEFAULT)
+
     multiGetRequestContainer = MultiGetRequestContainer()
     lastFlushTimeMillis = DateTimeUtils.currentTimeMillis()
   }

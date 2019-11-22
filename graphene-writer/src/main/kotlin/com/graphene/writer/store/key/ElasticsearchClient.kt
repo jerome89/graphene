@@ -15,6 +15,8 @@ interface ElasticsearchClient : Closeable, RotatedIndexAware {
 
   fun bulk(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions): BulkResponse
 
+  fun bulkAsync(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions)
+
   fun mget(multiGetRequest: MultiGetRequest, default: RequestOptions): MultiGetResponse
 
   fun getIndices(): GetIndexResponse
