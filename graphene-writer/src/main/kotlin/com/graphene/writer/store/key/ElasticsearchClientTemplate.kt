@@ -110,7 +110,7 @@ class ElasticsearchClientTemplate(
     }
 
     restHighLevelClient.bulkAsync(bulkRequest, default, ActionListener.wrap({
-      logger.info("Succeed to ${it.items.size} index")
+      logger.info("Succeed to be in ${it.items.size} indexes")
     }, {
       logger.error("Fail to index", it)
     }))
