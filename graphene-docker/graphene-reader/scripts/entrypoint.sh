@@ -18,18 +18,10 @@ mkdir -p ${GRAPHENE_PROGRAM_DIR}
 #################################
 export HOST_IP=$(curl --silent --connect-timeout 3 "http://169.254.169.254/latest/meta-data/local-ipv4")
 
-if [ $? -ne 0 ]; then
-    HOST_IP="127.0.0.1"
-fi
-
 #################################
 #         Resolve HOST NAME     #
 #################################
 export HOST_NAME=$(curl --silent --connect-timeout 3 "http://169.254.169.254/latest/meta-data/instance-id")
-
-if [ $? -ne 0 ]; then
-    HOST_NAME="localhost"
-fi
 
 #################################
 #         Set Heap Option       #
@@ -54,7 +46,7 @@ mv /tmp/graphene/${GRAPHENE_TYPE}/build/libs/${GRAPHENE_TYPE}-${GRAPHENE_VERSION
 if [[ -z "$1" ]];
 then
   # https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html
-  exec java $GRAPHENE_HEAP_OPTS -jar ${GRAPHENE_PROGRAM_DIR}/${GRAPHENE_TYPE}-${GRAPHENE_VERSION}.jar --spring.config.location=file:${GRAPHENE_CONF_DIR}/application.yml >> ${GRAPHENE_LOG_DIR}/${GRAPHENE_TYPE}.log 2>&1
+  exec java $GRAPHENE_HEAP_OPTS -jar ${GRAPHENE_PROGRAM_DIR}/${GRAPHENE_TYPE}-${GRAPHENE_VERSION}.jar --spring.config.location=file:${GRAPHENE_CONF_DIR}/application.yml
 else
   exec "$@"
 fi
