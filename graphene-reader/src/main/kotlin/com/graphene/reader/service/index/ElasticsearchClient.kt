@@ -8,6 +8,7 @@ import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.action.search.SearchScrollRequest
+import org.elasticsearch.action.support.IndicesOptions
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.unit.TimeValue
@@ -36,6 +37,7 @@ class ElasticsearchClient(
     val searchRequest = SearchRequest(*selectedIndex.toTypedArray())
     searchRequest.source(searchSourceBuilder)
     searchRequest.scroll(TimeValue(indexProperty.timeout.toLong()))
+    searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false))
 
     val searchResponse = client.search(searchRequest, RequestOptions.DEFAULT)
     throwIfExceededMaxPaths(searchResponse)
