@@ -9,22 +9,22 @@ import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
 import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
 import com.graphene.writer.util.NamedThreadFactory
-import java.util.Objects
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 import net.iponweb.disthene.reader.utils.Jsons
 import org.apache.log4j.Logger
 import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.client.RequestOptions
+import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 abstract class AbstractElasticsearchKeyStoreHandler(
   elasticsearchClientFactory: ElasticsearchClientFactory,
   keyStoreHandlerProperty: KeyStoreHandlerProperty
 ) : KeyStoreHandler, Runnable {
 
-  private val logger = Logger.getLogger(AbstractElasticsearchKeyStoreHandler::class.java)
+  private val logger: Logger
 
   private var elasticsearchClient: ElasticsearchClient
   private var keyStoreScheduler: ScheduledExecutorService
@@ -35,13 +35,16 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   private var tenant: String
 
   private var lastFlushTimeMillis = DateTimeUtils.currentTimeMillis()
+  private var lastCacheResetTimeMillis = DateTimeUtils.currentTimeMillis()
   private var batchSize: Int = 0
   private var flushInterval: Long = 0
+  private var cacheRefreshInterval: Long = 300_000 // Default 5 Min
 
-  private val metrics = ConcurrentLinkedQueue<GrapheneMetric>()
+  private val metrics = LinkedBlockingDeque<GrapheneMetric>()
 
   init {
     val property = Jsons.from(keyStoreHandlerProperty.handler["property"], ElasticsearchKeyStoreHandlerProperty::class.java)
+    logger = Logger.getLogger(this::class.java)
 
     index = property.index
     type = property.type
@@ -69,9 +72,14 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   override fun run() {
     try {
-      val metric = metrics.poll()
-      if (Objects.nonNull(metric)) {
-        addToBatch(metric)
+      tryClearCache()
+
+      val metricsList = mutableListOf<GrapheneMetric>()
+      metrics.drainTo(metricsList)
+      for (metric in metricsList) {
+        if (Objects.nonNull(metric)) {
+          addToBatch(metric)
+        }
       }
 
       if (batchSize <= multiGetRequestContainer.size() || lastFlushTimeMillis < DateTimeUtils.currentTimeMillis() - flushInterval) {
@@ -87,6 +95,14 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     multiGetRequestContainer.add(type, metric)
   }
 
+  private fun tryClearCache() {
+    if (lastCacheResetTimeMillis < DateTimeUtils.currentTimeMillis() - cacheRefreshInterval) {
+      logger.info("Total ${multiGetRequestContainer.size()} cache entries are flushed.")
+      multiGetRequestContainer.clearMetrics()
+      lastCacheResetTimeMillis = DateTimeUtils.currentTimeMillis()
+    }
+  }
+
   private fun flush() {
     if (0 >= multiGetRequestContainer.size()) {
       return
@@ -94,30 +110,37 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     elasticsearchClient.createIndexIfNotExists(index, tenant, multiGetRequestContainer.from, multiGetRequestContainer.to)
 
-    val multiGetResponse = elasticsearchClient.mget(multiGetRequestContainer.multiGetRequest, RequestOptions.DEFAULT)
-    val bulkRequest = mutableListOf<GrapheneIndexRequest>()
+    if (multiGetRequestContainer.isMultiGetRequestsExist()) {
+      val multiGetResponse = elasticsearchClient.mget(multiGetRequestContainer.multiGetRequest, RequestOptions.DEFAULT)
+      val bulkRequest = mutableListOf<GrapheneIndexRequest>()
 
-    for (response in multiGetResponse.responses) {
-      if (response.isFailed) {
-        logger.error("Fail to check duplicated index because ${response.failure.message}")
-        continue
+      for (response in multiGetResponse.responses) {
+        if (response.isFailed) {
+          logger.error("Fail to check duplicated index because ${response.failure.message}")
+          continue
+        }
+
+        if (response.response.isExists) {
+          continue
+        }
+
+        val metric = multiGetRequestContainer.metrics["${response.index}_${response.id}"]
+        bulkRequest.addAll(mapToGrapheneIndexRequests(metric))
       }
 
-      if (response.response.isExists) {
-        continue
+      logger.info("Flushed multiGetRequests: ${multiGetRequestContainer.multiGetRequestSize()}.")
+      multiGetRequestContainer.clearMultiGetRequest()
+
+      if (bulkRequest.isEmpty()) {
+        return
       }
 
-      val metric = multiGetRequestContainer.metrics["${response.index}_${response.id}"]
-      bulkRequest.addAll(mapToGrapheneIndexRequests(metric))
+      elasticsearchClient.bulkAsync(index, type, tenant, bulkRequest, RequestOptions.DEFAULT)
+
+      multiGetRequestContainer = MultiGetRequestContainer()
+      logger.info("Requested to write ${bulkRequest.size} keys to ES.")
     }
 
-    if (bulkRequest.isEmpty()) {
-      return
-    }
-
-    elasticsearchClient.bulkAsync(index, type, tenant, bulkRequest, RequestOptions.DEFAULT)
-
-    multiGetRequestContainer = MultiGetRequestContainer()
     lastFlushTimeMillis = DateTimeUtils.currentTimeMillis()
   }
 
@@ -127,6 +150,14 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     var from: Long? = null,
     var to: Long? = null
   ) {
+
+    fun clearMultiGetRequest() {
+      multiGetRequest.items.clear()
+    }
+
+    fun clearMetrics() {
+      metrics.clear()
+    }
 
     fun add(type: String, metric: GrapheneMetric) {
       val timestampMillis = metric.timestampMillis()
@@ -153,6 +184,14 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     fun size(): Int {
       return metrics.size
+    }
+
+    fun isMultiGetRequestsExist(): Boolean {
+      return multiGetRequest.items.isNotEmpty()
+    }
+
+    fun multiGetRequestSize(): Int {
+      return multiGetRequest.items.size
     }
   }
 
