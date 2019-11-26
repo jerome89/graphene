@@ -6,7 +6,10 @@ import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.key.ElasticsearchClient
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
+import com.graphene.writer.store.key.KeyCache
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
+import com.graphene.writer.store.key.MultiGetRequestContainer
+import com.graphene.writer.store.key.TimeBasedLocalKeyCache
 import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
 import com.graphene.writer.util.NamedThreadFactory
 import java.util.Objects
@@ -16,7 +19,6 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import net.iponweb.disthene.reader.utils.Jsons
 import org.apache.log4j.Logger
-import org.elasticsearch.action.get.MultiGetRequest
 import org.elasticsearch.client.RequestOptions
 
 abstract class AbstractElasticsearchKeyStoreHandler(
@@ -35,12 +37,11 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   private var tenant: String
 
   private var lastFlushTimeMillis = DateTimeUtils.currentTimeMillis()
-  private var lastCacheResetTimeMillis = DateTimeUtils.currentTimeMillis()
   private var batchSize: Int = 0
   private var flushInterval: Long = 0
-  private var cacheRefreshInterval: Long = 300_000 // Default 5 Min
 
   private val metrics = LinkedBlockingDeque<GrapheneMetric>()
+  private val keyCache: KeyCache<String, GrapheneMetric> = TimeBasedLocalKeyCache(5) // Default 5 Min
 
   init {
     val property = Jsons.from(keyStoreHandlerProperty.handler["property"], ElasticsearchKeyStoreHandlerProperty::class.java)
@@ -50,7 +51,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     type = property.type
     tenant = keyStoreHandlerProperty.tenant
     templateIndexPattern = property.templateIndexPattern
-    multiGetRequestContainer = MultiGetRequestContainer()
     batchSize = property.bulk!!.actions
     flushInterval = property.bulk!!.interval
 
@@ -60,6 +60,8 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
     keyStoreScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
     keyStoreScheduler.scheduleWithFixedDelay(this, 3_000, 500, TimeUnit.MILLISECONDS)
+
+    multiGetRequestContainer = MultiGetRequestContainer()
   }
 
   private fun elasticsearchClient(keyStoreHandlerProperty: KeyStoreHandlerProperty, elasticsearchClientFactory: ElasticsearchClientFactory, property: ElasticsearchKeyStoreHandlerProperty): ElasticsearchClient {
@@ -72,8 +74,6 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   override fun run() {
     try {
-      tryClearCache()
-
       val metricsList = mutableListOf<GrapheneMetric>()
       metrics.drainTo(metricsList)
       for (metric in metricsList) {
@@ -92,14 +92,9 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   }
 
   private fun addToBatch(metric: GrapheneMetric) {
-    multiGetRequestContainer.add(type, metric)
-  }
-
-  private fun tryClearCache() {
-    if (lastCacheResetTimeMillis < DateTimeUtils.currentTimeMillis() - cacheRefreshInterval) {
-      logger.info("Total ${multiGetRequestContainer.size()} cache entries are flushed.")
-      multiGetRequestContainer.clearMetrics()
-      lastCacheResetTimeMillis = DateTimeUtils.currentTimeMillis()
+    val index = elasticsearchClient.getIndexWithDate(index, tenant, metric.timestampMillis())
+    if (keyCache.putIfAbsent("${index}_${metric.getId()}", metric)) {
+      multiGetRequestContainer.add(index, type, metric)
     }
   }
 
@@ -129,70 +124,16 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       }
 
       logger.info("Flushed multiGetRequests: ${multiGetRequestContainer.multiGetRequestSize()}.")
-      multiGetRequestContainer.clearMultiGetRequest()
 
-      if (bulkRequest.isEmpty()) {
-        return
+      if (bulkRequest.isNotEmpty()) {
+        elasticsearchClient.bulkAsync(index, type, tenant, bulkRequest, RequestOptions.DEFAULT)
+        logger.info("Requested to write ${bulkRequest.size} keys to ES.")
       }
 
-      elasticsearchClient.bulkAsync(index, type, tenant, bulkRequest, RequestOptions.DEFAULT)
-
       multiGetRequestContainer = MultiGetRequestContainer()
-      logger.info("Requested to write ${bulkRequest.size} keys to ES.")
     }
 
     lastFlushTimeMillis = DateTimeUtils.currentTimeMillis()
-  }
-
-  private inner class MultiGetRequestContainer(
-    val multiGetRequest: MultiGetRequest = MultiGetRequest(),
-    val metrics: MutableMap<Index, GrapheneMetric> = mutableMapOf(),
-    var from: Long? = null,
-    var to: Long? = null
-  ) {
-
-    fun clearMultiGetRequest() {
-      multiGetRequest.items.clear()
-    }
-
-    fun clearMetrics() {
-      metrics.clear()
-    }
-
-    fun add(type: String, metric: GrapheneMetric) {
-      val timestampMillis = metric.timestampMillis()
-      val indexWithDate = elasticsearchClient.getIndexWithDate(index, tenant, timestampMillis)
-
-      if (!metrics.contains("${indexWithDate}_${metric.getId()}")) {
-        metrics["${indexWithDate}_${metric.getId()}"] = metric
-        multiGetRequest.add(MultiGetRequest.Item(indexWithDate, type, metric.getId()))
-
-        if (Objects.isNull(from) && Objects.isNull(to)) {
-          from = timestampMillis
-          to = timestampMillis
-        }
-
-        if (timestampMillis < from!!) {
-          from = timestampMillis
-        }
-
-        if (to!! < timestampMillis) {
-          to = timestampMillis
-        }
-      }
-    }
-
-    fun size(): Int {
-      return metrics.size
-    }
-
-    fun isMultiGetRequestsExist(): Boolean {
-      return multiGetRequest.items.isNotEmpty()
-    }
-
-    fun multiGetRequestSize(): Int {
-      return multiGetRequest.items.size
-    }
   }
 
   override fun close() {
@@ -210,5 +151,3 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   abstract fun templateName(): String
 }
-
-typealias Index = String
