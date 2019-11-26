@@ -9,15 +9,15 @@ import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
 import com.graphene.writer.store.key.property.ElasticsearchKeyStoreHandlerProperty
 import com.graphene.writer.util.NamedThreadFactory
-import net.iponweb.disthene.reader.utils.Jsons
-import org.apache.log4j.Logger
-import org.elasticsearch.action.get.MultiGetRequest
-import org.elasticsearch.client.RequestOptions
-import java.util.*
+import java.util.Objects
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import net.iponweb.disthene.reader.utils.Jsons
+import org.apache.log4j.Logger
+import org.elasticsearch.action.get.MultiGetRequest
+import org.elasticsearch.client.RequestOptions
 
 abstract class AbstractElasticsearchKeyStoreHandler(
   elasticsearchClientFactory: ElasticsearchClientFactory,
