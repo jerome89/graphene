@@ -55,8 +55,10 @@ class ElasticsearchKeySearchHandler(
         response = elasticsearchClient.searchScroll(response)
         scrollIds.add(response.scrollId)
       }
-
-      elasticsearchClient.clearScroll(scrollIds)
+      
+      if (scrollIds.isNotEmpty()) {
+        elasticsearchClient.clearScroll(scrollIds)
+      }
     }
 
     return result
