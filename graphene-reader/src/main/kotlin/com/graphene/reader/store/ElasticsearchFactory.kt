@@ -1,4 +1,4 @@
-package com.graphene.reader.service.index.model
+package com.graphene.reader.store
 
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy

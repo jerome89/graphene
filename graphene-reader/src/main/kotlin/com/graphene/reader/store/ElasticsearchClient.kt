@@ -1,6 +1,5 @@
-package com.graphene.reader.service.index
+package com.graphene.reader.store
 
-import com.graphene.reader.service.index.model.IndexProperty
 import com.graphene.reader.store.key.selector.KeySelector
 import javax.annotation.PreDestroy
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
@@ -16,11 +15,9 @@ import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHits
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 @Component
-@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.elasticsearch-key-search-handler", name = ["enabled"], havingValue = "true")
 class ElasticsearchClient(
   private val client: RestHighLevelClient,
   private val indexProperty: IndexProperty,

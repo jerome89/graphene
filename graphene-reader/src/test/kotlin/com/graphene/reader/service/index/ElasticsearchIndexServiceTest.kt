@@ -1,6 +1,7 @@
 package com.graphene.reader.service.index
 
-import com.graphene.reader.store.key.ElasticsearchKeySearchHandler
+import com.graphene.reader.store.ElasticsearchClient
+import com.graphene.reader.store.key.SimpleKeySearchHandler
 import io.mockk.every
 import io.mockk.mockk
 import java.util.UUID
@@ -18,13 +19,13 @@ import org.mockito.ArgumentMatchers.anyLong
 
 internal class ElasticsearchIndexServiceTest {
 
-  private lateinit var elasticsearchKeySearchHandler: ElasticsearchKeySearchHandler
+  private lateinit var simpleKeySearchHandler: SimpleKeySearchHandler
 
   private val elasticsearchClient: ElasticsearchClient = mockk()
 
   @BeforeEach
   internal fun setUp() {
-    elasticsearchKeySearchHandler = ElasticsearchKeySearchHandler(elasticsearchClient)
+    simpleKeySearchHandler = SimpleKeySearchHandler(elasticsearchClient)
   }
 
   @Test
@@ -42,7 +43,7 @@ internal class ElasticsearchIndexServiceTest {
     every { elasticsearchClient.searchScroll(any()) } answers { emptyResponse() }
 
     // when
-    val hierarchyMetricPath = elasticsearchKeySearchHandler.getHierarchyMetricPaths("NONE", "hosts.*.cpu.*", anyLong(), anyLong())
+    val hierarchyMetricPath = simpleKeySearchHandler.getHierarchyMetricPaths("NONE", "hosts.*.cpu.*", anyLong(), anyLong())
 
     // then
     assertEquals(1, hierarchyMetricPath.size)

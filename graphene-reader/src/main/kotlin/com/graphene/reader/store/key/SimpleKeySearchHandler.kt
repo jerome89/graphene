@@ -2,7 +2,7 @@ package com.graphene.reader.store.key
 
 import com.google.common.base.Joiner
 import com.graphene.common.HierarchyMetricPaths
-import com.graphene.reader.service.index.ElasticsearchClient
+import com.graphene.reader.store.ElasticsearchClient
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
 import net.iponweb.disthene.reader.service.index.IndexService
 import net.iponweb.disthene.reader.utils.WildcardUtil
@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component
  * @author dark
  */
 @Component
-@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.elasticsearch-key-search-handler", name = ["enabled"], havingValue = "true")
-class ElasticsearchKeySearchHandler(
+@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.simple-key-search-handler", name = ["enabled"], havingValue = "true")
+class SimpleKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient
 ) : IndexService {
 
@@ -96,6 +96,6 @@ class ElasticsearchKeySearchHandler(
   }
 
   companion object {
-    internal val logger = LoggerFactory.getLogger(ElasticsearchKeySearchHandler::class.java)
+    internal val logger = LoggerFactory.getLogger(SimpleKeySearchHandler::class.java)
   }
 }

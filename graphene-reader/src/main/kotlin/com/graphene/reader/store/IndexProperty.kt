@@ -1,4 +1,4 @@
-package com.graphene.reader.service.index.model
+package com.graphene.reader.store
 
 import java.util.ArrayList
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *
  * @since 1.0.0
  */
-@ConfigurationProperties("graphene.reader.store.key.handlers.elasticsearch-key-search-handler")
+@ConfigurationProperties("graphene.reader.store.key.handlers.simple-key-search-handler")
 class IndexProperty {
   var clusterName: String? = null
   var index: String? = null

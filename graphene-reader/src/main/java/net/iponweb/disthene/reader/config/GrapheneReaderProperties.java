@@ -1,6 +1,6 @@
 package net.iponweb.disthene.reader.config;
 
-import com.graphene.reader.service.index.model.IndexProperty;
+import com.graphene.reader.store.IndexProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

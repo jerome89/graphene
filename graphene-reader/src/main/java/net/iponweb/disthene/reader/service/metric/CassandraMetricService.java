@@ -14,7 +14,7 @@ import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.config.GrapheneReaderProperties;
 import net.iponweb.disthene.reader.config.Rollup;
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException;
-import com.graphene.reader.store.key.ElasticsearchKeySearchHandler;
+import com.graphene.reader.store.key.SimpleKeySearchHandler;
 import net.iponweb.disthene.reader.service.stats.StatsService;
 import net.iponweb.disthene.reader.service.store.CassandraService;
 import net.iponweb.disthene.reader.utils.CollectionUtils;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class CassandraMetricService implements MetricService {
     final static Logger logger = Logger.getLogger(CassandraMetricService.class);
 
-    private ElasticsearchKeySearchHandler elasticsearchKeySearchHandler;
+    private SimpleKeySearchHandler simpleKeySearchHandler;
     private CassandraService cassandraService;
     private StatsService statsService;
 
@@ -43,8 +43,8 @@ public class CassandraMetricService implements MetricService {
 
     private ExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
-    public CassandraMetricService(ElasticsearchKeySearchHandler elasticsearchKeySearchHandler, CassandraService cassandraService, StatsService statsService, GrapheneReaderProperties grapheneReaderProperties) {
-        this.elasticsearchKeySearchHandler = elasticsearchKeySearchHandler;
+    public CassandraMetricService(SimpleKeySearchHandler simpleKeySearchHandler, CassandraService cassandraService, StatsService statsService, GrapheneReaderProperties grapheneReaderProperties) {
+        this.simpleKeySearchHandler = simpleKeySearchHandler;
         this.cassandraService = cassandraService;
         this.grapheneReaderProperties = grapheneReaderProperties;
         this.statsService = statsService;
@@ -117,7 +117,7 @@ public class CassandraMetricService implements MetricService {
 
     @Override
     public List<TimeSeries> getMetricsAsList(String tenant, List<String> wildcards, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
-        Set<String> paths = elasticsearchKeySearchHandler.getPaths(tenant, wildcards, from, to);
+        Set<String> paths = simpleKeySearchHandler.getPaths(tenant, wildcards, from, to);
 
         statsService.incRenderPathsRead(tenant, paths.size());
 

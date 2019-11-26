@@ -5,7 +5,7 @@ import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.graphene.reader.handler.RenderParameter;
-import com.graphene.reader.store.key.ElasticsearchKeySearchHandler;
+import com.graphene.reader.store.key.SimpleKeySearchHandler;
 import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.config.ReaderConfiguration;
 import net.iponweb.disthene.reader.exceptions.EvaluationException;
@@ -53,8 +53,8 @@ public class RenderHandler {
     private TimeLimiter timeLimiter = new SimpleTimeLimiter(executor);
 
 
-    public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchKeySearchHandler elasticsearchKeySearchHandler, StatsService statsService, ThrottlingService throttlingService, ReaderConfiguration readerConfiguration) {
-        this.evaluator = new TargetEvaluator(cassandraMetricService, elasticsearchKeySearchHandler);
+    public RenderHandler(CassandraMetricService cassandraMetricService, SimpleKeySearchHandler simpleKeySearchHandler, StatsService statsService, ThrottlingService throttlingService, ReaderConfiguration readerConfiguration) {
+        this.evaluator = new TargetEvaluator(cassandraMetricService, simpleKeySearchHandler);
         this.statsService = statsService;
         this.throttlingService = throttlingService;
         this.readerConfiguration = readerConfiguration;
