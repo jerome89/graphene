@@ -7,5 +7,4 @@ interface KeyCache<K, V> {
   fun putIfAbsent(key: K, value: V): Boolean
 
   fun put(key: K, value: V): Boolean
-
 }

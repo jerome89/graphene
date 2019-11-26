@@ -1,8 +1,8 @@
 package com.graphene.writer.store.key
 
 import com.graphene.writer.input.GrapheneMetric
-import org.elasticsearch.action.get.MultiGetRequest
 import java.util.Objects
+import org.elasticsearch.action.get.MultiGetRequest
 
 class MultiGetRequestContainer(
   val multiGetRequest: MultiGetRequest = MultiGetRequest(),
