@@ -34,11 +34,6 @@ object RenderParameters {
       from = until
     }
 
-    // Prohibiting "until in the future"
-    if (until > System.currentTimeMillis() / 1000L) {
-      until = System.currentTimeMillis() / 1000L
-    }
-
     return RenderParameter(
       getTenant(),
       renderRequest.target,
