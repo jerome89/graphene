@@ -11,13 +11,11 @@ import net.iponweb.disthene.reader.graphite.evaluation.TargetEvaluator;
 import net.iponweb.disthene.reader.utils.CollectionUtils;
 import net.iponweb.disthene.reader.utils.TimeSeriesUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Andrei Ivanov
+ * @author jerome89
  */
 public class SumSeriesWithWildcardsFunction extends DistheneFunction {
 
@@ -28,8 +26,7 @@ public class SumSeriesWithWildcardsFunction extends DistheneFunction {
 
     @Override
     public List<TimeSeries> evaluate(TargetEvaluator evaluator) throws EvaluationException {
-        List<TimeSeries> processedArguments = new ArrayList<>();
-        processedArguments.addAll(evaluator.eval((Target) arguments.get(0)));
+        List<TimeSeries> processedArguments = new ArrayList<>(evaluator.eval((Target) arguments.get(0)));
 
         if (processedArguments.size() == 0) return new ArrayList<>();
 
@@ -91,15 +88,17 @@ public class SumSeriesWithWildcardsFunction extends DistheneFunction {
 
     @Override
     public void checkArguments() throws InvalidArgumentException {
-        if (arguments.size() < 2)
-            throw new InvalidArgumentException("sumSeriesWithWildcards: number of arguments is " + arguments.size() + ". Must be at least two.");
+        check(arguments.size() >= 2,
+            "sumSeriesWithWildcards: number of arguments is " + arguments.size() + ". Must be at least two.");
 
-        if (!(arguments.get(0) instanceof PathTarget))
-            throw new InvalidArgumentException("sumSeriesWithWildcards: argument is " + arguments.get(0).getClass().getName() + ". Must be series");
+        Optional<Object> argSeries = Optional.of(arguments.get(0));
+        check(argSeries.orElse(null) instanceof Target,
+            "sumSeriesWithWildcards: argument is " + getClassName(argSeries.orElse(null)) + ". Must be series");
 
         for (int i = 1; i < arguments.size(); i++) {
-            if (!(arguments.get(i) instanceof Double))
-                throw new InvalidArgumentException("sumSeriesWithWildcards: argument " + i + " is " + arguments.get(i).getClass().getName() + ". Must be a number");
+            Optional<Object> argNode = Optional.ofNullable(arguments.get(i));
+            check(argNode.orElse(null) instanceof Double,
+                "sumSeriesWithWildcards: argument " + i + " is " + getClassName(argNode.orElse(null)) + ". Must be a number");
         }
     }
 }

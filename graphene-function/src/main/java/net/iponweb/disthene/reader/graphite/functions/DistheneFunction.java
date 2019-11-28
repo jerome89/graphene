@@ -73,7 +73,7 @@ public abstract class DistheneFunction extends Target {
     @Override
     public Target shiftBy(long shift) {
         try {
-            DistheneFunction function = FunctionRegistry.getFunction(getContext(), name, from - shift, to - shift);
+            DistheneFunction function = FunctionRegistry.getFunction(getContext(), name, from + shift, to + shift);
 
             for (Object argument : arguments) {
                 if (argument instanceof Target) {

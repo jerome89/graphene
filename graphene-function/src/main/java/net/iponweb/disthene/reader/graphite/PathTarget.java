@@ -63,7 +63,7 @@ public class PathTarget extends Target {
 
     @Override
     public Target shiftBy(long shift) {
-        return new PathTarget(getText(), getContext(), path, tenant, from - shift, to - shift);
+        return new PathTarget(getText(), getContext(), path, tenant, from + shift, to + shift);
     }
 
     @Override
