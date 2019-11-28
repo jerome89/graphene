@@ -51,7 +51,7 @@ public class TargetEvaluator {
 
       return metricService.getMetricsAsList(
           pathTarget.getTenant(),
-          Lists.newArrayList(paths),
+          paths,
           pathTarget.getFrom(),
           pathTarget.getTo());
     } catch (ExecutionException | InterruptedException | TooMuchDataExpectedException e) {

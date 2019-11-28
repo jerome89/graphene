@@ -14,7 +14,6 @@ import net.iponweb.disthene.reader.beans.TimeSeries;
 import net.iponweb.disthene.reader.config.GrapheneReaderProperties;
 import net.iponweb.disthene.reader.config.Rollup;
 import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException;
-import com.graphene.reader.store.key.ElasticsearchKeySearchHandler;
 import net.iponweb.disthene.reader.service.stats.StatsService;
 import net.iponweb.disthene.reader.service.store.CassandraService;
 import net.iponweb.disthene.reader.utils.CollectionUtils;
@@ -35,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 public class CassandraMetricService implements MetricService {
     final static Logger logger = Logger.getLogger(CassandraMetricService.class);
 
-    private ElasticsearchKeySearchHandler elasticsearchKeySearchHandler;
     private CassandraService cassandraService;
     private StatsService statsService;
 
@@ -43,8 +41,7 @@ public class CassandraMetricService implements MetricService {
 
     private ExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
-    public CassandraMetricService(ElasticsearchKeySearchHandler elasticsearchKeySearchHandler, CassandraService cassandraService, StatsService statsService, GrapheneReaderProperties grapheneReaderProperties) {
-        this.elasticsearchKeySearchHandler = elasticsearchKeySearchHandler;
+    public CassandraMetricService(CassandraService cassandraService, StatsService statsService, GrapheneReaderProperties grapheneReaderProperties) {
         this.cassandraService = cassandraService;
         this.grapheneReaderProperties = grapheneReaderProperties;
         this.statsService = statsService;
@@ -116,8 +113,7 @@ public class CassandraMetricService implements MetricService {
     }
 
     @Override
-    public List<TimeSeries> getMetricsAsList(String tenant, List<String> wildcards, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
-        Set<String> paths = elasticsearchKeySearchHandler.getPaths(tenant, wildcards, from, to);
+    public List<TimeSeries> getMetricsAsList(String tenant, Set<String> paths, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
 
         statsService.incRenderPathsRead(tenant, paths.size());
 
@@ -188,7 +184,7 @@ public class CassandraMetricService implements MetricService {
 
         logger.debug("Number of series fetched: " + timeSeries.size());
         timer.stop();
-        logger.debug("Fetching from Cassandra took " + timer.elapsed(TimeUnit.MILLISECONDS) + " milliseconds (" + wildcards + ")");
+        logger.debug("Fetching from Cassandra took " + timer.elapsed(TimeUnit.MILLISECONDS) + " milliseconds (" + paths + ")");
 
         // sort it by path
         Collections.sort(timeSeries, new Comparator<TimeSeries>() {
