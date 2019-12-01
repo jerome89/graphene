@@ -45,7 +45,7 @@ class CarbonServerHandler(
         logger.warn("Metric is from distant past (older than 1 hour): $metric")
       }
 
-      if (CharMatcher.ASCII.matchesAllOf(metric.path) && CharMatcher.ASCII.matchesAllOf(metric.tenant)) {
+      if (CharMatcher.ascii().matchesAllOf(metric.path) && CharMatcher.ascii().matchesAllOf(metric.tenant)) {
         grapheneProcessor.process(graphiteCodec.convert(GraphiteMetric(metric.path, metric.value, normalizeTimestamp(metric.timestamp))))
       } else {
         logger.warn("Non ASCII characters received, discarding: $metric")

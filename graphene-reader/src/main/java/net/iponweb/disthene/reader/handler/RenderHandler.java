@@ -50,7 +50,7 @@ public class RenderHandler {
     private ReaderConfiguration readerConfiguration;
 
     private static final ExecutorService executor = Executors.newCachedThreadPool();
-    private TimeLimiter timeLimiter = new SimpleTimeLimiter(executor);
+    private TimeLimiter timeLimiter = SimpleTimeLimiter.create(executor);
 
 
     public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchKeySearchHandler elasticsearchKeySearchHandler, StatsService statsService, ThrottlingService throttlingService, ReaderConfiguration readerConfiguration) {
@@ -102,13 +102,11 @@ public class RenderHandler {
                 public ResponseEntity<?> call() throws EvaluationException, LogarithmicScaleNotAllowed {
                     return handleInternal(targets, parameters);
                 }
-            }, readerConfiguration.getRequestTimeout(), TimeUnit.SECONDS, true);
-        } catch (UncheckedTimeoutException e) {
+            }, readerConfiguration.getRequestTimeout(), TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
             logger.debug("Request timed out: " + parameters);
             statsService.incTimedOutRequests(parameters.getTenant());
             response = ResponseEntity.status(HttpStatus.REQUEST_ENTITY_TOO_LARGE).build();
-        } catch (EvaluationException | LogarithmicScaleNotAllowed e) {
-            throw e;
         } catch (Exception e) {
             logger.error(e);
             response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

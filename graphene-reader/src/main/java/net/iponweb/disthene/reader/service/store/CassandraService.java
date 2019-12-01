@@ -25,7 +25,7 @@ public class CassandraService {
     public CassandraService(StoreConfiguration storeConfiguration) {
         String query = "SELECT time, data FROM " +
                             storeConfiguration.getKeyspace() + "." + storeConfiguration.getColumnFamily() +
-                            " where path = ? and tenant = ? and period = ? and rollup = ? and time >= ? and time <= ? order by time";
+                            " where path = ? and tenant = ? and time >= ? and time <= ? order by time";
 
         SocketOptions socketOptions = new SocketOptions()
                 .setReceiveBufferSize(1024 * 1024)
@@ -74,8 +74,8 @@ public class CassandraService {
         statement = session.prepare(query);
     }
 
-    public ResultSetFuture executeAsync(String tenant, String path, int period, int rollup, long from, long to) {
-        return session.executeAsync(statement.bind(path, tenant, period, rollup, from, to));
+    public ResultSetFuture executeAsync(String tenant, String path, long from, long to) {
+        return session.executeAsync(statement.bind(path, tenant, from, to));
     }
 
     @PreDestroy

@@ -87,7 +87,7 @@ public class CassandraMetricService implements MetricService {
 
             futures.add(
                     Futures.transform(
-                            cassandraService.executeAsync(tenant, path, bestRollup.getPeriod(), bestRollup.getRollup(), effectiveFrom, effectiveTo),
+                            cassandraService.executeAsync(tenant, path, effectiveFrom, effectiveTo),
                             serializeFunction,
                             executorService
                     )
@@ -160,7 +160,7 @@ public class CassandraMetricService implements MetricService {
 
             futures.add(
                     Futures.transform(
-                            cassandraService.executeAsync(tenant, path, bestRollup.getPeriod(), bestRollup.getRollup(), effectiveFrom, effectiveTo),
+                            cassandraService.executeAsync(tenant, path, effectiveFrom, effectiveTo),
                             serializeFunction,
                             executorService
                     )
@@ -255,7 +255,7 @@ public class CassandraMetricService implements MetricService {
             Double values[] = new Double[length];
             for (Row row : resultSet) {
                 allNulls = false;
-                values[timestampIndices.get(row.getLong("time"))] = isSumMetric(path) ? CollectionUtils.unsafeSum(row.getList("data", Double.class)) :  CollectionUtils.last(row.getList("data", Double.class));
+                values[timestampIndices.get(row.getLong("time"))] = row.getDouble("data");
                 // TODO Below is the origin logic but I choose the last value by dark
                 // isSumMetric(path) ? CollectionUtils.unsafeSum(row.getList("data", Double.class)) : CollectionUtils.unsafeAverage(row.getList("data", Double.class));
             }
@@ -268,7 +268,7 @@ public class CassandraMetricService implements MetricService {
                 allNulls = false;
                 values = new Double[length];
                 for (Row row : resultSet) {
-                    values[timestampIndices.get(row.getLong("time"))] = isSumMetric(path) ? CollectionUtils.unsafeSum(row.getList("data", Double.class)) :  CollectionUtils.last(row.getList("data", Double.class));
+                    values[timestampIndices.get(row.getLong("time"))] = row.getDouble("data");
                     // TODO Below is the origin logic but I choose the last value by dark
                     // isSumMetric(path) ? CollectionUtils.unsafeSum(row.getList("data", Double.class)) : CollectionUtils.unsafeAverage(row.getList("data", Double.class));
                 }

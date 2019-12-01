@@ -20,12 +20,6 @@ class Metric {
   val path: String
     get() = key!!.path
 
-  val rollup: Int
-    get() = key!!.rollup
-
-  val period: Int
-    get() = key!!.period
-
   val timestamp: Long
     get() = key!!.timestamp
 
@@ -37,14 +31,12 @@ class Metric {
     this.key = MetricKey(
       if (splitInput.size >= 4) splitInput[3].intern() else MetricRule.defaultTenant(),
       splitInput[0],
-      rollup.rollup,
-      rollup.period,
       normalizeTimestamp(java.lang.Long.parseLong(splitInput[2]), rollup))
     this.value = java.lang.Double.parseDouble(splitInput[1])
   }
 
-  constructor(tenant: String, path: String, rollup: Int, period: Int, value: Double, timestamp: Long) {
-    this.key = MetricKey(tenant, path, rollup, period, timestamp)
+  constructor(tenant: String, path: String, value: Double, timestamp: Long) {
+    this.key = MetricKey(tenant, path, timestamp)
     this.value = value
   }
 

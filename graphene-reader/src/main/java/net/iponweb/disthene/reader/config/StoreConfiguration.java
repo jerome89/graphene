@@ -24,7 +24,7 @@ public class StoreConfiguration {
     private int maxRequests;
     private String consistency = "ONE";
     private String loadBalancingPolicyName = CassandraLoadBalancingPolicies.tokenDcAwareRoundRobinPolicy;
-    private String protocolVersion = "V2";
+    private String protocolVersion = "V4";
 
     public String getUserName() {
         return userName;

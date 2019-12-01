@@ -14,6 +14,7 @@ class CarbonProperty {
 
   var bind: String? = null
   var port: Int = 0
+  var retention: Int = 0
   var rollups: List<Rollup> = ArrayList()
     set(rollups) {
       baseRollup = rollups[0]

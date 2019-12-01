@@ -29,15 +29,12 @@ class CassandraDataStoreHandler(
 ) : DataStoreHandler {
 
   private val logger = Logger.getLogger(CassandraDataStoreHandler::class.java)
-  private val rollup: Int = carbonProperty.baseRollup!!.rollup
-  private val period: Int = carbonProperty.baseRollup!!.period
+  private val retention: Int = carbonProperty.baseRollup!!.retention
   private val query: String = """
     UPDATE ${handlerProperty.keyspace}.${handlerProperty.columnFamily} 
     USING TTL ? 
     SET data = ? 
-    WHERE tenant = ? 
-          AND rollup = ? 
-          AND period = ? 
+    WHERE tenant = ?  
           AND path = ? 
           AND time = ?;"""
 
@@ -73,11 +70,9 @@ class CassandraDataStoreHandler(
 
   private fun boundStatement(grapheneMetric: GrapheneMetric): BoundStatement {
     return statement.bind(
-      rollup * period,
-      listOf(grapheneMetric.value),
+      retention,
+      grapheneMetric.value,
       grapheneMetric.getTenant(),
-      rollup,
-      period,
       grapheneMetric.getGraphiteKey(),
       grapheneMetric.timestampSeconds)
   }

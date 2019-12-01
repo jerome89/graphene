@@ -9,11 +9,8 @@ dependencies {
     implementation project(':graphene-common')
 
     compile 'log4j:log4j:1.2.17'
-    compile 'org.yaml:snakeyaml:1.15'
+    compile 'org.yaml:snakeyaml:1.25'
     compile 'com.rubiconproject.oss:jchronic:0.2.6'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
-    compileOnly 'org.projectlombok:lombok:1.18.8'
-    annotationProcessor 'org.projectlombok:lombok:1.18.8'
 }
 
 group = 'net.iponweb.disthene.reader'
