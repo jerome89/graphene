@@ -20,7 +20,7 @@ metrics can be maintained and managed in isolated clusters.
 | Storage       | Version |
 |---------------|---------|
 | Elasticsearch | 6.8.x   |
-| Cassandra     | 2.x.x   |
+| Cassandra     | 3.11.x  |
 
 ## Commit convention
 This project uses the git conventional commit rule provided by [conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/)
