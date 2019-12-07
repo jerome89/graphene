@@ -1,9 +1,9 @@
 package com.graphene.reader.service.index
 
+import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.index.model.IndexProperty
 import com.graphene.reader.store.key.selector.KeySelector
 import javax.annotation.PreDestroy
-import net.iponweb.disthene.reader.exceptions.TooMuchDataExpectedException
 import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse

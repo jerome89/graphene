@@ -11,7 +11,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.CharsetUtil
 import javax.annotation.PostConstruct
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.LogManager
 import org.springframework.stereotype.Component
 
 /**
@@ -24,7 +24,7 @@ class CarbonServerHandler(
   private val grapheneProcessor: GrapheneProcessor
 ) : ChannelInboundHandlerAdapter() {
 
-  private val logger = Logger.getLogger(CarbonServerHandler::class.java)
+  private val logger = LogManager.getLogger(CarbonServerHandler::class.java)
 
   private lateinit var rollup: Rollup
   private lateinit var graphiteCodec: GraphiteMetricConverter
@@ -45,7 +45,7 @@ class CarbonServerHandler(
         logger.warn("Metric is from distant past (older than 1 hour): $metric")
       }
 
-      if (CharMatcher.ASCII.matchesAllOf(metric.path) && CharMatcher.ASCII.matchesAllOf(metric.tenant)) {
+      if (CharMatcher.ascii().matchesAllOf(metric.path) && CharMatcher.ascii().matchesAllOf(metric.tenant)) {
         grapheneProcessor.process(graphiteCodec.convert(GraphiteMetric(metric.path, metric.value, normalizeTimestamp(metric.timestamp))))
       } else {
         logger.warn("Non ASCII characters received, discarding: $metric")

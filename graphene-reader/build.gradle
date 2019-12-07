@@ -17,11 +17,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-web"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-
-    compile 'log4j:log4j:1.2.17'
-    compile 'com.rubiconproject.oss:jchronic:0.2.6'
-    compileOnly 'org.projectlombok:lombok:1.18.8'
-    annotationProcessor 'org.projectlombok:lombok:1.18.8'
 }
 
 sourceSets {
@@ -31,7 +26,7 @@ sourceSets {
 
 group = 'com.graphene.reader'
 version = '1.3.0'
-description = 'disthene-reader'
+description = 'graphene-reader'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 

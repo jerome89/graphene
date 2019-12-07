@@ -1,6 +1,6 @@
 package com.graphene.reader.controller.graphene
 
-import net.iponweb.disthene.reader.service.metric.CassandraMetricService
+import com.graphene.reader.service.metric.CassandraMetricService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

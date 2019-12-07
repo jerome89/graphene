@@ -7,28 +7,21 @@ repositories {
 
 dependencies {
     implementation project(':graphene-common')
-
-    compile 'log4j:log4j:1.2.17'
-    compile 'org.yaml:snakeyaml:1.15'
-    compile 'com.rubiconproject.oss:jchronic:0.2.6'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
-    compileOnly 'org.projectlombok:lombok:1.18.8'
-    annotationProcessor 'org.projectlombok:lombok:1.18.8'
 }
 
-group = 'net.iponweb.disthene.reader'
+group = 'com.graphene.reader'
 version = '1.0.9'
-description = 'disthene-reader'
+description = 'graphene-reader'
 sourceCompatibility = '1.8'
 
 dependencies {
     // https://github.com/antlr/intellij-plugin-v4/issues/316
-    antlr "org.antlr:antlr4:4.0"
+    antlr "org.antlr:antlr4:4.7.2"
 }
 
 generateGrammarSource {
-    outputDirectory = file("src/main/java/net/iponweb/disthene/reader/graphite/grammar")
-    arguments << "-package" << "net.iponweb.disthene.reader.graphite.grammar"
+    outputDirectory = file("src/main/java/com/graphene/reader/graphite/grammar")
+    arguments << "-package" << "com.graphene.reader.graphite.grammar"
     arguments << "-visitor"
 }
 

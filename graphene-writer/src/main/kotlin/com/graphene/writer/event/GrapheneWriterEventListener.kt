@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.LogManager
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.context.event.EventListener
@@ -27,7 +27,7 @@ class GrapheneWriterEventListener(
   private val statsProperty: StatsProperty
 ) {
 
-  private val logger = Logger.getLogger(GrapheneWriterEventListener::class.java)
+  private val logger = LogManager.getLogger(GrapheneWriterEventListener::class.java)
 
   private val storeSuccess = AtomicLong(0)
   private val storeError = AtomicLong(0)
