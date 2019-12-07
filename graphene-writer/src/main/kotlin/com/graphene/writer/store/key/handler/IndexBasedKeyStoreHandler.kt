@@ -53,6 +53,40 @@ class IndexBasedKeyStoreHandler(
           "number_of_replicas": 0,
           "number_of_shards": 5,
           "auto_expand_replicas": "0-1"
+        },
+        "mappings": {
+          "path": {
+            "dynamic_templates": [
+              {
+                "leaf": {
+                  "match": "leaf",
+                  "match_mapping_type": "boolean",
+                  "mapping": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              {
+                "depth": {
+                  "match": "depth",
+                  "match_mapping_type": "long",
+                  "mapping": {
+                    "type": "integer"
+                  }
+                }
+              },
+              {
+                "else": {
+                  "match": "*",
+                  "unmatch": "depth",
+                  "match_mapping_type": "string",
+                  "mapping": {
+                    "type": "keyword"
+                  }
+                }
+              }
+            ]
+          }
         }
       }
     """
