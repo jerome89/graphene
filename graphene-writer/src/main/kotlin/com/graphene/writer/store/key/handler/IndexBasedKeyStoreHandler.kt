@@ -30,7 +30,6 @@ class IndexBasedKeyStoreHandler(
 
     val source = XContentFactory.jsonBuilder()
       .startObject()
-      .field(TENANT, metric.getTenant())
       .field(DEPTH, graphiteKeyParts.size)
       .field(LEAF, true)
 
@@ -42,7 +41,6 @@ class IndexBasedKeyStoreHandler(
   }
 
   companion object {
-    const val TENANT = "tenant"
     const val DEPTH = "depth"
     const val LEAF = "leaf"
 
