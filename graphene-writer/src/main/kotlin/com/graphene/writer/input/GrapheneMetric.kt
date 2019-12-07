@@ -1,7 +1,7 @@
 package com.graphene.writer.input
 
+import com.graphene.reader.utils.MetricRule
 import com.graphene.writer.input.graphite.GraphiteAware
-import net.iponweb.disthene.reader.utils.MetricRule
 
 /***
  *

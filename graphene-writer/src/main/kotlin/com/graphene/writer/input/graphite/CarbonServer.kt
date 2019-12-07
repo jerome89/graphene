@@ -12,7 +12,7 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder
 import io.netty.handler.codec.Delimiters
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.LogManager
 import org.springframework.stereotype.Component
 
 /**
@@ -25,7 +25,7 @@ class CarbonServer(
   private val carbonServerHandler: CarbonServerHandler
 ) {
 
-  private val logger = Logger.getLogger(CarbonServer::class.java)
+  private val logger = LogManager.getLogger(CarbonServer::class.java)
 
   private val bossGroup = NioEventLoopGroup()
   private val workerGroup = NioEventLoopGroup()

@@ -14,7 +14,7 @@ import com.graphene.writer.store.DataStoreHandler
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import javax.annotation.PostConstruct
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.LogManager
 
 /**
  * @author Andrei Ivanov
@@ -28,7 +28,7 @@ class CassandraDataStoreHandler(
   private val cassandraFactory: CassandraFactory
 ) : DataStoreHandler {
 
-  private val logger = Logger.getLogger(CassandraDataStoreHandler::class.java)
+  private val logger = LogManager.getLogger(CassandraDataStoreHandler::class.java)
   private val retention: Int = carbonProperty.baseRollup!!.retention
   private val query: String = """
     UPDATE ${handlerProperty.keyspace}.${handlerProperty.columnFamily} 

@@ -4,7 +4,7 @@ import com.graphene.common.key.RotationProperty
 import com.graphene.common.key.RotationStrategy
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.reactor.IOReactorConfig
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.LogManager
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest
@@ -28,7 +28,7 @@ class ElasticsearchClientTemplate(
   rotationProperty: RotationProperty
 ) : ElasticsearchClient, RotatedIndexAware {
 
-  private val logger = Logger.getLogger(ElasticsearchClientTemplate::class.java)
+  private val logger = LogManager.getLogger(ElasticsearchClientTemplate::class.java)
   private var restHighLevelClient: RestHighLevelClient
   private var sniffer: Sniffer
   private var rotationStrategy = RotationStrategy.of(rotationProperty)
