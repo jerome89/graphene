@@ -1,0 +1,7 @@
+version: '2'
+services:
+  nginx:
+    image: dark0096/nginx:1.17.1
+    ports:
+      - "80:80"
+    container_name: nginx

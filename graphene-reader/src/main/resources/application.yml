@@ -3,7 +3,7 @@ debug: true
 logging:
   level:
     org.springframework: DEBUG
-    net.iponweb.disthene: DEBUG
+    com.graphene: DEBUG
 
 graphene:
   reader:

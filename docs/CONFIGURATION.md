@@ -1,4 +1,4 @@
-##### disthene-reader.yaml
+##### graphene-reader.yaml
 ```
 reader:
 # bind address and port
@@ -23,12 +23,12 @@ store:
   maxRequests: 128
 index:
 # ES cluster name, contact points, native port, index name & type
-  name: "disthene"
+  name: "metric"
   cluster:
     - "es-1"
     - "es-2"
   port: 9300
-  index: "disthene"
+  index: "metric"
   type: "path"
 # Maxim number paths allowed per one wildcard. This is just to prevent abuse
   maxPaths: 50000
@@ -39,7 +39,7 @@ stats:
 # tenant to use for stats
   tenant: "graphite"
 # hostname to use
-  hostname: "disthene-reader"
+  hostname: "graphene-reader"
 # carbon server to send stats to
   carbonHost: "carbon.example.net"
 # carbon port to send stats to
@@ -63,5 +63,5 @@ exceptions:
   - "graphite_cluster"
 ```
 
-##### Logging configuration in disthene-reader-log4j.xml
+##### Logging configuration in graphene-reader-log4j.xml
 Configuration is straight forward as per log4j

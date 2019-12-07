@@ -2,7 +2,7 @@
 //
 // import com.graphene.writer.input.MetricConverter
 // import com.graphene.writer.input.GrapheneMetric
-// import net.iponweb.disthene.reader.utils.MetricRule
+// import com.graphene.reader.utils.MetricRule
 // import java.util.*
 //
 // class InfluxDbMetricConverter : MetricConverter<InfluxDbController.InfluxDbMetric> {
