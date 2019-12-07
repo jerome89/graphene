@@ -1,7 +1,7 @@
 package com.graphene.writer.domain
 
+import com.graphene.reader.utils.MetricRule
 import com.graphene.writer.config.Rollup
-import net.iponweb.disthene.reader.utils.MetricRule
 
 /**
  * @author Andrei Ivanov

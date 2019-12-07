@@ -1,11 +1,11 @@
 package com.graphene.reader.handler
 
 import com.graphene.reader.controller.graphite.request.RenderRequest
+import com.graphene.reader.exceptions.InvalidParameterValueException
+import com.graphene.reader.format.Format
+import com.graphene.reader.utils.DateUtils
 import java.util.Objects
-import net.iponweb.disthene.reader.exceptions.InvalidParameterValueException
-import net.iponweb.disthene.reader.format.Format
-import net.iponweb.disthene.reader.utils.DateUtils
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.LogManager
 import org.joda.time.DateTimeZone
 
 data class RenderParameter(
@@ -19,7 +19,7 @@ data class RenderParameter(
 )
 
 object RenderParameters {
-  internal val logger = Logger.getLogger(RenderParameter::class.java)
+  internal val logger = LogManager.getLogger(RenderParameter::class.java)
 
   fun from(renderRequest: RenderRequest): RenderParameter {
 

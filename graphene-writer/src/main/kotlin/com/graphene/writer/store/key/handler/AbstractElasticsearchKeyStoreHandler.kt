@@ -1,6 +1,7 @@
 package com.graphene.writer.store.key.handler
 
 import com.graphene.common.utils.DateTimeUtils
+import com.graphene.reader.utils.Jsons
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.key.ElasticsearchClient
@@ -17,8 +18,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import net.iponweb.disthene.reader.utils.Jsons
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.elasticsearch.client.RequestOptions
 
 abstract class AbstractElasticsearchKeyStoreHandler(
@@ -45,7 +46,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   init {
     val property = Jsons.from(keyStoreHandlerProperty.handler["property"], ElasticsearchKeyStoreHandlerProperty::class.java)
-    logger = Logger.getLogger(this::class.java)
+    logger = LogManager.getLogger(this::class.java)
 
     index = property.index
     type = property.type

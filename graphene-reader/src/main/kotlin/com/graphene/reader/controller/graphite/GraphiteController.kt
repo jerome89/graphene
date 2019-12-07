@@ -3,11 +3,11 @@ package com.graphene.reader.controller.graphite
 import com.graphene.common.HierarchyMetricPaths
 import com.graphene.reader.controller.graphite.request.MetricsFindRequest
 import com.graphene.reader.controller.graphite.request.RenderRequest
+import com.graphene.reader.handler.RenderHandler
 import com.graphene.reader.handler.RenderParameters
 import com.graphene.reader.store.key.ElasticsearchKeySearchHandler
-import net.iponweb.disthene.reader.handler.RenderHandler
-import net.iponweb.disthene.reader.utils.MetricRule
-import org.apache.log4j.Logger
+import com.graphene.reader.utils.MetricRule
+import org.apache.logging.log4j.LogManager
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
@@ -29,7 +29,7 @@ class GraphiteController(
   private val elasticsearchKeySearchHandler: ElasticsearchKeySearchHandler
 ) {
 
-  private val logger = Logger.getLogger(GraphiteController::class.java)
+  private val logger = LogManager.getLogger(GraphiteController::class.java)
 
   @PostMapping("/render")
   fun postRender(

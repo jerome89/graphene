@@ -9,8 +9,6 @@ dependencies {
     // spring
     compile "org.springframework.boot:spring-boot-starter"
 
-    compile 'log4j:log4j:1.2.17'
-    compile 'org.yaml:snakeyaml:1.15'
-    compile 'com.rubiconproject.oss:jchronic:0.2.6'
+    compile 'org.yaml:snakeyaml:1.25'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
 }

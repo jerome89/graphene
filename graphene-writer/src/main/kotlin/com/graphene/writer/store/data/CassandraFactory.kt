@@ -8,11 +8,11 @@ import com.datastax.driver.core.ProtocolOptions
 import com.datastax.driver.core.ProtocolVersion
 import com.datastax.driver.core.QueryOptions
 import com.datastax.driver.core.SocketOptions
-import org.apache.log4j.Logger
+import org.apache.logging.log4j.LogManager
 
 class CassandraFactory {
 
-  private val logger = Logger.getLogger(CassandraFactory::class.java)
+  private val logger = LogManager.getLogger(CassandraFactory::class.java)
 
   fun createCluster(cassandraDataStoreHandlerProperty: CassandraDataStoreHandlerProperty): Cluster {
     var builder = Cluster.builder()
