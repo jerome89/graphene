@@ -9,7 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *
  * @since 1.0.0
  */
-@ConfigurationProperties("graphene.reader.store.key.handlers.simple-key-search-handler")
+// TODO Please fix me to support both of index and simple key property
+@ConfigurationProperties("graphene.reader.store.key.handlers.index-based-key-search-handler")
 class IndexProperty {
   var clusterName: String? = null
   var index: String? = null

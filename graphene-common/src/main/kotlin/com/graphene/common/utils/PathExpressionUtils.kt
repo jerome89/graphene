@@ -5,20 +5,19 @@ import org.apache.commons.lang3.StringUtils
 /**
  * @author Andrei Ivanov
  */
-object WildcardUtils {
+object PathExpressionUtils {
 
-  fun isPlainPath(path: String): Boolean {
+  fun isPlainPath(pathExpression: String): Boolean {
     val noPlainChars = charArrayOf('*', '?', '{', '(', '[')
-    return !StringUtils.containsAny(path, *noPlainChars)
+    return !StringUtils.containsAny(pathExpression, *noPlainChars)
   }
 
-  fun getPathsRegExFromWildcard(wildcard: String): String {
-    return wildcard.replace(".", "\\.")
+  fun getEscapedPathExpression(pathExpression: String): String {
+    return pathExpression.replace(".", "\\.")
       .replace("*", "[^\\.]*")
       .replace("{", "(")
       .replace("}", ")")
       .replace(",", "|")
       .replace("?", "[^\\.]")
   }
-
 }

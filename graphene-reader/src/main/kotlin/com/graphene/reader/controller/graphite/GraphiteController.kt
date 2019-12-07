@@ -5,7 +5,7 @@ import com.graphene.reader.controller.graphite.request.MetricsFindRequest
 import com.graphene.reader.controller.graphite.request.RenderRequest
 import com.graphene.reader.handler.RenderHandler
 import com.graphene.reader.handler.RenderParameters
-import com.graphene.reader.store.key.SimpleKeySearchHandler
+import com.graphene.reader.service.index.KeySearchHandler
 import com.graphene.reader.utils.MetricRule
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class GraphiteController(
   private val renderHandler: RenderHandler,
-  private val simpleKeySearchHandler: SimpleKeySearchHandler
+  private val keySearchHandler: KeySearchHandler
 ) {
 
   @PostMapping("/render")
@@ -44,7 +44,7 @@ class GraphiteController(
   }
 
   private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
-    return simpleKeySearchHandler.getHierarchyMetricPaths(
+    return keySearchHandler.getHierarchyMetricPaths(
       MetricRule.defaultTenant(),
       metricsFindRequest.query,
       metricsFindRequest.fromMillis(),

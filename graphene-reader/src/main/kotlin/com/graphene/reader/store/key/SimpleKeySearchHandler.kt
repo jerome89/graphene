@@ -2,10 +2,10 @@ package com.graphene.reader.store.key
 
 import com.google.common.base.Joiner
 import com.graphene.common.HierarchyMetricPaths
+import com.graphene.common.utils.PathExpressionUtils
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.index.KeySearchHandler
 import com.graphene.reader.store.ElasticsearchClient
-import com.graphene.common.utils.WildcardUtils
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.slf4j.LoggerFactory
@@ -24,15 +24,15 @@ class SimpleKeySearchHandler(
 ) : KeySearchHandler {
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getPaths(tenant: String, wildcards: List<String>, from: Long, to: Long): Set<String> {
+  override fun getPaths(tenant: String, pathExpressions: List<String>, from: Long, to: Long): Set<String> {
     val regExs = mutableListOf<String>()
     val result = mutableSetOf<String>()
 
-    for (wildcard in wildcards) {
-      if (WildcardUtils.isPlainPath(wildcard)) {
+    for (wildcard in pathExpressions) {
+      if (PathExpressionUtils.isPlainPath(wildcard)) {
         result.add(wildcard)
       } else {
-        regExs.add(WildcardUtils.getPathsRegExFromWildcard(wildcard))
+        regExs.add(PathExpressionUtils.getEscapedPathExpression(wildcard))
       }
     }
 
@@ -65,11 +65,11 @@ class SimpleKeySearchHandler(
   }
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getHierarchyMetricPaths(tenant: String, query: String, from: Long, to: Long): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
+  override fun getHierarchyMetricPaths(tenant: String, pathExpression: String, from: Long, to: Long): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
     val hierarchyMetricPaths = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
     try {
       var response = elasticsearchClient.query(
-        QueryBuilders.regexpQuery("path", WildcardUtils.getPathsRegExFromWildcard(query)),
+        QueryBuilders.regexpQuery("path", PathExpressionUtils.getEscapedPathExpression(pathExpression)),
         from,
         to
       )
@@ -98,6 +98,6 @@ class SimpleKeySearchHandler(
   }
 
   companion object {
-    internal val logger = LoggerFactory.getLogger(SimpleKeySearchHandler::class.java)
+    internal val logger = LoggerFactory.getLogger(javaClass)
   }
 }

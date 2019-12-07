@@ -4,16 +4,15 @@ import com.graphene.reader.store.ElasticsearchClient
 import com.graphene.reader.utils.ElasticsearchTestUtils
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 internal class SimpleKeySearchHandlerTest {
 
   private lateinit var simpleKeySearchHandler: SimpleKeySearchHandler
-
   private val elasticsearchClient: ElasticsearchClient = mockk()
 
   @BeforeEach
@@ -25,12 +24,11 @@ internal class SimpleKeySearchHandlerTest {
   internal fun `should return deduplicated hierarchy metric path`() {
     // given
     val response = ElasticsearchClient.Response.of(
-      ElasticsearchTestUtils.searchResponse(
-        arrayOf(
-          Pair("path", "hosts.i-a.cpu.usage"),
-          Pair("path", "hosts.i-b.cpu.usage"),
-          Pair("path", "hosts.i-c.cpu.usage"))
-      ))
+      ElasticsearchTestUtils.searchResponse(arrayOf(
+        arrayOf(Pair("@tenant", "NONE"), Pair("depth", 4), Pair("leaf", true), Pair("path", "hosts.i-a.cpu.usage")),
+        arrayOf(Pair("@tenant", "NONE"), Pair("depth", 4), Pair("leaf", true), Pair("path", "hosts.i-b.cpu.usage")),
+        arrayOf(Pair("@tenant", "NONE"), Pair("depth", 4), Pair("leaf", true), Pair("path", "hosts.i-c.cpu.usage"))
+      )))
 
     every { elasticsearchClient.query(any(), any(), any()) } answers { response }
     every { elasticsearchClient.searchScroll(any()) } answers { ElasticsearchTestUtils.emptyResponse() }
@@ -68,11 +66,9 @@ internal class SimpleKeySearchHandlerTest {
   internal fun `should return result about query if with complex query path`() {
     // given
     val response = ElasticsearchClient.Response.of(
-      ElasticsearchTestUtils.searchResponse(
-        arrayOf(
-          Pair("path", "servers.server1.cpu.usage")
-        )
-      ))
+      ElasticsearchTestUtils.searchResponse(arrayOf(
+        arrayOf(Pair("@tenant", "NONE"), Pair("depth", 4), Pair("leaf", true), Pair("path", "servers.server1.cpu.usage"))
+      )))
 
     every { elasticsearchClient.query(any(), any(), any()) } answers { response }
     every { elasticsearchClient.searchScroll(any()) } answers { ElasticsearchTestUtils.emptyResponse() }

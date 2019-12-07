@@ -9,8 +9,8 @@ import java.util.Set;
 
 public interface KeySearchHandler {
 
-  Set<String> getPaths(String tenant, List<String> wildcards, Long from, Long to) throws TooMuchDataExpectedException;
+  Set<String> getPaths(String tenant, List<String> pathExpressions, Long from, Long to) throws TooMuchDataExpectedException;
 
-  Collection<HierarchyMetricPaths.HierarchyMetricPath> getHierarchyMetricPaths(String tenant, String query, Long from, Long to) throws TooMuchDataExpectedException;
+  Collection<HierarchyMetricPaths.HierarchyMetricPath> getHierarchyMetricPaths(String tenant, String pathExpression, Long from, Long to) throws TooMuchDataExpectedException;
 
 }
