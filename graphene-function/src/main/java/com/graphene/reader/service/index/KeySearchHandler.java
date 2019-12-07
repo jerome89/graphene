@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public interface IndexService {
+public interface KeySearchHandler {
 
   Set<String> getPaths(String tenant, List<String> wildcards, Long from, Long to) throws TooMuchDataExpectedException;
 

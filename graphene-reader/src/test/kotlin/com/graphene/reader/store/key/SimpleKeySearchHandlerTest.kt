@@ -1,0 +1,94 @@
+package com.graphene.reader.store.key
+
+import com.graphene.reader.store.ElasticsearchClient
+import com.graphene.reader.utils.ElasticsearchTestUtils
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyLong
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+internal class SimpleKeySearchHandlerTest {
+
+  private lateinit var simpleKeySearchHandler: SimpleKeySearchHandler
+
+  private val elasticsearchClient: ElasticsearchClient = mockk()
+
+  @BeforeEach
+  internal fun setUp() {
+    simpleKeySearchHandler = SimpleKeySearchHandler(elasticsearchClient)
+  }
+
+  @Test
+  internal fun `should return deduplicated hierarchy metric path`() {
+    // given
+    val response = ElasticsearchClient.Response.of(
+      ElasticsearchTestUtils.searchResponse(
+        arrayOf(
+          Pair("path", "hosts.i-a.cpu.usage"),
+          Pair("path", "hosts.i-b.cpu.usage"),
+          Pair("path", "hosts.i-c.cpu.usage"))
+      ))
+
+    every { elasticsearchClient.query(any(), any(), any()) } answers { response }
+    every { elasticsearchClient.searchScroll(any()) } answers { ElasticsearchTestUtils.emptyResponse() }
+
+    // when
+    val hierarchyMetricPath = simpleKeySearchHandler
+      .getHierarchyMetricPaths(
+        "NONE",
+        "hosts.*.cpu.*",
+        anyLong(),
+        anyLong()
+      )
+
+    // then
+    assertEquals(1, hierarchyMetricPath.size)
+  }
+
+  @Test
+  internal fun `should return a plain path if without complex query path`() {
+    // when
+    val paths = simpleKeySearchHandler
+      .getPaths(
+        "NONE",
+        listOf("servers.server1.cpu.usage"),
+        anyLong(),
+        anyLong()
+      )
+
+    // then
+    assertEquals(1, paths.size)
+    assertTrue(paths.contains("servers.server1.cpu.usage"))
+  }
+
+  @Test
+  internal fun `should return result about query if with complex query path`() {
+    // given
+    val response = ElasticsearchClient.Response.of(
+      ElasticsearchTestUtils.searchResponse(
+        arrayOf(
+          Pair("path", "servers.server1.cpu.usage")
+        )
+      ))
+
+    every { elasticsearchClient.query(any(), any(), any()) } answers { response }
+    every { elasticsearchClient.searchScroll(any()) } answers { ElasticsearchTestUtils.emptyResponse() }
+    every { elasticsearchClient.clearScroll(any()) } answers { Unit }
+
+    // when
+    val paths = simpleKeySearchHandler
+      .getPaths(
+        "NONE",
+        listOf("servers.*.cpu.usage"),
+        anyLong(),
+        anyLong()
+      )
+
+    // then
+    assertEquals(1, paths.size)
+    assertTrue(paths.contains("servers.server1.cpu.usage"))
+  }
+}

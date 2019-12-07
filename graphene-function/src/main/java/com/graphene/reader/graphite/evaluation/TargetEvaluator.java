@@ -11,7 +11,7 @@ import com.graphene.reader.exceptions.TooMuchDataExpectedException;
 import com.graphene.reader.graphite.PathTarget;
 import com.graphene.reader.graphite.Target;
 import com.graphene.reader.graphite.functions.GrapheneFunction;
-import com.graphene.reader.service.index.IndexService;
+import com.graphene.reader.service.index.KeySearchHandler;
 import com.graphene.reader.service.metric.MetricService;
 import com.graphene.reader.utils.TimeSeriesUtils;
 import org.apache.logging.log4j.LogManager;
@@ -28,11 +28,11 @@ public class TargetEvaluator {
   static final Logger logger = LogManager.getLogger(TargetEvaluator.class);
 
   private MetricService metricService;
-  private IndexService indexService;
+  private KeySearchHandler keySearchHandler;
 
-  public TargetEvaluator(MetricService metricService, IndexService indexService) {
+  public TargetEvaluator(MetricService metricService, KeySearchHandler keySearchHandler) {
     this.metricService = metricService;
-    this.indexService = indexService;
+    this.keySearchHandler = keySearchHandler;
   }
 
   public List<TimeSeries> eval(Target target) throws EvaluationException {
@@ -46,7 +46,7 @@ public class TargetEvaluator {
   public List<TimeSeries> visit(PathTarget pathTarget) throws EvaluationException {
     try {
       Set<String> paths =
-          indexService.getPaths(pathTarget.getTenant(), Lists.newArrayList(pathTarget.getPath()), pathTarget.getFrom(), pathTarget.getTo());
+          keySearchHandler.getPaths(pathTarget.getTenant(), Lists.newArrayList(pathTarget.getPath()), pathTarget.getFrom(), pathTarget.getTo());
 
       logger.debug("resolved paths : " + paths);
 

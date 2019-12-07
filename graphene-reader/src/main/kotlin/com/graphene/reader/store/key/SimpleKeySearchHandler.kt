@@ -2,10 +2,10 @@ package com.graphene.reader.store.key
 
 import com.google.common.base.Joiner
 import com.graphene.common.HierarchyMetricPaths
-import com.graphene.reader.store.ElasticsearchClient
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
-import com.graphene.reader.service.index.IndexService
-import com.graphene.reader.utils.WildcardUtil
+import com.graphene.reader.service.index.KeySearchHandler
+import com.graphene.reader.store.ElasticsearchClient
+import com.graphene.common.utils.WildcardUtils
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.slf4j.LoggerFactory
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component
 @ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.simple-key-search-handler", name = ["enabled"], havingValue = "true")
 class SimpleKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient
-) : IndexService {
+) : KeySearchHandler {
 
   @Throws(TooMuchDataExpectedException::class)
   override fun getPaths(tenant: String, wildcards: List<String>, from: Long, to: Long): Set<String> {
@@ -29,10 +29,10 @@ class SimpleKeySearchHandler(
     val result = mutableSetOf<String>()
 
     for (wildcard in wildcards) {
-      if (WildcardUtil.isPlainPath(wildcard)) {
+      if (WildcardUtils.isPlainPath(wildcard)) {
         result.add(wildcard)
       } else {
-        regExs.add(WildcardUtil.getPathsRegExFromWildcard(wildcard))
+        regExs.add(WildcardUtils.getPathsRegExFromWildcard(wildcard))
       }
     }
 
@@ -69,7 +69,7 @@ class SimpleKeySearchHandler(
     val hierarchyMetricPaths = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
     try {
       var response = elasticsearchClient.query(
-        QueryBuilders.regexpQuery("path", WildcardUtil.getPathsRegExFromWildcard(query)),
+        QueryBuilders.regexpQuery("path", WildcardUtils.getPathsRegExFromWildcard(query)),
         from,
         to
       )
