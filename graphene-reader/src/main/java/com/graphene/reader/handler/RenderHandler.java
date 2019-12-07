@@ -14,6 +14,8 @@ import com.graphene.reader.graphite.Target;
 import com.graphene.reader.graphite.evaluation.EvaluationContext;
 import com.graphene.reader.graphite.evaluation.TargetEvaluator;
 import com.graphene.reader.graphite.evaluation.TargetVisitor;
+import com.graphene.reader.graphite.grammar.GraphiteLexer;
+import com.graphene.reader.graphite.grammar.GraphiteParser;
 import com.graphene.reader.graphite.utils.ValueFormatter;
 import com.graphene.reader.service.metric.CassandraMetricService;
 import com.graphene.reader.service.stats.StatsService;
@@ -57,7 +59,7 @@ public class RenderHandler {
         this.readerConfiguration = readerConfiguration;
     }
 
-    public ResponseEntity<?> handle(RenderParameter parameters) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
+    public ResponseEntity<?> handle(RenderParameter parameters) throws ParameterParsingException {
         logger.debug("Redner Got request: " + parameters + " / parameters: " + parameters.toString());
         Stopwatch timer = Stopwatch.createStarted();
 
