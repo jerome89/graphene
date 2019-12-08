@@ -4,7 +4,6 @@ import com.graphene.reader.config.GrapheneReaderProperties;
 import com.graphene.reader.config.ReaderConfiguration;
 import com.graphene.reader.config.StoreConfiguration;
 import com.graphene.reader.config.ThrottlingConfiguration;
-import com.graphene.reader.store.IndexProperty;
 import com.graphene.reader.store.key.selector.KeySelectorProperty;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,7 +15,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
     scanBasePackages = {"com.graphene.reader"},
     exclude = {CassandraAutoConfiguration.class, GsonAutoConfiguration.class})
 @EnableConfigurationProperties({
-  IndexProperty.class,
   StoreConfiguration.class,
   GrapheneReaderProperties.class,
   ThrottlingConfiguration.class,

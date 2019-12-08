@@ -1,17 +1,8 @@
-package com.graphene.reader.store
+package com.graphene.reader.store.key.property
 
 import java.util.ArrayList
-import org.springframework.boot.context.properties.ConfigurationProperties
 
-/**
- * @author Andrei Ivanov
- * @author Dark
- *
- * @since 1.0.0
- */
-// TODO Please fix me to support both of index and simple key property
-@ConfigurationProperties("graphene.reader.store.key.handlers.index-based-key-search-handler")
-class IndexProperty {
+class SimpleKeySearchHandlerProperty : IndexProperty {
   var clusterName: String? = null
   var index: String? = null
   var tenant: String = "NONE"
@@ -22,8 +13,26 @@ class IndexProperty {
   var timeout: Int = 0
   var maxPaths: Int = 0
 
+  override fun clusterName(): String? = clusterName
+
+  override fun index(): String? = index
+
+  override fun tenant(): String = tenant
+
+  override fun type(): String? = type
+
+  override fun cluster(): List<String> = cluster
+
+  override fun port(): Int = port
+
+  override fun scroll(): Int = scroll
+
+  override fun timeout(): Int = timeout
+
+  override fun maxPaths(): Int = maxPaths
+
   override fun toString(): String {
-    return "IndexProperty{" +
+    return "SimpleKeySearchHandler{" +
       "clusterName=$clusterName" +
       ", index=$index" +
       ", type=$type" +

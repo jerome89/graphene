@@ -1,6 +1,7 @@
-package com.graphene.reader.store
+package com.graphene.reader.store.key.handler
 
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
+import com.graphene.reader.store.key.property.IndexProperty
 import com.graphene.reader.store.key.selector.KeySelector
 import javax.annotation.PreDestroy
 import org.elasticsearch.action.search.ClearScrollRequest
@@ -28,12 +29,12 @@ class ElasticsearchClient(
   fun query(query: QueryBuilder, from: Long, to: Long): Response {
     val searchSourceBuilder = SearchSourceBuilder()
     searchSourceBuilder.query(query)
-    searchSourceBuilder.size(indexProperty.scroll)
+    searchSourceBuilder.size(indexProperty.scroll())
 
-    val selectedIndex = keySelector.select(indexProperty.index!!, indexProperty.tenant, from, to)
+    val selectedIndex = keySelector.select(indexProperty.index()!!, indexProperty.tenant(), from, to)
     val searchRequest = SearchRequest(*selectedIndex.toTypedArray())
     searchRequest.source(searchSourceBuilder)
-    searchRequest.scroll(TimeValue(indexProperty.timeout.toLong()))
+    searchRequest.scroll(TimeValue(indexProperty.timeout().toLong()))
     searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false))
 
     val searchResponse = client.search(searchRequest, RequestOptions.DEFAULT)
@@ -44,7 +45,7 @@ class ElasticsearchClient(
 
   fun searchScroll(response: Response): Response {
     val scrollRequest = SearchScrollRequest(response.scrollId)
-    scrollRequest.scroll(TimeValue.timeValueMillis(indexProperty.timeout.toLong()))
+    scrollRequest.scroll(TimeValue.timeValueMillis(indexProperty.timeout().toLong()))
 
     val searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
     return Response.of(searchResponse)
@@ -62,13 +63,13 @@ class ElasticsearchClient(
 
   private fun throwIfExceededMaxPaths(response: SearchResponse) {
     // if total hits exceeds maximum - abort right away returning empty array
-    if (response.hits.totalHits > indexProperty.maxPaths) {
+    if (response.hits.totalHits > indexProperty.maxPaths()) {
       logger.debug("Total number map paths exceeds the limit: " + response.hits.totalHits)
       throw TooMuchDataExpectedException(
         "Total number map paths exceeds the limit: " +
           response.hits.totalHits +
           " (the limit is " +
-          indexProperty.maxPaths +
+          indexProperty.maxPaths() +
           ")")
     }
   }

@@ -1,6 +1,6 @@
 package com.graphene.reader.config;
 
-import com.graphene.reader.store.IndexProperty;
+import com.graphene.reader.store.key.property.IndexProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

@@ -1,6 +1,6 @@
 package com.graphene.reader.utils
 
-import com.graphene.reader.store.ElasticsearchClient
+import com.graphene.reader.store.key.handler.ElasticsearchClient
 import io.mockk.every
 import io.mockk.mockk
 import java.util.UUID

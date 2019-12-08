@@ -1,21 +1,16 @@
-package com.graphene.reader.store.key
+package com.graphene.reader.store.key.handler
 
 import com.graphene.common.HierarchyMetricPaths
 import com.graphene.reader.service.index.KeySearchHandler
-import com.graphene.reader.store.ElasticsearchClient
 import com.graphene.reader.store.key.optimizer.ElasticsearchQueryOptimizer
 import java.util.StringJoiner
 import org.apache.logging.log4j.LogManager
 import org.elasticsearch.search.SearchHit
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
 
 /**
  *
  * @author dark
  */
-@Component
-@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.index-based-key-search-handler", name = ["enabled"], havingValue = "true")
 class IndexBasedKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient,
   private val elasticsearchQueryOptimizer: ElasticsearchQueryOptimizer

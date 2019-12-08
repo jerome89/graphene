@@ -14,21 +14,21 @@ graphene:
     store:
       key:
         handlers:
-#          simple-key-search-handler:
-#            key-selector:
-#              type: "RollingKeySelector"
-#              period: "1w"
-#            enabled: true
-#            tenant: none
-#            clusterName: "metric"
-#            cluster:
-#              - "127.0.0.1"
-#            port: 9300
-#            index: "simple-key-path"
-#            type: "path"
-#            scroll: 10000
-#            timeout: 120000
-#            maxPaths: 50000
+          simple-key-search-handler:
+            key-selector:
+              type: "RollingKeySelector"
+              period: "1w"
+            enabled: false
+            tenant: none
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "simple-key-path"
+            type: "path"
+            scroll: 10000
+            timeout: 120000
+            maxPaths: 50000
           index-based-key-search-handler:
             key-selector:
               type: "RollingKeySelector"

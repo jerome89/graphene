@@ -1,24 +1,19 @@
-package com.graphene.reader.store.key
+package com.graphene.reader.store.key.handler
 
 import com.google.common.base.Joiner
 import com.graphene.common.HierarchyMetricPaths
 import com.graphene.common.utils.PathExpressionUtils
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.index.KeySearchHandler
-import com.graphene.reader.store.ElasticsearchClient
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
 
 /**
  *
  * @author Andrei Ivanov
  * @author dark
  */
-@Component
-@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.simple-key-search-handler", name = ["enabled"], havingValue = "true")
 class SimpleKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient
 ) : KeySearchHandler {
