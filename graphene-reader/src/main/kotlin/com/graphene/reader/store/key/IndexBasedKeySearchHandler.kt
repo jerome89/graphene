@@ -1,11 +1,11 @@
 package com.graphene.reader.store.key
 
 import com.graphene.common.HierarchyMetricPaths
-import com.graphene.common.utils.PathExpressionUtils
 import com.graphene.reader.service.index.KeySearchHandler
 import com.graphene.reader.store.ElasticsearchClient
 import com.graphene.reader.store.key.optimizer.ElasticsearchQueryOptimizer
 import java.util.StringJoiner
+import org.apache.logging.log4j.LogManager
 import org.elasticsearch.search.SearchHit
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
@@ -21,14 +21,15 @@ class IndexBasedKeySearchHandler(
   private val elasticsearchQueryOptimizer: ElasticsearchQueryOptimizer
 ) : KeySearchHandler {
 
-  // TODO Please fix me about time unit
+  internal val log = LogManager.getLogger(javaClass)
+
   override fun getPaths(tenant: String, pathExpressions: MutableList<String>, from: Long, to: Long): MutableSet<String> {
     val result = mutableSetOf<String>()
 
     for (pathExpression in pathExpressions) {
       val scrollIds = mutableListOf<String>()
 
-      var response = elasticsearchClient.query(elasticsearchQueryOptimizer.optimize(pathExpression), from * 1000, to * 1000)
+      var response = elasticsearchClient.query(elasticsearchQueryOptimizer.optimizeLeafQuery(pathExpression), from * 1000, to * 1000)
 
       while (response.hits.hits.isNotEmpty()) {
         for (hit in response.hits) {
@@ -55,39 +56,48 @@ class IndexBasedKeySearchHandler(
     return result
   }
 
-  private fun index(index: Int) = index.toString()
-
   override fun getHierarchyMetricPaths(tenant: String, pathExpression: String, from: Long, to: Long): MutableCollection<HierarchyMetricPaths.HierarchyMetricPath> {
-    val escapedPathExpression = PathExpressionUtils.getEscapedPathExpression(pathExpression)
+    var result = mutableSetOf<HierarchyMetricPaths.HierarchyMetricPath>()
 
-    var response = elasticsearchClient.query(elasticsearchQueryOptimizer.optimize(escapedPathExpression), from, to)
+    try {
+      var response = elasticsearchClient.query(elasticsearchQueryOptimizer.optimizeBranchQuery(pathExpression), from, to)
+      var scrollIds = mutableListOf<String>()
 
-    var scrollIds = mutableListOf<String>()
-    var result = mutableListOf<HierarchyMetricPaths.HierarchyMetricPath>()
+      val maximumDepth = pathExpression.split(DOT).size
 
-    val maximumDepth = pathExpression.split(DOT).size
+      while (response.hits.hits.isNotEmpty()) {
+        for (hit in response.hits) {
+          if (isLowDepth(hit, maximumDepth)) {
+            continue
+          }
 
-    while (response.hits.hits.isNotEmpty()) {
-      for (hit in response.hits) {
-        val stringJoiner = StringJoiner(DOT)
+          val indexBasedKey = StringJoiner(DOT)
+          for (i in 0 until maximumDepth) {
+            indexBasedKey.add(hit.sourceAsMap[index(i)] as String)
+          }
 
-        for (i in 0 until maximumDepth) {
-          stringJoiner.add(hit.sourceAsMap[index(i)] as String)
+          result.add(HierarchyMetricPaths.of(indexBasedKey.toString(), isLeaf(hit, maximumDepth)))
         }
 
-        result.add(HierarchyMetricPaths.of(stringJoiner.toString(), isLeaf(hit, maximumDepth)))
+        response = elasticsearchClient.searchScroll(response)
+        scrollIds.add(response.scrollId)
       }
 
-      response = elasticsearchClient.searchScroll(response)
-      scrollIds.add(response.scrollId)
-    }
-
-    if (scrollIds.isNotEmpty()) {
-      elasticsearchClient.clearScroll(scrollIds)
+      if (scrollIds.isNotEmpty()) {
+        elasticsearchClient.clearScroll(scrollIds)
+      }
+    } catch (e: Throwable) {
+      log.error("Fail to get hierarchy metric paths : $pathExpression")
+      throw e
     }
 
     return result
   }
+
+  private fun isLowDepth(hit: SearchHit, maximumDepth: Int) =
+    (hit.sourceAsMap["depth"] as Int) < maximumDepth
+
+  private fun index(index: Int) = index.toString()
 
   private fun isLeaf(hit: SearchHit, maximumDepth: Int) =
     hit.sourceAsMap["depth"] as Int == maximumDepth

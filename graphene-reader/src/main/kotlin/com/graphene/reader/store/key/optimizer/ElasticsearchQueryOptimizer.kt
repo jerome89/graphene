@@ -4,7 +4,7 @@ import org.elasticsearch.index.query.QueryBuilder
 
 interface ElasticsearchQueryOptimizer {
 
-  fun optimize(pathExpression: String): QueryBuilder
+  fun optimizeBranchQuery(pathExpression: String): QueryBuilder
 
-  fun optimize(pathExpressions: MutableList<String>): QueryBuilder
+  fun optimizeLeafQuery(pathExpression: String): QueryBuilder
 }

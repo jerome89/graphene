@@ -18,4 +18,13 @@ internal class PathExpressionUtilsTest {
     assertEquals(PathExpressionUtils.isPlainPath("hosts.service.role.*"), false)
     assertEquals(PathExpressionUtils.isPlainPath("hosts.service.role.{a,b}"), false)
   }
+
+  @Test
+  internal fun `should has only or condition`() {
+    assertEquals(PathExpressionUtils.hasOnlyOrCondition("servers.server1.cpu.usage"), false)
+    assertEquals(PathExpressionUtils.hasOnlyOrCondition("servers.{server*}.cpu.usage"), false)
+
+    assertEquals(PathExpressionUtils.hasOnlyOrCondition("servers.{server1}.cpu.usage"), true)
+    assertEquals(PathExpressionUtils.hasOnlyOrCondition("servers.{server1,server2}.cpu.usage"), true)
+  }
 }

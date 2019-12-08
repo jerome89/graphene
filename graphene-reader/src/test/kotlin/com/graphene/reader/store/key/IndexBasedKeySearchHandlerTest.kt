@@ -50,6 +50,41 @@ internal class IndexBasedKeySearchHandlerTest {
   }
 
   @Test
+  internal fun `should get hierarchy metric path without low depth key`() {
+    // given
+    val response = ElasticsearchClient.Response.of(
+      ElasticsearchTestUtils.searchResponse(arrayOf(
+        arrayOf(Pair("depth", 4), Pair("leaf", true), Pair("0", "a"), Pair("1", "b"), Pair("2", "c"), Pair("3", "1")),
+        arrayOf(Pair("depth", 4), Pair("leaf", true), Pair("0", "a"), Pair("1", "b"), Pair("2", "c"), Pair("3", "2")),
+        // Low depth key
+        arrayOf(Pair("depth", 3), Pair("leaf", true), Pair("0", "a"), Pair("1", "b"), Pair("2", "d"))
+      )))
+
+    every { elasticsearchClient.query(any(), any(), any()) } answers { response }
+    every { elasticsearchClient.searchScroll(any()) } answers { ElasticsearchTestUtils.emptyResponse() }
+    every { elasticsearchClient.clearScroll(any()) } answers { Unit }
+
+    // when
+    val hierarchyMetricPaths = indexBasedKeySearchHandler
+      .getHierarchyMetricPaths(
+        "NONE",
+        "a.*.*.*",
+        DateTimeUtils.currentTimeSeconds(),
+        DateTimeUtils.currentTimeSeconds()
+      )
+
+    // then
+    assertEquals(2, hierarchyMetricPaths.size)
+
+    assertEquals(
+      listOf(
+        "a.b.c.1",
+        "a.b.c.2"
+      ),
+      extractGraphitePaths(hierarchyMetricPaths))
+  }
+
+  @Test
   internal fun `should return hierarchy metric paths composited by branch`() {
     // given
     val response = ElasticsearchClient.Response.of(
