@@ -10,13 +10,14 @@ import org.elasticsearch.search.SearchHit
 /**
  *
  * @author dark
+ * @since 1.4.0
  */
 class IndexBasedKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient,
   private val elasticsearchQueryOptimizer: ElasticsearchQueryOptimizer
 ) : KeySearchHandler {
 
-  internal val log = LogManager.getLogger(javaClass)
+  private val log = LogManager.getLogger(javaClass)
 
   override fun getPaths(tenant: String, pathExpressions: MutableList<String>, from: Long, to: Long): MutableSet<String> {
     val result = mutableSetOf<String>()
@@ -52,7 +53,7 @@ class IndexBasedKeySearchHandler(
   }
 
   override fun getHierarchyMetricPaths(tenant: String, pathExpression: String, from: Long, to: Long): MutableCollection<HierarchyMetricPaths.HierarchyMetricPath> {
-    var result = mutableSetOf<HierarchyMetricPaths.HierarchyMetricPath>()
+    var result = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
 
     try {
       var response = elasticsearchClient.query(elasticsearchQueryOptimizer.optimizeBranchQuery(pathExpression), from, to)
@@ -71,7 +72,8 @@ class IndexBasedKeySearchHandler(
             indexBasedKey.add(hit.sourceAsMap[index(i)] as String)
           }
 
-          result.add(HierarchyMetricPaths.of(indexBasedKey.toString(), isLeaf(hit, maximumDepth)))
+          val hierarchyMetricPath = HierarchyMetricPaths.of(indexBasedKey.toString(), isLeaf(hit, maximumDepth))
+          result[hierarchyMetricPath.text] = hierarchyMetricPath
         }
 
         response = elasticsearchClient.searchScroll(response)
@@ -86,7 +88,7 @@ class IndexBasedKeySearchHandler(
       throw e
     }
 
-    return result
+    return result.values
   }
 
   private fun isLowDepth(hit: SearchHit, maximumDepth: Int) =

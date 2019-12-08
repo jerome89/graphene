@@ -6,6 +6,11 @@ import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.springframework.stereotype.Component
 
+/**
+ *
+ * @author dark
+ * @since 1.4.0
+ */
 @Component
 class IndexBasedElasticsearchQueryOptimizer : ElasticsearchQueryOptimizer {
 
