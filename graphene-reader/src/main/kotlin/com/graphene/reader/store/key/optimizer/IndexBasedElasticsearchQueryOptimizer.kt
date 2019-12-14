@@ -44,6 +44,10 @@ class IndexBasedElasticsearchQueryOptimizer : ElasticsearchQueryOptimizer {
   private fun graphiteIndexBasedPaths(pathExpression: String) = pathExpression.split(".")
 
   fun terms(indexedValue: IndexedValue<String>): List<String> {
+    if (indexedValue.value.last() != '}') {
+      throw NotSupportedPathExpression("Graphite requires the character '}', if you want to OR condition expression")
+    }
+
     val result = mutableListOf<String>()
     var termBuilder = StringBuilder()
 
@@ -76,4 +80,6 @@ class IndexBasedElasticsearchQueryOptimizer : ElasticsearchQueryOptimizer {
 
   private fun isPrefixTermQuery(indexedValue: IndexedValue<String>) =
     PathExpressionUtils.isPlainPath(indexedValue.value.substring(0, indexedValue.value.length - 1)) && indexedValue.value.last() == '*'
+
+  class NotSupportedPathExpression(message: String) : RuntimeException(message)
 }

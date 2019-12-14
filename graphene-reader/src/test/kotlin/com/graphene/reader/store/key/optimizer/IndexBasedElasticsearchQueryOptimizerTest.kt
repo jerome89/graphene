@@ -1,15 +1,15 @@
 package com.graphene.reader.store.key.optimizer
 
-import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
 
 internal class IndexBasedElasticsearchQueryOptimizerTest {
 
+  private val optimizer = IndexBasedElasticsearchQueryOptimizer()
+
   @Test
   internal fun `should optimize leaf query with depth`() {
-    // given
-    val optimizer = IndexBasedElasticsearchQueryOptimizer()
-
     // when
     val query = optimizer.optimizeLeafQuery("servers.server1.cpu.usage")
 
@@ -68,9 +68,6 @@ internal class IndexBasedElasticsearchQueryOptimizerTest {
 
   @Test
   internal fun `should optimize branch term query each index`() {
-    // given
-    val optimizer = IndexBasedElasticsearchQueryOptimizer()
-
     // when
     val query = optimizer.optimizeBranchQuery("servers.server1.cpu.usage")
 
@@ -121,9 +118,6 @@ internal class IndexBasedElasticsearchQueryOptimizerTest {
 
   @Test
   internal fun `should optimize excluded specific index which is wildcard path index`() {
-    // given
-    val optimizer = IndexBasedElasticsearchQueryOptimizer()
-
     // when
     val query = optimizer.optimizeBranchQuery("servers.*")
 
@@ -150,9 +144,6 @@ internal class IndexBasedElasticsearchQueryOptimizerTest {
 
   @Test
   internal fun `should optimize prefix term query if have suffix wildcard`() {
-    // given
-    val optimizer = IndexBasedElasticsearchQueryOptimizer()
-
     // when
     val query = optimizer.optimizeBranchQuery("servers.server*")
 
@@ -187,9 +178,6 @@ internal class IndexBasedElasticsearchQueryOptimizerTest {
 
   @Test
   internal fun `should optimize terms query if have or condition`() {
-    // given
-    val optimizer = IndexBasedElasticsearchQueryOptimizer()
-
     // when
     val query = optimizer.optimizeBranchQuery("servers.{server1, server2}.cpu.usage")
 
@@ -241,9 +229,6 @@ internal class IndexBasedElasticsearchQueryOptimizerTest {
 
   @Test
   internal fun `should optimize regex query if have a regex pattern`() {
-    // given
-    val optimizer = IndexBasedElasticsearchQueryOptimizer()
-
     // when
     val query = optimizer.optimizeBranchQuery("servers.{server*}.cpu.usage")
 
@@ -292,5 +277,13 @@ internal class IndexBasedElasticsearchQueryOptimizerTest {
       }
     }"""
     assertEquals(expectedQuery.trimIndent(), query.toString().trimIndent())
+  }
+
+  @Test
+  internal fun `should throw NotSupportedPathExpression if path expression is invalid`() {
+    // when
+    assertThrows<IndexBasedElasticsearchQueryOptimizer.NotSupportedPathExpression> {
+      optimizer.optimizeBranchQuery("servers.{server1, server2.cpu.usage")
+    }
   }
 }
