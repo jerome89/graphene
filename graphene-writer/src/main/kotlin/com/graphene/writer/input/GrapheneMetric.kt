@@ -2,6 +2,7 @@ package com.graphene.writer.input
 
 import com.graphene.reader.utils.MetricRule
 import com.graphene.writer.input.graphite.GraphiteAware
+import java.util.TreeMap
 
 /***
  *
@@ -9,14 +10,26 @@ import com.graphene.writer.input.graphite.GraphiteAware
  * @author dark
  */
 data class GrapheneMetric(
-  val meta: Map<String, String>,
-  internal val tags: Map<String, String>,
-  val value: Double,
-  val timestampSeconds: Long
+  val meta: MutableMap<String, String>,
+  internal var tags: TreeMap<String, String>,
+  internal var metrics: MutableMap<String, Double>,
+  var timestampSeconds: Long
 ) : GraphiteAware {
 
   override fun getTags(): Map<String, String> {
     return this.tags
+  }
+
+  fun putTag(key: String, value: String) {
+    tags[key] = value
+  }
+
+  fun putMetrics(key: String, value: Double) {
+    metrics[key] = value
+  }
+
+  fun putMeta(key: String, value: String) {
+    meta[key] = value
   }
 
   fun getId(): String {

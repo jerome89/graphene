@@ -1,6 +1,7 @@
 package com.graphene.writer.input
 
 import java.util.Collections
+import java.util.TreeMap
 import kotlin.test.assertEquals
 import org.joda.time.DateTimeUtils
 import org.junit.jupiter.api.Test
@@ -12,12 +13,12 @@ internal class GrapheneMetricTest {
     // given
     val grapheneMetric = GrapheneMetric(
       Collections.emptyMap(),
-      mapOf(
+      TreeMap(mapOf(
         Pair("0", "a"),
         Pair("1", "b"),
-        Pair("2", "c")
+        Pair("2", "c"))
       ),
-      1.0,
+      mutableMapOf(Pair("a.b.c", 1.0)),
       DateTimeUtils.currentTimeMillis()
     )
 

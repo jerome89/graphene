@@ -7,5 +7,6 @@ package com.graphene.writer.input
  */
 interface MetricConverter<T> {
 
+  @Throws(UnexpectedConverterException::class)
   fun convert(metric: T): GrapheneMetric
 }

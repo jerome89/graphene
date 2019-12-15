@@ -2,6 +2,7 @@ package com.graphene.writer.input.graphite
 
 import com.graphene.writer.input.GrapheneMetric
 import java.util.Collections
+import java.util.TreeMap
 import kotlin.test.assertEquals
 import org.joda.time.DateTimeUtils
 import org.junit.jupiter.api.Test
@@ -11,7 +12,7 @@ internal class GraphiteMetricConverterTest {
   private val graphiteMetricConverter = GraphiteMetricConverter()
 
   @Test
-  internal fun `should encode to graphene metric`() {
+  internal fun `should convert to graphene metric`() {
     // given
     val key = "a.b.c"
     val value = 1.0
@@ -27,8 +28,8 @@ internal class GraphiteMetricConverterTest {
     // then
     assertEquals(GrapheneMetric(
       Collections.emptyMap(),
-      mapOf(Pair("0", "a"), Pair("1", "b"), Pair("2", "c")),
-      value,
+      TreeMap(mutableMapOf(Pair("0", "a"), Pair("1", "b"), Pair("2", "c"))),
+      mutableMapOf(Pair("a.b.c", 1.0)),
       timestamp
     ), grapheneMetric)
   }
@@ -50,8 +51,8 @@ internal class GraphiteMetricConverterTest {
     // then
     assertEquals(GrapheneMetric(
       Collections.emptyMap(),
-      mapOf(Pair("0", "a"), Pair("1", "b"), Pair("2", "unknown"), Pair("3", "c")),
-      value,
+      TreeMap(mutableMapOf(Pair("0", "a"), Pair("1", "b"), Pair("2", "unknown"), Pair("3", "c"))),
+      mutableMapOf(Pair("a.b.unknown.c", 1.0)),
       timestamp
     ), grapheneMetric)
   }
