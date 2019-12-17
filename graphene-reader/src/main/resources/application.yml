@@ -14,7 +14,22 @@ graphene:
     store:
       key:
         handlers:
-          elasticsearch-key-search-handler:
+          simple-key-search-handler:
+            key-selector:
+              type: "RollingKeySelector"
+              period: "1w"
+            enabled: false
+            tenant: none
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "simple-key-path"
+            type: "path"
+            scroll: 10000
+            timeout: 120000
+            maxPaths: 50000
+          index-based-key-search-handler:
             key-selector:
               type: "RollingKeySelector"
               period: "1w"
@@ -24,7 +39,7 @@ graphene:
             cluster:
               - "127.0.0.1"
             port: 9300
-            index: "simple-key-path"
+            index: "index-based-key-path"
             type: "path"
             scroll: 10000
             timeout: 120000

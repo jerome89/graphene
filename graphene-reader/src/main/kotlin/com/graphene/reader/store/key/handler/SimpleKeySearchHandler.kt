@@ -1,38 +1,33 @@
-package com.graphene.reader.store.key
+package com.graphene.reader.store.key.handler
 
 import com.google.common.base.Joiner
 import com.graphene.common.HierarchyMetricPaths
+import com.graphene.common.utils.PathExpressionUtils
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
-import com.graphene.reader.service.index.ElasticsearchClient
-import com.graphene.reader.service.index.IndexService
-import com.graphene.reader.utils.WildcardUtil
+import com.graphene.reader.service.index.KeySearchHandler
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
 
 /**
  *
  * @author Andrei Ivanov
  * @author dark
  */
-@Component
-@ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.elasticsearch-key-search-handler", name = ["enabled"], havingValue = "true")
-class ElasticsearchKeySearchHandler(
+class SimpleKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient
-) : IndexService {
+) : KeySearchHandler {
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getPaths(tenant: String, wildcards: List<String>, from: Long, to: Long): Set<String> {
+  override fun getPaths(tenant: String, pathExpressions: List<String>, from: Long, to: Long): Set<String> {
     val regExs = mutableListOf<String>()
     val result = mutableSetOf<String>()
 
-    for (wildcard in wildcards) {
-      if (WildcardUtil.isPlainPath(wildcard)) {
+    for (wildcard in pathExpressions) {
+      if (PathExpressionUtils.isPlainPath(wildcard)) {
         result.add(wildcard)
       } else {
-        regExs.add(WildcardUtil.getPathsRegExFromWildcard(wildcard))
+        regExs.add(PathExpressionUtils.getEscapedPathExpression(wildcard))
       }
     }
 
@@ -65,11 +60,11 @@ class ElasticsearchKeySearchHandler(
   }
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getHierarchyMetricPaths(tenant: String, query: String, from: Long, to: Long): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
+  override fun getHierarchyMetricPaths(tenant: String, pathExpression: String, from: Long, to: Long): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
     val hierarchyMetricPaths = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
     try {
       var response = elasticsearchClient.query(
-        QueryBuilders.regexpQuery("path", WildcardUtil.getPathsRegExFromWildcard(query)),
+        QueryBuilders.regexpQuery("path", PathExpressionUtils.getEscapedPathExpression(pathExpression)),
         from,
         to
       )
@@ -98,6 +93,6 @@ class ElasticsearchKeySearchHandler(
   }
 
   companion object {
-    internal val logger = LoggerFactory.getLogger(ElasticsearchKeySearchHandler::class.java)
+    internal val logger = LoggerFactory.getLogger(javaClass)
   }
 }

@@ -1,3 +1,8 @@
+# 1.5.0
+
+## Feature
+- add index-based key search handler & query optimizer for performance [#32] (https://github.com/graphene-monitoring/graphene/pull/32)
+
 # 1.4.0
 
 ## Feature
