@@ -1,5 +1,6 @@
-package com.graphene.reader.service.index.model
+package com.graphene.reader.store.key.handler
 
+import com.graphene.reader.store.key.property.IndexProperty
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import org.apache.http.HttpHost
@@ -50,8 +51,8 @@ class ElasticsearchFactory(
 
   private fun httpHosts(): Array<HttpHost> {
     val httpHosts = mutableListOf<HttpHost>()
-    for (index in indexProperty.cluster.indices) {
-      httpHosts.add(HttpHost(indexProperty.cluster[index], 9200, "http"))
+    for (index in indexProperty.cluster().indices) {
+      httpHosts.add(HttpHost(indexProperty.cluster()[index], 9200, "http"))
     }
     return httpHosts.toTypedArray()
   }

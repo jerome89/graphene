@@ -5,9 +5,8 @@ import com.graphene.reader.controller.graphite.request.MetricsFindRequest
 import com.graphene.reader.controller.graphite.request.RenderRequest
 import com.graphene.reader.handler.RenderHandler
 import com.graphene.reader.handler.RenderParameters
-import com.graphene.reader.store.key.ElasticsearchKeySearchHandler
+import com.graphene.reader.service.index.KeySearchHandler
 import com.graphene.reader.utils.MetricRule
-import org.apache.logging.log4j.LogManager
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
@@ -26,10 +25,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class GraphiteController(
   private val renderHandler: RenderHandler,
-  private val elasticsearchKeySearchHandler: ElasticsearchKeySearchHandler
+  private val keySearchHandler: KeySearchHandler
 ) {
-
-  private val logger = LogManager.getLogger(GraphiteController::class.java)
 
   @PostMapping("/render")
   fun postRender(
@@ -47,8 +44,11 @@ class GraphiteController(
   }
 
   private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
-    val from = metricsFindRequest.from * 1_000
-    val to = metricsFindRequest.until * 1_000
-    return elasticsearchKeySearchHandler.getHierarchyMetricPaths(MetricRule.defaultTenant(), metricsFindRequest.query, from, to)
+    return keySearchHandler.getHierarchyMetricPaths(
+      MetricRule.defaultTenant(),
+      metricsFindRequest.query,
+      metricsFindRequest.fromMillis(),
+      metricsFindRequest.untilMillis()
+    )
   }
 }

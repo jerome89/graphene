@@ -1,13 +1,11 @@
 CREATE KEYSPACE metric WITH replication = {'class': 'NetworkTopologyStrategy', 'ap-northeast-2': '1'} AND durable_writes = true;
 
 CREATE TABLE metric.metric (
-  period int,
-  rollup int,
   tenant text,
   path text,
   time bigint,
-  data list<double>,
-  PRIMARY KEY ((tenant, period, rollup, path), time)
+  data double,
+  PRIMARY KEY ((tenant, path), time)
 ) WITH
   bloom_filter_fp_chance=0.010000 AND
   caching='KEYS_ONLY' AND

@@ -17,10 +17,10 @@ import com.graphene.reader.graphite.evaluation.TargetVisitor;
 import com.graphene.reader.graphite.grammar.GraphiteLexer;
 import com.graphene.reader.graphite.grammar.GraphiteParser;
 import com.graphene.reader.graphite.utils.ValueFormatter;
+import com.graphene.reader.service.index.KeySearchHandler;
 import com.graphene.reader.service.metric.CassandraMetricService;
 import com.graphene.reader.service.stats.StatsService;
 import com.graphene.reader.service.throttling.ThrottlingService;
-import com.graphene.reader.store.key.ElasticsearchKeySearchHandler;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
@@ -52,14 +52,14 @@ public class RenderHandler {
     private TimeLimiter timeLimiter = SimpleTimeLimiter.create(executor);
 
 
-    public RenderHandler(CassandraMetricService cassandraMetricService, ElasticsearchKeySearchHandler elasticsearchKeySearchHandler, StatsService statsService, ThrottlingService throttlingService, ReaderConfiguration readerConfiguration) {
-        this.evaluator = new TargetEvaluator(cassandraMetricService, elasticsearchKeySearchHandler);
+    public RenderHandler(CassandraMetricService cassandraMetricService, KeySearchHandler keySearchHandler, StatsService statsService, ThrottlingService throttlingService, ReaderConfiguration readerConfiguration) {
+        this.evaluator = new TargetEvaluator(cassandraMetricService, keySearchHandler);
         this.statsService = statsService;
         this.throttlingService = throttlingService;
         this.readerConfiguration = readerConfiguration;
     }
 
-    public ResponseEntity<?> handle(RenderParameter parameters) throws ParameterParsingException, ExecutionException, InterruptedException, EvaluationException, LogarithmicScaleNotAllowed {
+    public ResponseEntity<?> handle(RenderParameter parameters) throws ParameterParsingException {
         logger.debug("Redner Got request: " + parameters + " / parameters: " + parameters.toString());
         Stopwatch timer = Stopwatch.createStarted();
 
