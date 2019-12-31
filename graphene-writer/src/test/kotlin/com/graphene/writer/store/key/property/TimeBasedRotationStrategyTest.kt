@@ -18,7 +18,8 @@ internal class TimeBasedRotationStrategyTest {
     table(
       headers("currentTime", "expectedIndexDate"),
       row("2019-10-01 00:00:00", "index_tenant_20191001"),
-      row("2019-10-02 00:00:00", "index_tenant_20191002")
+      row("2019-10-02 00:00:00", "index_tenant_20191002"),
+      row("2019-12-31 00:00:00", "index_tenant_20191231")
     ).forAll { currentTime, expectedIndexDate ->
       // given
       val rotationProperty = RotationProperty(period = "1d")
@@ -43,6 +44,7 @@ internal class TimeBasedRotationStrategyTest {
       row("2019-10-05 00:00:00", "index_tenant_2019-w40"),
       row("2019-10-06 00:00:00", "index_tenant_2019-w40"),
       row("2019-10-07 00:00:00", "index_tenant_2019-w41"),
+      row("2019-12-31 00:00:00", "index_tenant_2020-w01"),
       row("2020-01-01 00:00:00", "index_tenant_2020-w01"),
       row("2020-01-08 00:00:00", "index_tenant_2020-w02")
     ).forAll { currentTime, expectedIndexDate ->
@@ -64,7 +66,8 @@ internal class TimeBasedRotationStrategyTest {
       headers("from", "to", "expectedIndexes"),
       row("2019-10-07 10:00:00", "2019-10-07 11:00:00", setOf("index_tenant_2019-w41")),
       row("2019-10-07 10:00:00", "2019-10-14 11:00:00", setOf("index_tenant_2019-w41", "index_tenant_2019-w42")),
-      row("2019-10-07 10:00:00", "2019-10-21 11:00:00", setOf("index_tenant_2019-w41", "index_tenant_2019-w42", "index_tenant_2019-w43"))
+      row("2019-10-07 10:00:00", "2019-10-21 11:00:00", setOf("index_tenant_2019-w41", "index_tenant_2019-w42", "index_tenant_2019-w43")),
+      row("2019-12-30 10:00:00", "2019-12-31 11:00:00", setOf("index_tenant_2020-w01"))
     ).forAll { from, to, expectedIndexes ->
       // given
       val timeBasedRotationStrategy = TimeBasedRotationStrategy(RotationProperty(period = "1w"))
@@ -81,8 +84,8 @@ internal class TimeBasedRotationStrategyTest {
   internal fun `should calculate weeks between from and until when year is different`() {
     table(
       headers("from", "to", "expectedIndexes"),
-      row("2019-12-23 10:00:00", "2020-01-06 11:00:00", setOf("index_tenant_2019-w52", "index_tenant_2020-w1", "index_tenant_2020-w2")),
-      row("2019-12-30 10:00:00", "2020-01-06 11:00:00", setOf("index_tenant_2020-w1", "index_tenant_2020-w2"))
+      row("2019-12-23 10:00:00", "2020-01-06 11:00:00", setOf("index_tenant_2019-w52", "index_tenant_2020-w01", "index_tenant_2020-w02")),
+      row("2019-12-30 10:00:00", "2020-01-06 11:00:00", setOf("index_tenant_2020-w01", "index_tenant_2020-w02"))
     ).forAll { from, to, expectedIndexes ->
       // given
       val timeBasedRotationStrategy = TimeBasedRotationStrategy(RotationProperty(period = "1w"))
@@ -120,6 +123,7 @@ internal class TimeBasedRotationStrategyTest {
       row(com.graphene.common.utils.DateTimeUtils.from("2019-10-05 00:00:00"), "index_tenant_2019-w40"),
       row(com.graphene.common.utils.DateTimeUtils.from("2019-10-06 00:00:00"), "index_tenant_2019-w40"),
       row(com.graphene.common.utils.DateTimeUtils.from("2019-10-07 00:00:00"), "index_tenant_2019-w41"),
+      row(com.graphene.common.utils.DateTimeUtils.from("2019-12-31 00:00:00"), "index_tenant_2020-w01"),
       row(com.graphene.common.utils.DateTimeUtils.from("2020-01-01 00:00:00"), "index_tenant_2020-w01"),
       row(com.graphene.common.utils.DateTimeUtils.from("2020-01-08 00:00:00"), "index_tenant_2020-w02")
     ).forAll { currentTime, expectedIndexDate ->

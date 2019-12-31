@@ -1,3 +1,27 @@
+# 1.5.0
+
+## Feature
+- add index-based key search handler & query optimizer for performance [#32] (https://github.com/graphene-monitoring/graphene/pull/32)
+
+# 1.4.0
+
+## Feature
+- add KeyCache interface for checking duplication metric key [#25] (https://github.com/graphene-monitoring/graphene/pull/25)
+- add helm charts for support easy installation on k8s [#28] (https://github.com/graphene-monitoring/graphene/pull/28) Contributed by @hwanjin-jeong
+- add nginx docker image for graphene reader's proxy [#27] (https://github.com/graphene-monitoring/graphene/pull/27)
+- add dynamic template to store each key's parts in keyword type [#30] (https://github.com/graphene-monitoring/graphene/pull/30)
+
+## Improvement
+- add bulkAsync feature for indexing performance [#20] (https://github.com/graphene-monitoring/graphene/pull/20)
+- change package name to com.graphene [#31] (https://github.com/graphene-monitoring/graphene/pull/31)
+- bump up dependency version [#29] (https://github.com/graphene-monitoring/graphene/pull/29)
+
+## Bug fix
+- ignore unavailable index when read. [#21] (https://github.com/graphene-monitoring/graphene/pull/21)
+- improve Key Store throughput [#23] (https://github.com/graphene-monitoring/graphene/pull/23)
+- prevent calling clearScroll if there's no scrollId. [#24] (https://github.com/graphene-monitoring/graphene/pull/24)
+- fixed some bugs and removed unnecessary codes and operations. [#26] (https://github.com/graphene-monitoring/graphene/pull/26)
+
 # 1.3.0
 
 ## Feature
