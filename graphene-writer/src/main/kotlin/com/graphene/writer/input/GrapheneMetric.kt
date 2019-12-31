@@ -10,6 +10,7 @@ import java.util.TreeMap
  * @author dark
  */
 data class GrapheneMetric(
+  val source: Source,
   val meta: MutableMap<String, String>,
   internal var tags: TreeMap<String, String>,
   internal var metrics: MutableMap<String, Double>,
@@ -33,7 +34,7 @@ data class GrapheneMetric(
   }
 
   fun getId(): String {
-    return "${meta.getOrDefault(TENANT, MetricRule.defaultTenant())}_${getGraphiteKey()}"
+    return "${getGraphiteKey()}"
   }
 
   fun getTenant(): String {
@@ -47,4 +48,12 @@ data class GrapheneMetric(
   companion object {
     private val TENANT = "@tenant"
   }
+}
+
+enum class Source {
+
+  GRAPHITE,
+
+  INFLUXDB
+
 }

@@ -7,12 +7,11 @@ interface GraphiteAware {
   fun getTags(): Map<String, String>
 
   fun getGraphiteKey(): String {
-    val graphiteKey = StringJoiner(GraphiteMetric.DOT)
+    val graphiteKey = StringJoiner(",")
 
-    IntRange(0, getTags().size - 1)
-      .map { it.toString() }
-      .map { getTags()[it] }
-      .forEach { graphiteKey.add(it) }
+    for (tag in getTags()) {
+      graphiteKey.add("${tag.key}=${tag.value}")
+    }
 
     return graphiteKey.toString()
   }

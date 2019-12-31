@@ -3,6 +3,7 @@ package com.graphene.writer.input.graphite
 import com.graphene.reader.utils.MetricRule
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.input.MetricConverter
+import com.graphene.writer.input.Source
 import java.util.Collections
 import java.util.TreeMap
 
@@ -10,6 +11,7 @@ class GraphiteMetricConverter : MetricConverter<GraphiteMetric> {
 
   override fun convert(metric: GraphiteMetric): GrapheneMetric {
     val grapheneMetric = GrapheneMetric(
+      Source.GRAPHITE,
       Collections.emptyMap(),
       convertTags(metric),
       mutableMapOf(),

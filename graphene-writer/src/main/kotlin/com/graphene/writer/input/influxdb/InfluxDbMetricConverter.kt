@@ -2,6 +2,7 @@ package com.graphene.writer.input.influxdb
 
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.input.MetricConverter
+import com.graphene.writer.input.Source
 import com.graphene.writer.input.UnexpectedConverterException
 import java.util.TreeMap
 import java.util.concurrent.TimeUnit
@@ -23,7 +24,7 @@ class InfluxDbMetricConverter : MetricConverter<String> {
 
       var tmpRegistry = StringBuilder()
       var tmpKey: String? = null
-      val grapheneMetric = GrapheneMetric(mutableMapOf(), TreeMap(), mutableMapOf(), 1L)
+      val grapheneMetric = GrapheneMetric(Source.INFLUXDB, mutableMapOf(), TreeMap(), mutableMapOf(), 1L)
 
       for (index in metric.withIndex()) {
         var char = index.value
