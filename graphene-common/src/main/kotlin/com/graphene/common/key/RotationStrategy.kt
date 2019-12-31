@@ -61,35 +61,43 @@ class TimeBasedRotationStrategy(
     val fromDateTime = DateTime(from)
     val toDateTime = DateTime(to)
 
-    val indexes = mutableSetOf("${index}_${tenant}_${fromDateTime.weekyear}-w${fromDateTime.weekOfWeekyear}", "${index}_${tenant}_${toDateTime.weekyear}-w${toDateTime.weekOfWeekyear}")
+    val indexes = mutableSetOf("${index}_${tenant}_${fromDateTime.weekyear}-w${withZero(fromDateTime.weekOfWeekyear)}", "${index}_${tenant}_${toDateTime.weekyear}-w${withZero(toDateTime.weekOfWeekyear)}")
     if (fromDateTime.weekyear == toDateTime.weekyear) {
       for (week in fromDateTime.weekOfWeekyear..toDateTime.weekOfWeekyear) {
-        indexes.add("${index}_${tenant}_${fromDateTime.weekyear}-w$week")
+        indexes.add("${index}_${tenant}_${fromDateTime.weekyear}-w${withZero(week)}")
       }
     } else {
       for (year in fromDateTime.weekyear..toDateTime.weekyear) {
 
         if (year > fromDateTime.weekyear && year < toDateTime.weekyear) {
           for (week in 1..52) {
-            indexes.add("${index}_${tenant}_$year-w$week")
+            indexes.add("${index}_${tenant}_$year-w${withZero(week)}")
           }
         }
 
         if (year == fromDateTime.weekyear) {
           for (week in fromDateTime.weekOfWeekyear..52) {
-            indexes.add("${index}_${tenant}_$year-w$week")
+            indexes.add("${index}_${tenant}_$year-w${withZero(week)}")
           }
         }
 
         if (year == toDateTime.weekyear) {
           for (week in 1..toDateTime.weekOfWeekyear) {
-            indexes.add("${index}_${tenant}_$year-w$week")
+            indexes.add("${index}_${tenant}_$year-w${withZero(week)}")
           }
         }
       }
     }
 
     return indexes
+  }
+
+  private fun withZero(week: Int): String {
+    return if (week < 10) {
+      "0$week"
+    } else {
+      "$week"
+    }
   }
 
   private var timeUnit = rotationProperty.period.toCharArray()[rotationProperty.period.lastIndex]
