@@ -4,6 +4,7 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
+import org.apache.logging.log4j.LogManager
 import java.util.TreeMap
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
@@ -13,22 +14,8 @@ class TagBasedKeyStoreHandler(
   val property: KeyStoreHandlerProperty
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
-  // TODO
-  /**
-   *
-   * @meta : {
-   *   "type" : InfluxDB,
-   *   "measurement" : cpu
-   * },
-   *
-   * @meta : {
-   *   "type" : Graphite,
-   *   "measurement" : none
-   * }
-   *
-   *
-   *
-   */
+  private val log = LogManager.getLogger(javaClass)
+
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
     grapheneIndexRequests.add(GrapheneIndexRequest("${metric!!.id}", source(metric.tags, metric), metric.timestampMillis()))
@@ -44,6 +31,11 @@ class TagBasedKeyStoreHandler(
       .startObject()
 
     for (tag in grapheneMetric.tags) {
+      if (tag.key == "name") {
+        log.warn("name is specific metric key so this skip! Ignore [${tag.key} = ${tag.value}]!")
+        continue
+      }
+
       source.field(tag.key, tag.value)
     }
 
