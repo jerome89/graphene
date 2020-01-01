@@ -10,13 +10,13 @@ import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.CharsetUtil
+import java.util.Objects
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 import org.apache.logging.log4j.LogManager
 import org.jmxtrans.embedded.QueryResult
 import org.jmxtrans.embedded.output.GraphiteWriter
 import org.springframework.stereotype.Component
-import java.util.Objects
-import javax.annotation.PreDestroy
 
 /**
  * @author Andrei Ivanov
