@@ -30,16 +30,11 @@ class TagBasedKeyStoreHandler(
     val source = XContentFactory.jsonBuilder()
       .startObject()
 
-    for (tag in grapheneMetric.tags) {
-      if (tag.key == "name") {
-        log.warn("name is specific metric key so this skip! Ignore [${tag.key} = ${tag.value}]!")
-        continue
-      }
-
+    for (tag in tags) {
       source.field(tag.key, tag.value)
     }
 
-    source.field("name", grapheneMetric.metricKey())
+    source.field("@name", grapheneMetric.metricKey())
 
     return source.endObject()
   }
