@@ -6,9 +6,9 @@ import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
 import java.util.Collections
 import java.util.Objects
+import java.util.TreeMap
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
-import java.util.TreeMap
 
 /**
  * @author Andrei Ivanov

@@ -4,9 +4,9 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
+import java.util.TreeMap
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
-import java.util.TreeMap
 
 class TagBasedKeyStoreHandler(
   private val elasticsearchClientFactory: ElasticsearchClientFactory,
@@ -52,7 +52,6 @@ class TagBasedKeyStoreHandler(
     return source.endObject()
   }
 
-
   companion object {
     const val TEMPLATE_NAME = "tag-based-key-path-template"
     const val SOURCE = """
@@ -81,5 +80,4 @@ class TagBasedKeyStoreHandler(
       }
     """
   }
-
 }

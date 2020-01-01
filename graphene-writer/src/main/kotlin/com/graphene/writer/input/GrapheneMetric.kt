@@ -41,5 +41,4 @@ enum class Source {
   GRAPHITE_TAG,
 
   INFLUXDB
-
 }
