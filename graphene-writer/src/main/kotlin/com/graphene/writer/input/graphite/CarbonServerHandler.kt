@@ -16,6 +16,7 @@ import org.jmxtrans.embedded.QueryResult
 import org.jmxtrans.embedded.output.GraphiteWriter
 import org.springframework.stereotype.Component
 import java.util.Objects
+import javax.annotation.PreDestroy
 
 /**
  * @author Andrei Ivanov
@@ -61,7 +62,6 @@ class CarbonServerHandler(
           grapheneProcessor.process(grapheneMetric)
 
           if (Objects.nonNull(carbonProperty.route)) {
-            logger.debug("Forward to ")
             graphiteWriter.write(listOf(QueryResult(metric.path, metric.value, metric.timestamp * 1_000L)))
           }
         }
@@ -77,5 +77,10 @@ class CarbonServerHandler(
 
   fun normalizeTimestamp(timestamp: Long): Long {
     return timestamp / rollup.rollup * rollup.rollup
+  }
+
+  @PreDestroy
+  fun destroy() {
+    graphiteWriter.stop()
   }
 }
