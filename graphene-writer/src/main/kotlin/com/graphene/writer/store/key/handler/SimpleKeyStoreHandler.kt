@@ -8,6 +8,7 @@ import java.util.Collections
 import java.util.Objects
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
+import java.util.TreeMap
 
 /**
  * @author Andrei Ivanov
@@ -24,18 +25,19 @@ class SimpleKeyStoreHandler(
     }
 
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
-    val parts = metric!!.getGraphiteKeyParts()
+    val tags = metric!!.tags
     val graphiteKeySb = StringBuilder()
 
-    for (depth in parts.indices) {
+    for (indexedValue in tags.entries.withIndex()) {
+      val depth = indexedValue.index
       if (graphiteKeySb.toString().isNotEmpty()) {
         graphiteKeySb.append(".")
       }
-      graphiteKeySb.append(parts[depth])
+      graphiteKeySb.append(indexedValue.value.value)
       try {
         val graphiteKeyPart = graphiteKeySb.toString()
         val id = "${metric.getTenant()}_$graphiteKeyPart"
-        grapheneIndexRequests.add(GrapheneIndexRequest(id, source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, parts)), metric.timestampMillis()))
+        grapheneIndexRequests.add(GrapheneIndexRequest(id, source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, tags)), metric.timestampMillis()))
       } catch (e: Exception) {
         throw IllegalStateException("Invokes illegal state in map to index requests", e)
       }
@@ -58,7 +60,7 @@ class SimpleKeyStoreHandler(
       .endObject()
   }
 
-  private fun isLeaf(depth: Int, parts: List<String>) = depth == parts.size - 1
+  private fun isLeaf(depth: Int, parts: TreeMap<String, String>) = depth == parts.size - 1
 
   companion object {
     const val TENANT = "tenant"

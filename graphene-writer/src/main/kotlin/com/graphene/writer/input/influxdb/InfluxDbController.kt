@@ -43,7 +43,10 @@ class InfluxDbController(
       }
 
       try {
-        grapheneProcessor.process(influxDbMetricConverter.convert(metric))
+        val grapheneMetrics = influxDbMetricConverter.convert(metric)
+        for (grapheneMetric in grapheneMetrics) {
+          grapheneProcessor.process(grapheneMetric)
+        }
       } catch (e: UnexpectedConverterException) {
         log.warn("Fail to write metric : $metric")
       }

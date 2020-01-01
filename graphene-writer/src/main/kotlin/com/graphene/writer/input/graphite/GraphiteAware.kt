@@ -1,22 +1,18 @@
 package com.graphene.writer.input.graphite
 
 import java.util.StringJoiner
+import java.util.TreeMap
 
 interface GraphiteAware {
 
-  fun getTags(): Map<String, String>
+  fun getGraphiteKey(tags: TreeMap<String, String>): String {
+    val graphiteKey = StringJoiner(GraphiteMetric.DOT)
 
-  fun getGraphiteKey(): String {
-    val graphiteKey = StringJoiner(",")
-
-    for (tag in getTags()) {
-      graphiteKey.add("${tag.key}=${tag.value}")
-    }
+    IntRange(0, tags.size - 1)
+      .map { it.toString() }
+      .map { tags[it] }
+      .forEach { graphiteKey.add(it) }
 
     return graphiteKey.toString()
-  }
-
-  fun getGraphiteKeyParts(): List<String> {
-    return getGraphiteKey().split("\\.".toRegex())
   }
 }

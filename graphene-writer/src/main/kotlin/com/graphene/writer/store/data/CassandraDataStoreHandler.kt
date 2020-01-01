@@ -71,9 +71,9 @@ class CassandraDataStoreHandler(
   private fun boundStatement(grapheneMetric: GrapheneMetric): BoundStatement {
     return statement.bind(
       retention,
-      grapheneMetric.metrics[grapheneMetric.getGraphiteKey()],
+      grapheneMetric.value,
       grapheneMetric.getTenant(),
-      grapheneMetric.getGraphiteKey(),
+      grapheneMetric.id,
       grapheneMetric.timestampSeconds)
   }
 

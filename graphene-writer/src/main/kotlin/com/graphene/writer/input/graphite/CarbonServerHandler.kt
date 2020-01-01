@@ -27,12 +27,12 @@ class CarbonServerHandler(
   private val logger = LogManager.getLogger(CarbonServerHandler::class.java)
 
   private lateinit var rollup: Rollup
-  private lateinit var graphiteCodec: GraphiteMetricConverter
+  private lateinit var graphiteConverter: GraphiteMetricConverter
 
   @PostConstruct
   fun init() {
     this.rollup = carbonProperty.baseRollup!!
-    this.graphiteCodec = GraphiteMetricConverter()
+    this.graphiteConverter = GraphiteMetricConverter()
   }
 
   @Throws(Exception::class)
@@ -46,7 +46,10 @@ class CarbonServerHandler(
       }
 
       if (CharMatcher.ascii().matchesAllOf(metric.path) && CharMatcher.ascii().matchesAllOf(metric.tenant)) {
-        grapheneProcessor.process(graphiteCodec.convert(GraphiteMetric(metric.path, metric.value, normalizeTimestamp(metric.timestamp))))
+        val grapheneMetrics = graphiteConverter.convert(GraphiteMetric(metric.path, metric.value, normalizeTimestamp(metric.timestamp)))
+        for (grapheneMetric in grapheneMetrics) {
+          grapheneProcessor.process(grapheneMetric)
+        }
       } else {
         logger.warn("Non ASCII characters received, discarding: $metric")
       }

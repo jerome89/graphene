@@ -31,10 +31,7 @@ class TagBasedKeyStoreHandler(
    */
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
-    for (metricEntry in metric!!.metrics) {
-      grapheneIndexRequests.add(GrapheneIndexRequest("${metricEntry.key};${metric.getId()}", source(metric.tags, metricEntry), metric.timestampMillis()))
-    }
-
+    grapheneIndexRequests.add(GrapheneIndexRequest("${metric!!.id}", source(metric.tags, metric), metric.timestampMillis()))
     return grapheneIndexRequests
   }
 
@@ -42,16 +39,15 @@ class TagBasedKeyStoreHandler(
 
   override fun templateName(): String = TEMPLATE_NAME
 
-  private fun source(tags: TreeMap<String, String>, metricEntry: MutableMap.MutableEntry<String, Double>): XContentBuilder {
+  private fun source(tags: TreeMap<String, String>, grapheneMetric: GrapheneMetric): XContentBuilder {
     val source = XContentFactory.jsonBuilder()
       .startObject()
 
-    val tags = tags.entries
-    for (tag in tags) {
+    for (tag in grapheneMetric.tags) {
       source.field(tag.key, tag.value)
     }
 
-    source.field("metric", metricEntry.key)
+    source.field("name", grapheneMetric.metricKey())
 
     return source.endObject()
   }

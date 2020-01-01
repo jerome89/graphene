@@ -1,7 +1,6 @@
 package com.graphene.writer.input
 
 import com.graphene.reader.utils.MetricRule
-import com.graphene.writer.input.graphite.GraphiteAware
 import java.util.TreeMap
 
 /***
@@ -11,30 +10,15 @@ import java.util.TreeMap
  */
 data class GrapheneMetric(
   val source: Source,
+  val id: String? = null,
   val meta: MutableMap<String, String>,
-  internal var tags: TreeMap<String, String>,
-  internal var metrics: MutableMap<String, Double>,
+  var tags: TreeMap<String, String>,
+  var value: Double,
   var timestampSeconds: Long
-) : GraphiteAware {
+) {
 
-  override fun getTags(): Map<String, String> {
-    return this.tags
-  }
-
-  fun putTag(key: String, value: String) {
-    tags[key] = value
-  }
-
-  fun putMetrics(key: String, value: Double) {
-    metrics[key] = value
-  }
-
-  fun putMeta(key: String, value: String) {
-    meta[key] = value
-  }
-
-  fun getId(): String {
-    return "${getGraphiteKey()}"
+  fun metricKey(): String {
+    return id!!.split(";")[0]
   }
 
   fun getTenant(): String {
@@ -53,6 +37,8 @@ data class GrapheneMetric(
 enum class Source {
 
   GRAPHITE,
+
+  GRAPHITE_TAG,
 
   INFLUXDB
 

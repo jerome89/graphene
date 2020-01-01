@@ -12,20 +12,22 @@ internal class GrapheneMetricTest {
   internal fun `should return graphite key joined with dot ordered by numeric`() {
     // given
     val grapheneMetric = GrapheneMetric(
+      Source.GRAPHITE,
+      "a.b.c",
       Collections.emptyMap(),
       TreeMap(mapOf(
         Pair("0", "a"),
         Pair("1", "b"),
         Pair("2", "c"))
       ),
-      mutableMapOf(Pair("a.b.c", 1.0)),
+      1.0,
       DateTimeUtils.currentTimeMillis()
     )
 
     // when
-    val graphiteKey = grapheneMetric.getGraphiteKey()
+    val id = grapheneMetric.id
 
     // then
-    assertEquals(graphiteKey, "a.b.c")
+    assertEquals(id, "a.b.c")
   }
 }

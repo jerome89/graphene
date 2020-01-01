@@ -1,6 +1,7 @@
 package com.graphene.writer.input.graphite
 
 import com.graphene.writer.input.GrapheneMetric
+import com.graphene.writer.input.Source
 import java.util.Collections
 import java.util.TreeMap
 import kotlin.test.assertEquals
@@ -23,13 +24,15 @@ internal class GraphiteMetricConverterTest {
       key,
       value,
       timestamp
-    ))
+    ))[0]
 
     // then
     assertEquals(GrapheneMetric(
+      Source.GRAPHITE,
+      "a.b.c",
       Collections.emptyMap(),
       TreeMap(mutableMapOf(Pair("0", "a"), Pair("1", "b"), Pair("2", "c"))),
-      mutableMapOf(Pair("a.b.c", 1.0)),
+      1.0,
       timestamp
     ), grapheneMetric)
   }
@@ -46,13 +49,15 @@ internal class GraphiteMetricConverterTest {
       key,
       value,
       timestamp
-    ))
+    ))[0]
 
     // then
     assertEquals(GrapheneMetric(
+      Source.GRAPHITE,
+      "a.b.unknown.c",
       Collections.emptyMap(),
       TreeMap(mutableMapOf(Pair("0", "a"), Pair("1", "b"), Pair("2", "unknown"), Pair("3", "c"))),
-      mutableMapOf(Pair("a.b.unknown.c", 1.0)),
+      1.0,
       timestamp
     ), grapheneMetric)
   }

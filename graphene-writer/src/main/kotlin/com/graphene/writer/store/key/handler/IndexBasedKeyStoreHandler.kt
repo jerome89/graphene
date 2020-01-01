@@ -18,7 +18,7 @@ class IndexBasedKeyStoreHandler(
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
-    return mutableListOf(GrapheneIndexRequest(metric!!.getId(), source(metric), metric.timestampMillis()))
+    return mutableListOf(GrapheneIndexRequest(metric!!.id!!, source(metric), metric.timestampMillis()))
   }
 
   override fun templateSource(): String = SOURCE
@@ -26,15 +26,15 @@ class IndexBasedKeyStoreHandler(
   override fun templateName(): String = TEMPLATE_NAME
 
   private fun source(metric: GrapheneMetric): XContentBuilder {
-    val graphiteKeyParts = metric.getGraphiteKeyParts()
+    val tags = metric.tags
 
     val source = XContentFactory.jsonBuilder()
       .startObject()
-      .field(DEPTH, graphiteKeyParts.size)
+      .field(DEPTH, tags.size)
       .field(LEAF, true)
 
-    for (index in graphiteKeyParts.indices) {
-      source.field(index.toString(), graphiteKeyParts[index])
+    for (tag in tags) {
+      source.field(tag.key, tag.value)
     }
 
     return source.endObject()

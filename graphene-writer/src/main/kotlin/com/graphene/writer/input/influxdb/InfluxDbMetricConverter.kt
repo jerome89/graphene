@@ -2,6 +2,7 @@ package com.graphene.writer.input.influxdb
 
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.input.MetricConverter
+import com.graphene.writer.input.NotFinishedConvertException
 import com.graphene.writer.input.Source
 import com.graphene.writer.input.UnexpectedConverterException
 import java.util.TreeMap
@@ -18,13 +19,16 @@ import java.util.concurrent.TimeUnit
  */
 class InfluxDbMetricConverter : MetricConverter<String> {
 
-  override fun convert(metric: String): GrapheneMetric {
+  override fun convert(metric: String): List<GrapheneMetric> {
     try {
       var stage = ConvertStage.MEASUREMENT
 
       var tmpRegistry = StringBuilder()
       var tmpKey: String? = null
-      val grapheneMetric = GrapheneMetric(Source.INFLUXDB, mutableMapOf(), TreeMap(), mutableMapOf(), 1L)
+      val grapheneMetrics = mutableListOf<GrapheneMetric>()
+
+      var meta: MutableMap<String, String> = mutableMapOf()
+      var tags: TreeMap<String, String> = TreeMap()
 
       for (index in metric.withIndex()) {
         var char = index.value
@@ -32,7 +36,7 @@ class InfluxDbMetricConverter : MetricConverter<String> {
         when (stage) {
           ConvertStage.MEASUREMENT -> {
             if (char == ',') {
-              grapheneMetric.putMeta("@measurement", tmpRegistry.toString())
+              meta["@measurement"] = tmpRegistry.toString()
               tmpRegistry.clear()
               stage = ConvertStage.TAG_KEY
             }
@@ -46,14 +50,14 @@ class InfluxDbMetricConverter : MetricConverter<String> {
           }
           ConvertStage.TAG_VALUE -> {
             if (char == ',') {
-              grapheneMetric.putTag(tmpKey!!, tmpRegistry.toString())
+              tags[tmpKey!!] = tmpRegistry.toString()
               tmpKey = null
               tmpRegistry.clear()
               stage = ConvertStage.TAG_KEY
             }
 
             if (char == ' ') {
-              grapheneMetric.putTag(tmpKey!!, tmpRegistry.toString())
+              tags[tmpKey!!] = tmpRegistry.toString()
               tmpKey = null
               tmpRegistry.clear()
               stage = ConvertStage.FIELD_KEY
@@ -68,22 +72,35 @@ class InfluxDbMetricConverter : MetricConverter<String> {
           }
           ConvertStage.FIELD_VALUE -> {
             if (char == ',') {
-              grapheneMetric.putMetrics(tmpKey!!, toDouble(tmpRegistry))
+              var id = "${meta["@measurement"]}.$tmpKey;"
+
+              for (tag in tags) {
+                id += withAndOperator(tag, tags)
+              }
+              grapheneMetrics.add(GrapheneMetric(Source.INFLUXDB, id, meta, tags, toDouble(tmpRegistry), 1L))
               tmpKey = null
               tmpRegistry.clear()
               stage = ConvertStage.FIELD_KEY
             }
 
             if (char == ' ') {
-              grapheneMetric.putMetrics(tmpKey!!, toDouble(tmpRegistry))
+              var id = "${meta["@measurement"]}.$tmpKey;"
+
+              for (tag in tags) {
+                id += withAndOperator(tag, tags)
+              }
+              grapheneMetrics.add(GrapheneMetric(Source.INFLUXDB, id, meta, tags, toDouble(tmpRegistry), 1L))
               tmpKey = null
               tmpRegistry.clear()
               stage = ConvertStage.TIMESTAMP
             }
           }
           ConvertStage.TIMESTAMP -> {
-            grapheneMetric.timestampSeconds = TimeUnit.NANOSECONDS.toSeconds(metric.substring(index.index).toLong())
-            return grapheneMetric
+            val timestampSecond = TimeUnit.NANOSECONDS.toSeconds(metric.substring(index.index).toLong())
+            for (grapheneMetric in grapheneMetrics) {
+              grapheneMetric.timestampSeconds = timestampSecond
+            }
+            return grapheneMetrics
           }
         }
 
@@ -92,9 +109,17 @@ class InfluxDbMetricConverter : MetricConverter<String> {
         }
       }
 
-      return grapheneMetric
+      throw NotFinishedConvertException("Fail to convert InfluxDB metric")
     } catch (e: Exception) {
       throw UnexpectedConverterException("Fail to convert InfluxDB metric", e)
+    }
+  }
+
+  private fun withAndOperator(tag: MutableMap.MutableEntry<String, String>, tags: TreeMap<String, String>): String {
+    return if (tag.key == tags.lastKey()) {
+      "${tag.key}=${tag.value}"
+    } else {
+      "${tag.key}=${tag.value}&"
     }
   }
 
