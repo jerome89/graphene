@@ -2,7 +2,7 @@ package com.graphene.writer.store.key
 
 import com.graphene.common.key.RotationProperty
 import com.graphene.common.rule.GrapheneRules
-import com.graphene.writer.exception.Exceptions
+import com.graphene.writer.error.Errors
 import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.StoreHandler
 import com.graphene.writer.store.key.handler.IndexBasedKeyStoreHandler
@@ -33,7 +33,7 @@ class StoreHandlerFactory(
         "SimpleKeyStoreHandler" -> keyStoreHandlers.add(createSimpleKeyStoreHandler(handler.key, handler.value))
         "IndexBasedKeyStoreHandler" -> keyStoreHandlers.add(createIndexBasedKeyStoreHandler(handler.key, handler.value))
         "TagBasedKeyStoreHandler" -> keyStoreHandlers.add(createTagBasedKeyStoreHandler(handler.key, handler.value))
-        else -> throw Exceptions.unsupportedKeyStoreHandlerException("$storeHandlerType is not supported!")
+        else -> throw Errors.UNSUPPORTED_KEY_STORE_HANDLER_EXCEPTION.exception("$storeHandlerType is not supported!")
       }
     }
 
