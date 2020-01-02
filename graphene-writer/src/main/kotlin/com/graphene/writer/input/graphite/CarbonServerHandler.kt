@@ -10,8 +10,12 @@ import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.CharsetUtil
+import java.util.Objects
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 import org.apache.logging.log4j.LogManager
+import org.jmxtrans.embedded.QueryResult
+import org.jmxtrans.embedded.output.GraphiteWriter
 import org.springframework.stereotype.Component
 
 /**
@@ -28,11 +32,18 @@ class CarbonServerHandler(
 
   private lateinit var rollup: Rollup
   private lateinit var graphiteConverter: GraphiteMetricConverter
+  private lateinit var graphiteWriter: GraphiteWriter
 
   @PostConstruct
   fun init() {
     this.rollup = carbonProperty.baseRollup!!
     this.graphiteConverter = GraphiteMetricConverter()
+    if (Objects.nonNull(carbonProperty.route)) {
+      this.graphiteWriter = GraphiteWriter()
+      this.graphiteWriter.settings["host"] = carbonProperty.route!!.host
+      this.graphiteWriter.settings["port"] = carbonProperty.route!!.port
+      this.graphiteWriter.start()
+    }
   }
 
   @Throws(Exception::class)
@@ -49,6 +60,10 @@ class CarbonServerHandler(
         val grapheneMetrics = graphiteConverter.convert(GraphiteMetric(metric.path, metric.value, normalizeTimestamp(metric.timestamp)))
         for (grapheneMetric in grapheneMetrics) {
           grapheneProcessor.process(grapheneMetric)
+
+          if (Objects.nonNull(carbonProperty.route)) {
+            graphiteWriter.write(listOf(QueryResult(metric.path, metric.value, metric.timestamp * 1_000L)))
+          }
         }
       } else {
         logger.warn("Non ASCII characters received, discarding: $metric")
@@ -62,5 +77,10 @@ class CarbonServerHandler(
 
   fun normalizeTimestamp(timestamp: Long): Long {
     return timestamp / rollup.rollup * rollup.rollup
+  }
+
+  @PreDestroy
+  fun destroy() {
+    graphiteWriter.stop()
   }
 }

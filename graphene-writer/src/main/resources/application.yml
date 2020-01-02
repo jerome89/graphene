@@ -16,6 +16,9 @@ graphene:
         port: 2003
         rollups:
           - 60s:5356800s
+        route:
+          host: 127.0.0.1
+          port: 2003
     store:
       key:
         handlers:
