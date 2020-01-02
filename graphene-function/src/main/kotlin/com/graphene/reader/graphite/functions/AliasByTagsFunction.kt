@@ -11,13 +11,13 @@ import java.util.Optional
 import kotlin.collections.ArrayList
 
 /**
- * @author Andrei Ivanov
+ * @author jerome89
  */
 class AliasByTagsFunction(text: String?) : GrapheneFunction(text, "aliasByTags") {
   @Throws(EvaluationException::class)
   override fun evaluate(evaluator: TargetEvaluator): List<TimeSeries> {
     val processedArguments: List<TimeSeries> = ArrayList(evaluator.eval(arguments[0] as Target))
-    if (processedArguments.size == 0) return ArrayList()
+    if (processedArguments.isEmpty()) return ArrayList()
     val tagKeys: MutableList<String> = Lists.newArrayList()
     for (i in 1 until arguments.size) {
       tagKeys.add(arguments[i] as String)

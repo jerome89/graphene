@@ -8,7 +8,7 @@ import com.graphene.reader.graphite.evaluation.TargetEvaluator
 import java.util.Optional
 
 /**
- * @author Andrei Ivanov
+ * @author jerome89
  */
 class SeriesByTagFunction(text: String?) : GrapheneFunction(text, "seriesByTag") {
   @Throws(EvaluationException::class)

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.graphene.reader.beans.TimeSeries;
+import com.graphene.reader.exceptions.EvaluationException;
 import com.graphene.reader.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class Grouper {
       this.to = to;
     }
 
-    public List<TimeSeries> byTagKeys(List<String> groupTagKeys) {
+    public List<TimeSeries> byTagKeys(List<String> groupTagKeys) throws EvaluationException {
       Map<String, List<TimeSeries>> buckets = Maps.newHashMap();
 
       for (TimeSeries ts : timeSeries) {
@@ -81,12 +82,12 @@ public class Grouper {
       return reduceFromBucket(buckets);
     }
 
-    public List<TimeSeries> byNodesIndex(int[] indexes) {
+    public List<TimeSeries> byNodesIndex(int[] indexes) throws EvaluationException {
         Map<String, List<TimeSeries>> buckets = new HashMap<>();
 
         for (TimeSeries ts : timeSeries) {
             String bucketName = getBucketName(ts.getName(), indexes);
-            if (!buckets.containsKey(bucketName)) buckets.put(bucketName, new ArrayList<TimeSeries>());
+            if (!buckets.containsKey(bucketName)) buckets.put(bucketName, new ArrayList<>());
             buckets.get(bucketName).add(ts);
         }
         return reduceFromBucket(buckets);
@@ -109,32 +110,34 @@ public class Grouper {
         return Joiner.on(".").skipNulls().join(parts);
     }
 
-    private List<TimeSeries> reduceFromBucket(Map<String, List<TimeSeries>> buckets) {
+    private List<TimeSeries> reduceFromBucket(Map<String, List<TimeSeries>> buckets) throws EvaluationException {
       long from = this.from;
       long to = this.to;
       int step = timeSeries.get(0).getStep();
       int length = timeSeries.get(0).getValues().length;
 
       List<TimeSeries> resultTimeSeries = new ArrayList<>();
+      try {
+        for (Map.Entry<String, List<TimeSeries>> bucket : buckets.entrySet()) {
+          TimeSeries timeSeries = new TimeSeries(bucket.getKey(), from, to, step);
+          Double[] values = new Double[length];
 
-      for (Map.Entry<String, List<TimeSeries>> bucket : buckets.entrySet()) {
-        TimeSeries timeSeries = new TimeSeries(bucket.getKey(), from, to, step);
-        Double[] values = new Double[length];
-
-        for (int i = 0; i < length; i++) {
-          List<Double> points = new ArrayList<>();
-          for (TimeSeries ts : bucket.getValue()) {
-            points.add(ts.getValues()[i]);
+          for (int i = 0; i < length; i++) {
+            List<Double> points = new ArrayList<>();
+            for (TimeSeries ts : bucket.getValue()) {
+              points.add(ts.getValues()[i]);
+            }
+            values[i] = aggregationMap.get(aggregator).apply(points);
           }
-          values[i] = aggregationMap.get(aggregator).apply(points);
+          timeSeries.setValues(values);
+          timeSeries.setName(bucket.getKey());
+          timeSeries.setPathExpression(bucket.getKey());
+          timeSeries.setTags(bucket.getValue().get(0).getTags());
+          resultTimeSeries.add(timeSeries);
         }
-        timeSeries.setValues(values);
-        timeSeries.setName(bucket.getKey());
-        timeSeries.setPathExpression(bucket.getKey());
-        timeSeries.setTags(bucket.getValue().get(0).getTags());
-        resultTimeSeries.add(timeSeries);
+        return resultTimeSeries;
+      } catch (Exception e) {
+        throw new EvaluationException("Cannot reduce series with aggregator = " + aggregator);
       }
-
-      return resultTimeSeries;
     }
 }

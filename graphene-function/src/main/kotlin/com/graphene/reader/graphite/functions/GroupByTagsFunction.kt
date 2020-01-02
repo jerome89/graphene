@@ -9,11 +9,14 @@ import com.graphene.reader.graphite.evaluation.TargetEvaluator
 import com.graphene.reader.utils.Grouper
 import java.util.Optional
 
+/**
+ * @author jerome89
+ */
 class GroupByTagsFunction(text: String?) : GrapheneFunction(text, "groupByTags") {
   @Throws(EvaluationException::class)
   override fun evaluate(evaluator: TargetEvaluator): List<TimeSeries> {
     val processedArguments: List<TimeSeries> = ArrayList(evaluator.eval(arguments[0] as Target))
-    if (processedArguments.size == 0) return ArrayList()
+    if (processedArguments.isEmpty()) return ArrayList()
     val callbackName = arguments[1] as String
     val tagKeys: MutableList<String> = Lists.newArrayList()
     for (i in 2 until arguments.size) {
