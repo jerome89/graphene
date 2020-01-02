@@ -29,7 +29,7 @@ services:
       - 9000:9000
     container_name: cerebro
   graphene-reader:
-    image: dark0096/graphene-reader:1.3.0
+    image: dark0096/graphene-reader:1.4.0
     links:
       - cassandra:cassandra
       - elasticsearch:elasticsearch
@@ -42,7 +42,7 @@ services:
       - 8080:8080
     container_name: graphene-reader
   graphene-writer:
-    image: dark0096/graphene-writer:1.3.0
+    image: dark0096/graphene-writer:1.4.0
     links:
       - cassandra:cassandra
       - elasticsearch:elasticsearch
