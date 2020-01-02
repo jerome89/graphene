@@ -16,6 +16,11 @@ graphene:
         port: 2003
         rollups:
           - 60s:5356800s
+        {{if exists "/input/route/host"}}
+        route:
+          host: "{{getv "/input/route/host" "127.0.0.1"}}"
+          port: "{{getv "/input/route/port" "2003"}}"
+        {{end}}
     store:
       key:
         handlers:
