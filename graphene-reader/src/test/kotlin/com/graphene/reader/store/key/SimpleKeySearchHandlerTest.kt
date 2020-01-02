@@ -1,7 +1,9 @@
 package com.graphene.reader.store.key
 
+import com.graphene.common.beans.Path
 import com.graphene.reader.store.key.handler.ElasticsearchClient
 import com.graphene.reader.store.key.handler.SimpleKeySearchHandler
+import com.graphene.reader.store.tag.optimizer.ElasticsearchIntegratedTagSearchQueryOptimizer
 import com.graphene.reader.utils.ElasticsearchTestUtils
 import io.mockk.every
 import io.mockk.mockk
@@ -18,7 +20,7 @@ internal class SimpleKeySearchHandlerTest {
 
   @BeforeEach
   internal fun setUp() {
-    simpleKeySearchHandler = SimpleKeySearchHandler(elasticsearchClient)
+    simpleKeySearchHandler = SimpleKeySearchHandler(elasticsearchClient, ElasticsearchIntegratedTagSearchQueryOptimizer())
   }
 
   @Test
@@ -60,7 +62,7 @@ internal class SimpleKeySearchHandlerTest {
 
     // then
     assertEquals(1, paths.size)
-    assertTrue(paths.contains("servers.server1.cpu.usage"))
+    assertTrue(paths.contains(Path("servers.server1.cpu.usage")))
   }
 
   @Test
@@ -86,6 +88,6 @@ internal class SimpleKeySearchHandlerTest {
 
     // then
     assertEquals(1, paths.size)
-    assertTrue(paths.contains("servers.server1.cpu.usage"))
+    assertTrue(paths.contains(Path("servers.server1.cpu.usage")))
   }
 }

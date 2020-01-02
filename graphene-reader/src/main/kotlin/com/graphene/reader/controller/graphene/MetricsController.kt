@@ -1,5 +1,6 @@
 package com.graphene.reader.controller.graphene
 
+import com.graphene.common.beans.Path
 import com.graphene.reader.service.metric.CassandraMetricService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -15,7 +16,7 @@ class MetricsController(
   @GetMapping("/metrics")
   fun getMetrics(
     @RequestParam(required = false) tenant: String,
-    @RequestParam path: List<String>,
+    @RequestParam path: List<Path>,
     @RequestParam from: Long,
     @RequestParam to: Long
   ): String? {
@@ -29,7 +30,7 @@ class MetricsController(
 
   data class MetricsParameters(
     var tenant: String?,
-    var path: List<String>,
+    var path: List<Path>,
     var from: Long,
     var to: Long
   )

@@ -8,6 +8,7 @@ import com.graphene.reader.store.key.optimizer.ElasticsearchQueryOptimizer
 import com.graphene.reader.store.key.property.IndexBasedKeySearchHandlerProperty
 import com.graphene.reader.store.key.property.IndexProperty
 import com.graphene.reader.store.key.property.SimpleKeySearchHandlerProperty
+import com.graphene.reader.store.tag.optimizer.ElasticsearchTagSearchQueryOptimizer
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -25,8 +26,8 @@ class KeySearchHandlerConfig {
 
   @Bean
   @ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.index-based-key-search-handler", value = ["enabled"], havingValue = "true")
-  fun indexBasedKeySearchHandler(elasticsearchClient: ElasticsearchClient, elasticsearchQueryOptimizer: ElasticsearchQueryOptimizer): KeySearchHandler {
-    return IndexBasedKeySearchHandler(elasticsearchClient, elasticsearchQueryOptimizer)
+  fun indexBasedKeySearchHandler(elasticsearchClient: ElasticsearchClient, elasticsearchQueryOptimizer: ElasticsearchQueryOptimizer, elasticsearchTagSearchQueryOptimizer: ElasticsearchTagSearchQueryOptimizer): KeySearchHandler {
+    return IndexBasedKeySearchHandler(elasticsearchClient, elasticsearchQueryOptimizer, elasticsearchTagSearchQueryOptimizer)
   }
 
   @Bean
@@ -38,7 +39,7 @@ class KeySearchHandlerConfig {
 
   @Bean
   @ConditionalOnProperty(prefix = "graphene.reader.store.key.handlers.simple-key-search-handler", value = ["enabled"], havingValue = "true")
-  fun simpleKeySearchHandler(elasticsearchClient: ElasticsearchClient): KeySearchHandler {
-    return SimpleKeySearchHandler(elasticsearchClient)
+  fun simpleKeySearchHandler(elasticsearchClient: ElasticsearchClient, elasticsearchTagSearchQueryOptimizer: ElasticsearchTagSearchQueryOptimizer): KeySearchHandler {
+    return SimpleKeySearchHandler(elasticsearchClient, elasticsearchTagSearchQueryOptimizer)
   }
 }
