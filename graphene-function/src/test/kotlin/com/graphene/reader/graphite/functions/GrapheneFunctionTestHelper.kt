@@ -1,5 +1,6 @@
 package com.graphene.reader.graphite.functions
 
+import com.graphene.common.beans.Path
 import com.graphene.common.utils.DateTimeUtils
 import com.graphene.reader.beans.TimeSeries
 import com.graphene.reader.graphite.PathTarget
@@ -51,9 +52,9 @@ abstract class GrapheneFunctionTestHelper {
   }
 
   private fun setUpTimeSeriesKeys(timeSeriesList: List<TimeSeries>) {
-    val timeSeriesKeys = mutableSetOf<String>()
+    val timeSeriesKeys = mutableListOf<Path>()
     for (timeSeries in timeSeriesList) {
-      timeSeriesKeys.add(timeSeries.name)
+      timeSeriesKeys.add(Path(timeSeries.name))
     }
 
     every {

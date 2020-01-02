@@ -103,6 +103,18 @@ public class CollectionUtils {
         return result;
     }
 
+    public static Double div(List<Double> values) {
+        if (values.size() != 2) {
+           return null;
+        }
+        Double dividend = values.get(0);
+        Double divisor = values.get(1);
+        if (null == dividend || null == divisor || divisor == 0L) {
+           return null;
+        }
+        return dividend / divisor;
+    }
+
     public static Double last(Collection<Double> values) {
         List<Double> filteredValues = filterNulls(values);
 

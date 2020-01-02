@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.gson.Gson;
+import com.graphene.common.beans.Path;
 import com.graphene.reader.beans.TimeSeries;
 import com.graphene.reader.config.GrapheneReaderProperties;
 import com.graphene.reader.config.Rollup;
@@ -48,7 +49,7 @@ public class CassandraMetricService implements MetricService {
     }
 
     @Override
-    public String getMetricsAsJson(String tenant, List<String> paths, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
+    public String getMetricsAsJson(String tenant, List<Path> paths, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
         // Calculate rollup etc
         Long now = System.currentTimeMillis() * 1000;
         Long effectiveTo = Math.min(to, now);
@@ -74,20 +75,18 @@ public class CassandraMetricService implements MetricService {
 
         // Now let's query C*
         List<ListenableFuture<SinglePathResult>> futures = Lists.newArrayListWithExpectedSize(paths.size());
-        for (final String path : paths) {
+        for (final Path path : paths) {
             Function<ResultSet, SinglePathResult> serializeFunction =
-                    new Function<ResultSet, SinglePathResult>() {
-                        public SinglePathResult apply(ResultSet resultSet) {
-                            SinglePathResult result = new SinglePathResult(path);
-                            result.makeJson(resultSet, length, timestampIndices);
-                            return result;
-                        }
-                    };
+              resultSet -> {
+                  SinglePathResult result = new SinglePathResult(path);
+                  result.makeJson(resultSet, length, timestampIndices);
+                  return result;
+              };
 
 
             futures.add(
                     Futures.transform(
-                            cassandraService.executeAsync(tenant, path, effectiveFrom, effectiveTo),
+                            cassandraService.executeAsync(tenant, path.getPath(), effectiveFrom, effectiveTo),
                             serializeFunction,
                             executorService
                     )
@@ -113,7 +112,7 @@ public class CassandraMetricService implements MetricService {
     }
 
     @Override
-    public List<TimeSeries> getMetricsAsList(String tenant, Set<String> paths, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
+    public List<TimeSeries> getMetricsAsList(String tenant, List<Path> paths, long from, long to) throws ExecutionException, InterruptedException, TooMuchDataExpectedException {
 
         statsService.incRenderPathsRead(tenant, paths.size());
 
@@ -147,20 +146,18 @@ public class CassandraMetricService implements MetricService {
 
         // Now let's query C*
         List<ListenableFuture<SinglePathResult>> futures = Lists.newArrayListWithExpectedSize(paths.size());
-        for (final String path : paths) {
+        for (final Path path : paths) {
             Function<ResultSet, SinglePathResult> serializeFunction =
-                    new Function<ResultSet, SinglePathResult>() {
-                        public SinglePathResult apply(ResultSet resultSet) {
-                            SinglePathResult result = new SinglePathResult(path);
-                            result.makeArray(resultSet, length, timestampIndices);
-                            return result;
-                        }
-                    };
+              resultSet -> {
+                  SinglePathResult result = new SinglePathResult(path);
+                  result.makeArray(resultSet, length, timestampIndices);
+                  return result;
+              };
 
 
             futures.add(
                     Futures.transform(
-                            cassandraService.executeAsync(tenant, path, effectiveFrom, effectiveTo),
+                            cassandraService.executeAsync(tenant, path.getPath(), effectiveFrom, effectiveTo),
                             serializeFunction,
                             executorService
                     )
@@ -178,6 +175,7 @@ public class CassandraMetricService implements MetricService {
             if (singlePathResult.getValues() != null) {
                 TimeSeries ts = new TimeSeries(singlePathResult.getPath(), effectiveFrom, effectiveTo, bestRollup.getRollup());
                 ts.setValues(singlePathResult.getValues());
+                ts.setTags(singlePathResult.getTags());
                 timeSeries.add(ts);
             }
         }
@@ -187,13 +185,7 @@ public class CassandraMetricService implements MetricService {
         logger.debug("Fetching from Cassandra took " + timer.elapsed(TimeUnit.MILLISECONDS) + " milliseconds (" + paths + ")");
 
         // sort it by path
-        Collections.sort(timeSeries, new Comparator<TimeSeries>() {
-            @Override
-            public int compare(TimeSeries ts1, TimeSeries ts2) {
-                return ts1.getName().compareTo(ts2.getName());
-            }
-        });
-
+        timeSeries.sort(Comparator.comparing(TimeSeries::getName));
         int totalPoints = 0;
 
         for (TimeSeries ts : timeSeries) {
@@ -228,11 +220,17 @@ public class CassandraMetricService implements MetricService {
     private static class SinglePathResult {
         String path;
         String json;
+        Map<String, String> tags;
         Double[] values = null;
         boolean allNulls = true;
 
-        private SinglePathResult(String path) {
-            this.path = path;
+        private SinglePathResult(Path path) {
+            this.path = path.getPath();
+            this.tags = path.getTags();
+        }
+
+        public Map<String, String> getTags() {
+          return tags;
         }
 
         public String getPath() {

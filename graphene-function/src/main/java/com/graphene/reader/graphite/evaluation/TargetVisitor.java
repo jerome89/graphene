@@ -36,7 +36,7 @@ public class TargetVisitor extends GraphiteBaseVisitor<Target> {
     public Target visitExpressionCall(GraphiteParser.ExpressionCallContext ctx) {
         GraphiteParser.CallContext call = ctx.call();
         try {
-            GrapheneFunction function = FunctionRegistry.getFunction(context, call.FunctionName().getText(), from, to);
+            GrapheneFunction function = FunctionRegistry.getFunction(context, call.FunctionName().getText(), tenant, from, to);
             function.setText(ctx.getText());
 
             for(GraphiteParser.ArgContext arg : call.args().arg()) {

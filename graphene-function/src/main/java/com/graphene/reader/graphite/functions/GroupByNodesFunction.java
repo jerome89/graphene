@@ -38,7 +38,7 @@ public class GroupByNodesFunction extends GrapheneFunction {
             positions[i - 2] = ((Double) arguments.get(i)).intValue();
         }
 
-        return new Grouper(processedArguments, callbackName).byNodesIndex(positions);
+        return new Grouper(processedArguments, callbackName, from, to).byNodesIndex(positions);
     }
 
     @Override

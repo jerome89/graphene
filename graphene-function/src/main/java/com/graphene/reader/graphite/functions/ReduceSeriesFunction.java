@@ -37,7 +37,7 @@ public class ReduceSeriesFunction extends GrapheneFunction {
         String functionName = (String) arguments.get(1);
         GrapheneFunction functionToReduce;
         try {
-            functionToReduce = getFunction(getContext(), functionName, from, to);
+            functionToReduce = getFunction(getContext(), functionName, tenant, from, to);
         } catch (InvalidFunctionException e) {
             throw new EvaluationException(e);
         }

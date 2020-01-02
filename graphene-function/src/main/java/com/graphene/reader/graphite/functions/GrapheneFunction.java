@@ -19,6 +19,7 @@ public abstract class GrapheneFunction extends Target {
     protected String name;
     protected Long from;
     protected Long to;
+    protected String tenant;
 
     public GrapheneFunction(String text, String name) {
         super(text);
@@ -66,6 +67,14 @@ public abstract class GrapheneFunction extends Target {
         this.to = to;
     }
 
+    public String getTenant() {
+      return tenant;
+    }
+
+    public void setTenant(String tenant) {
+      this.tenant = tenant;
+    }
+
     protected String getResultingName(TimeSeries timeSeries) {
         return name + "(" + timeSeries.getName() + ")";
     }
@@ -73,7 +82,7 @@ public abstract class GrapheneFunction extends Target {
     @Override
     public Target shiftBy(long shift) {
         try {
-            GrapheneFunction function = FunctionRegistry.getFunction(getContext(), name, from + shift, to + shift);
+            GrapheneFunction function = FunctionRegistry.getFunction(getContext(), name, tenant, from + shift, to + shift);
 
             for (Object argument : arguments) {
                 if (argument instanceof Target) {
@@ -95,7 +104,7 @@ public abstract class GrapheneFunction extends Target {
     @Override
     public Target previous(long period) {
         try {
-            GrapheneFunction function = FunctionRegistry.getFunction(getContext(), name, from - period , from - 1);
+            GrapheneFunction function = FunctionRegistry.getFunction(getContext(), name, tenant,from - period , from - 1);
 
             for (Object argument : arguments) {
                 if (argument instanceof Target) {

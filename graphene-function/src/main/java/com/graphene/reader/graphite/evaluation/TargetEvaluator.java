@@ -2,6 +2,7 @@ package com.graphene.reader.graphite.evaluation;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
+import com.graphene.common.beans.Path;
 import com.graphene.reader.beans.TimeSeries;
 import com.graphene.reader.config.Rollup;
 import com.graphene.reader.exceptions.EvaluationException;
@@ -20,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /** @author Andrei Ivanov */
@@ -39,14 +39,32 @@ public class TargetEvaluator {
     return target.evaluate(this);
   }
 
+  public List<TimeSeries> evalByTags(String tenant, List<String> tagExpressions, Long from, Long to) throws EvaluationException {
+    try {
+      List<Path> paths =
+        (List<Path>) keySearchHandler.getPathsByTags(tenant, tagExpressions, from, to);
+
+      return metricService.getMetricsAsList(
+        tenant,
+        paths,
+        from,
+        to
+      );
+    } catch (ExecutionException | InterruptedException | TooMuchDataExpectedException e) {
+      logger.error(e.getMessage());
+      logger.debug(e);
+      throw new EvaluationException(e);
+    }
+  }
+
   public List<List<TimeSeries>> evalByGroup(Target target) throws  EvaluationException {
       return target.evalByGroup(this);
   }
 
   public List<TimeSeries> visit(PathTarget pathTarget) throws EvaluationException {
     try {
-      Set<String> paths =
-          keySearchHandler.getPaths(pathTarget.getTenant(), Lists.newArrayList(pathTarget.getPath()), pathTarget.getFrom(), pathTarget.getTo());
+      List<Path> paths =
+        (List<Path>) keySearchHandler.getPaths(pathTarget.getTenant(), Lists.newArrayList(pathTarget.getPath()), pathTarget.getFrom(), pathTarget.getTo());
 
       logger.debug("resolved paths : " + paths);
 
