@@ -21,6 +21,7 @@ class CarbonProperty {
       field = rollups.subList(1, rollups.size)
     }
   var baseRollup: Rollup? = null
+  var route: Route? = null
 
   @PostConstruct
   fun init() {
@@ -34,6 +35,12 @@ class CarbonProperty {
       ", rollups=" + this.rollups +
       ", baseRollup=" + baseRollup +
       '}'.toString()
+  }
+
+  class Route {
+    var host: String = "127.0.0.1"
+
+    var port: Int = 2003
   }
 
   companion object {

@@ -14,8 +14,8 @@ class MultiGetRequestContainer(
   fun add(index: String, type: String, metric: GrapheneMetric) {
     val timestampMillis = metric.timestampMillis()
 
-    multiGetRequest.add(MultiGetRequest.Item(index, type, metric.getId()))
-    metrics["${index}_${metric.getId()}"] = metric
+    multiGetRequest.add(MultiGetRequest.Item(index, type, metric.id))
+    metrics["${index}_${metric.id}"] = metric
 
     if (Objects.isNull(from) && Objects.isNull(to)) {
       from = timestampMillis
