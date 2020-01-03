@@ -45,6 +45,7 @@ class CassandraFactory {
 
   private fun poolingOptions(cassandraDataStoreHandlerProperty: CassandraDataStoreHandlerProperty): PoolingOptions {
     val poolingOptions = PoolingOptions()
+    poolingOptions.maxQueueSize = cassandraDataStoreHandlerProperty.maxQueueSize
     poolingOptions.setMaxConnectionsPerHost(HostDistance.LOCAL, cassandraDataStoreHandlerProperty.maxConnections)
     poolingOptions.setMaxConnectionsPerHost(HostDistance.REMOTE, cassandraDataStoreHandlerProperty.maxConnections)
     poolingOptions.setMaxRequestsPerConnection(HostDistance.REMOTE, cassandraDataStoreHandlerProperty.maxRequests)
