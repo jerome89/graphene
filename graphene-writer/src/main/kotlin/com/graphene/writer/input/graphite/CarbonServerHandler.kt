@@ -42,6 +42,7 @@ class CarbonServerHandler(
       this.graphiteWriter = GraphiteWriter()
       this.graphiteWriter.settings["host"] = carbonProperty.route!!.host
       this.graphiteWriter.settings["port"] = carbonProperty.route!!.port
+      this.graphiteWriter.settings["namePrefix"] = IGNORE
       this.graphiteWriter.start()
     }
   }
@@ -82,5 +83,9 @@ class CarbonServerHandler(
   @PreDestroy
   fun destroy() {
     graphiteWriter.stop()
+  }
+
+  companion object {
+    const val IGNORE = ""
   }
 }
