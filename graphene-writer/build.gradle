@@ -19,6 +19,7 @@ dependencies {
   compile "org.springframework.boot:spring-boot-starter"
   compile "org.springframework.boot:spring-boot-starter-actuator"
   compile "org.springframework.boot:spring-boot-starter-web"
+  compile 'org.springframework.kafka:spring-kafka:2.4.0.RELEASE'
 
   // router
   compile "org.jmxtrans.embedded:embedded-jmxtrans:1.2.1"
