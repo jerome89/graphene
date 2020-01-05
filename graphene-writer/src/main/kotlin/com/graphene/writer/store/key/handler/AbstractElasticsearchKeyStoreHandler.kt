@@ -94,7 +94,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private fun addToBatch(metric: GrapheneMetric) {
     val index = elasticsearchClient.getIndexWithDate(index, tenant, metric.timestampMillis())
-    if (keyCache.putIfAbsent("${index}_${metric.getId()}", metric)) {
+    if (keyCache.putIfAbsent("${index}_${metric.id}", metric)) {
       multiGetRequestContainer.add(index, type, metric)
     }
   }

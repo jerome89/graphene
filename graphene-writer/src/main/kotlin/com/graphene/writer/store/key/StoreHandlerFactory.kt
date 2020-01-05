@@ -2,11 +2,13 @@ package com.graphene.writer.store.key
 
 import com.graphene.common.key.RotationProperty
 import com.graphene.common.rule.GrapheneRules
+import com.graphene.writer.error.Errors
 import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.StoreHandler
 import com.graphene.writer.store.key.handler.IndexBasedKeyStoreHandler
 import com.graphene.writer.store.key.handler.LoggingKeyStoreHandler
 import com.graphene.writer.store.key.handler.SimpleKeyStoreHandler
+import com.graphene.writer.store.key.handler.TagBasedKeyStoreHandler
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.support.GenericApplicationContext
@@ -26,10 +28,12 @@ class StoreHandlerFactory(
     for (handler in keyStoreHandlersProperty.handlers) {
       log.info("StoreHandlerFactory Key : ${handler.key} / Value : ${handler.value}")
 
-      when (keyStoreHandlersProperty.handlers[handler.key]!!.handler["type"]) {
+      when (val storeHandlerType = keyStoreHandlersProperty.handlers[handler.key]!!.handler["type"]) {
         "LoggingKeyStoreHandler" -> keyStoreHandlers.add(createLoggingKeyStoreHandler(handler.key, handler.value))
         "SimpleKeyStoreHandler" -> keyStoreHandlers.add(createSimpleKeyStoreHandler(handler.key, handler.value))
         "IndexBasedKeyStoreHandler" -> keyStoreHandlers.add(createIndexBasedKeyStoreHandler(handler.key, handler.value))
+        "TagBasedKeyStoreHandler" -> keyStoreHandlers.add(createTagBasedKeyStoreHandler(handler.key, handler.value))
+        else -> throw Errors.UNSUPPORTED_KEY_STORE_HANDLER_EXCEPTION.exception("$storeHandlerType is not supported!")
       }
     }
 
@@ -37,7 +41,7 @@ class StoreHandlerFactory(
   }
 
   private fun createIndexBasedKeyStoreHandler(handlerId: HandlerId, keyStoreHandlerProperty: KeyStoreHandlerProperty): KeyStoreHandler {
-    log.info("StoreHandlerFactory registers indexBasedKeyStoreHandler : $handlerId")
+    log.info("StoreHandlerFactory registers IndexBasedKeyStoreHandler : $handlerId")
 
     return IndexBasedKeyStoreHandler(
       applicationContext.getBean("elasticsearchClientFactory") as ElasticsearchClientFactory,
@@ -45,8 +49,17 @@ class StoreHandlerFactory(
     )
   }
 
+  private fun createTagBasedKeyStoreHandler(handlerId: HandlerId, keyStoreHandlerProperty: KeyStoreHandlerProperty): KeyStoreHandler {
+    log.info("StoreHandlerFactory registers TagBasedKeyStoreHandler : $handlerId")
+
+    return TagBasedKeyStoreHandler(
+      applicationContext.getBean("elasticsearchClientFactory") as ElasticsearchClientFactory,
+      keyStoreHandlerProperty
+    )
+  }
+
   private fun createSimpleKeyStoreHandler(handlerId: HandlerId, keyStoreHandlerProperty: KeyStoreHandlerProperty): KeyStoreHandler {
-    log.info("StoreHandlerFactory registers simpleKeyStoreHandler : $handlerId")
+    log.info("StoreHandlerFactory registers SimpleKeyStoreHandler : $handlerId")
 
     return SimpleKeyStoreHandler(
       applicationContext.getBean("elasticsearchClientFactory") as ElasticsearchClientFactory,

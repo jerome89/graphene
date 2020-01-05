@@ -16,6 +16,9 @@ graphene:
         port: 2003
         rollups:
           - 60s:5356800s
+#        route:
+#          host: 127.0.0.1
+#          port: 2003
     store:
       key:
         handlers:
@@ -72,6 +75,23 @@ graphene:
                 port: 9300
                 templateIndexPattern: "index-based-key-path*"
                 index: "index-based-key-path"
+                type: "path"
+                bulk:
+                  actions: 10000
+                  interval: 500
+          tag-based-key-store-handler:
+            tenant: none
+            rotation:
+              strategy: "timeBasedRotation"
+              period: "1w"
+            handler:
+              type: "TagBasedKeyStoreHandler"
+              property:
+                clusterName: "metric"
+                cluster: "127.0.0.1"
+                port: 9300
+                templateIndexPattern: "tag-based-key-path*"
+                index: "tag-based-key-path"
                 type: "path"
                 bulk:
                   actions: 10000

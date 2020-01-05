@@ -73,7 +73,7 @@ class CassandraDataStoreHandler(
       retention,
       grapheneMetric.value,
       grapheneMetric.getTenant(),
-      grapheneMetric.getGraphiteKey(),
+      grapheneMetric.id,
       grapheneMetric.timestampSeconds)
   }
 
