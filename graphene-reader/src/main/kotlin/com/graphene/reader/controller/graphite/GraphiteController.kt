@@ -55,8 +55,7 @@ class GraphiteController(
       tagsAutoCompleteRequest.expr,
       tagsAutoCompleteRequest.tag,
       tagsAutoCompleteRequest.from * 1_000,
-      tagsAutoCompleteRequest.until * 1_000,
-      tagsAutoCompleteRequest.limit
+      tagsAutoCompleteRequest.until * 1_000
     )
   }
 
@@ -65,9 +64,9 @@ class GraphiteController(
     @ModelAttribute("tagsAutoCompleteRequest") tagsAutoCompleteRequest: TagsAutoCompleteRequest
   ): Collection<String> {
     return tagSearchHandler.getTagValues(
-      tagsAutoCompleteRequest.tag,
-      tagsAutoCompleteRequest.expr,
       tagsAutoCompleteRequest.valuePrefix,
+      tagsAutoCompleteRequest.expr,
+      tagsAutoCompleteRequest.tag,
       tagsAutoCompleteRequest.from * 1_000,
       tagsAutoCompleteRequest.until * 1_000,
       tagsAutoCompleteRequest.limit

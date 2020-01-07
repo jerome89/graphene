@@ -6,6 +6,11 @@ import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.springframework.stereotype.Component
 
+/**
+ *
+ * @author jerome89
+ * @since 1.6.0
+ */
 @Component
 class ElasticsearchIntegratedTagSearchQueryOptimizer : ElasticsearchTagSearchQueryOptimizer {
 
@@ -33,29 +38,27 @@ class ElasticsearchIntegratedTagSearchQueryOptimizer : ElasticsearchTagSearchQue
           isStartWithTilde(tail) -> tagValue = tail.substring(1, tail.length)
         }
 
-        val tagField = "$TAGS_BUCKET_NAME.$tagKey"
-
         when {
           isNegativeQuery(head) -> {
             when {
               isStartWithTilde(tail) -> {
                 when {
-                  isRegexQuery(tagValue) -> boolQuery.mustNot(QueryBuilders.regexpQuery(tagField, getEscapedExpression(tagValue)))
-                  else -> boolQuery.mustNot(QueryBuilders.prefixQuery(tagField, getEscapedExpression(tagValue)))
+                  isRegexQuery(tagValue) -> boolQuery.mustNot(QueryBuilders.regexpQuery(tagKey, getEscapedExpression(tagValue)))
+                  else -> boolQuery.mustNot(QueryBuilders.prefixQuery(tagKey, getEscapedExpression(tagValue)))
                 }
               }
-              else -> boolQuery.mustNot(QueryBuilders.termsQuery(tagField, terms(tagValue)))
+              else -> boolQuery.mustNot(QueryBuilders.termsQuery(tagKey, terms(tagValue)))
             }
           }
           else -> {
             when {
               isStartWithTilde(tail) -> {
                 when {
-                  isRegexQuery(tagValue) -> boolQuery.filter(QueryBuilders.regexpQuery(tagField, getEscapedExpression(tagValue)))
-                  else -> boolQuery.filter(QueryBuilders.prefixQuery(tagField, getEscapedExpression(tagValue)))
+                  isRegexQuery(tagValue) -> boolQuery.filter(QueryBuilders.regexpQuery(tagKey, getEscapedExpression(tagValue)))
+                  else -> boolQuery.filter(QueryBuilders.prefixQuery(tagKey, getEscapedExpression(tagValue)))
                 }
               }
-              else -> boolQuery.filter(QueryBuilders.termsQuery(tagField, terms(tagValue)))
+              else -> boolQuery.filter(QueryBuilders.termsQuery(tagKey, terms(tagValue)))
             }
           }
         }
@@ -65,10 +68,9 @@ class ElasticsearchIntegratedTagSearchQueryOptimizer : ElasticsearchTagSearchQue
 
   private fun addSearchTargetFilter(boolQuery: BoolQueryBuilder, tagSearchTarget: TagSearchTarget) {
     if (StringUtils.isNotBlank(tagSearchTarget.tagKey)) {
-      val tagField = "$TAGS_BUCKET_NAME.${tagSearchTarget.tagKey}"
-      boolQuery.filter(QueryBuilders.existsQuery(tagField))
+      boolQuery.filter(QueryBuilders.existsQuery(tagSearchTarget.tagKey))
       if (StringUtils.isNotBlank(tagSearchTarget.tagValue)) {
-        boolQuery.filter(QueryBuilders.prefixQuery(tagField, tagSearchTarget.tagValue))
+        boolQuery.filter(QueryBuilders.prefixQuery(tagSearchTarget.tagKey, tagSearchTarget.tagValue))
       }
     }
   }
@@ -122,7 +124,6 @@ class ElasticsearchIntegratedTagSearchQueryOptimizer : ElasticsearchTagSearchQue
   }
 
   companion object {
-    const val TAGS_BUCKET_NAME = "tags"
     const val EQUALS = '='
     const val TILDE = '~'
     const val EXCLAMATION = '!'

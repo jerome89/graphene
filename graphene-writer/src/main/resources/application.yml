@@ -114,7 +114,7 @@ graphene:
             connectTimeout: 10
             maxRequests: 128
             loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-            protocolVersion: "V2"
+            protocolVersion: "V3"
     stats:
       interval: 60
       tenant: "graphene"
