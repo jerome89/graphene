@@ -3,7 +3,6 @@ package com.graphene.reader.store.key
 import com.graphene.common.beans.Path
 import com.graphene.reader.store.key.handler.ElasticsearchClient
 import com.graphene.reader.store.key.handler.SimpleKeySearchHandler
-import com.graphene.reader.store.tag.optimizer.ElasticsearchIntegratedTagSearchQueryOptimizer
 import com.graphene.reader.utils.ElasticsearchTestUtils
 import io.mockk.every
 import io.mockk.mockk
@@ -20,7 +19,7 @@ internal class SimpleKeySearchHandlerTest {
 
   @BeforeEach
   internal fun setUp() {
-    simpleKeySearchHandler = SimpleKeySearchHandler(elasticsearchClient, ElasticsearchIntegratedTagSearchQueryOptimizer())
+    simpleKeySearchHandler = SimpleKeySearchHandler(elasticsearchClient)
   }
 
   @Test

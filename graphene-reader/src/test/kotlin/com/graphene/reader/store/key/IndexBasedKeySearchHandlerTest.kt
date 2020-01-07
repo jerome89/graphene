@@ -6,7 +6,6 @@ import com.graphene.common.utils.DateTimeUtils
 import com.graphene.reader.store.key.handler.ElasticsearchClient
 import com.graphene.reader.store.key.handler.IndexBasedKeySearchHandler
 import com.graphene.reader.store.key.optimizer.IndexBasedElasticsearchQueryOptimizer
-import com.graphene.reader.store.tag.optimizer.ElasticsearchIntegratedTagSearchQueryOptimizer
 import com.graphene.reader.utils.ElasticsearchTestUtils
 import io.mockk.every
 import io.mockk.mockk
@@ -18,7 +17,7 @@ import org.junit.jupiter.api.Test
 internal class IndexBasedKeySearchHandlerTest {
 
   private val elasticsearchClient = mockk<ElasticsearchClient>()
-  private val indexBasedKeySearchHandler = IndexBasedKeySearchHandler(elasticsearchClient, IndexBasedElasticsearchQueryOptimizer(), ElasticsearchIntegratedTagSearchQueryOptimizer())
+  private val indexBasedKeySearchHandler = IndexBasedKeySearchHandler(elasticsearchClient, IndexBasedElasticsearchQueryOptimizer())
 
   @Test
   internal fun `should return hierarchy metric paths group by text#1`() {

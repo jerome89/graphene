@@ -20,13 +20,13 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
         "filter" : [
           {
             "exists" : {
-              "field" : "tags.server",
+              "field" : "server",
               "boost" : 1.0
             }
           },
           {
             "prefix" : {
-              "tags.server" : {
+              "server" : {
                 "value" : "a",
                 "boost" : 1.0
               }
@@ -34,7 +34,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
           },
           {
             "terms" : {
-              "tags.az" : [
+              "az" : [
                 "a"
               ],
               "boost" : 1.0
@@ -42,7 +42,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
           },
           {
             "terms" : {
-              "tags.dc" : [
+              "dc" : [
                 "x"
               ],
               "boost" : 1.0
@@ -71,13 +71,13 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
         "filter" : [
           {
             "exists" : {
-              "field" : "tags.server",
+              "field" : "server",
               "boost" : 1.0
             }
           },
           {
             "terms" : {
-              "tags.az" : [
+              "az" : [
                 "a"
               ],
               "boost" : 1.0
@@ -85,7 +85,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
           },
           {
             "terms" : {
-              "tags.dc" : [
+              "dc" : [
                 "x"
               ],
               "boost" : 1.0
@@ -114,7 +114,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
         "filter" : [
           {
             "terms" : {
-              "tags.az" : [
+              "az" : [
                 "a"
               ],
               "boost" : 1.0
@@ -124,7 +124,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
         "must_not" : [
           {
             "terms" : {
-              "tags.dc" : [
+              "dc" : [
                 "x"
               ],
               "boost" : 1.0
@@ -153,7 +153,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
         "filter" : [
           {
             "terms" : {
-              "tags.az" : [
+              "az" : [
                 "a"
               ],
               "boost" : 1.0
@@ -161,7 +161,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
           },
           {
             "terms" : {
-              "tags.dc" : [
+              "dc" : [
                 "x",
                 "y"
               ],
@@ -191,7 +191,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
         "filter" : [
           {
             "terms" : {
-              "tags.az" : [
+              "az" : [
                 "a"
               ],
               "boost" : 1.0
@@ -199,7 +199,7 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
           },
           {
             "regexp" : {
-              "tags.dc" : {
+              "dc" : {
                 "value" : "(a|b)",
                 "flags_value" : 65535,
                 "max_determinized_states" : 10000,

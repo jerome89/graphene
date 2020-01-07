@@ -31,6 +31,7 @@ internal class GraphiteMetricConverterTest {
       Source.GRAPHITE,
       "a.b.c",
       Collections.emptyMap(),
+      TreeMap(),
       TreeMap(mutableMapOf(Pair("0", "a"), Pair("1", "b"), Pair("2", "c"))),
       1.0,
       timestamp
@@ -56,6 +57,7 @@ internal class GraphiteMetricConverterTest {
       Source.GRAPHITE,
       "a.b.unknown.c",
       Collections.emptyMap(),
+      TreeMap(),
       TreeMap(mutableMapOf(Pair("0", "a"), Pair("1", "b"), Pair("2", "unknown"), Pair("3", "c"))),
       1.0,
       timestamp
