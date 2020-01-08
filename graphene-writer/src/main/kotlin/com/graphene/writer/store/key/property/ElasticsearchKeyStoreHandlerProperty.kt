@@ -13,7 +13,8 @@ class ElasticsearchKeyStoreHandlerProperty(
   var index: String = "metric",
   var type: String = "path",
   var cluster: String = "127.0.0.1",
-  var port: Int = 9300,
+  var port: Int = 443,
+  var protocol: String = "https",
   var bulk: IndexBulkConfiguration? = null
 ) {
 
@@ -23,7 +24,7 @@ class ElasticsearchKeyStoreHandlerProperty(
   }
 
   override fun toString(): String {
-    return "ElasticsearchKeyStoreHandlerProperty(enabled=$enabled, isCache=$isCache, expire=$expire, clusterName='$clusterName', index='$index', type='$type', cluster=$cluster, port=$port, bulk=$bulk)"
+    return "ElasticsearchKeyStoreHandlerProperty(enabled=$enabled, isCache=$isCache, expire=$expire, clusterName='$clusterName', index='$index', type='$type', cluster=$cluster, port=$port, protocol=$protocol, bulk=$bulk)"
   }
 
   companion object {
