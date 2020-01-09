@@ -5,21 +5,21 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "graphene.writer.input.graphite")
-class GraphiteInputProperty(
-  var carbon: CarbonProperty
+class InputGraphiteProperty(
+  var inputGraphiteCarbonProperty: InputGraphiteCarbonProperty
 ) {
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene graphite input configuration : {}", toString())
+    logger.info("Load InputGraphiteProperty : {}", toString())
   }
 
   override fun toString(): String {
-    return "GraphiteInputProperty{carbon=$carbon}"
+    return "GraphiteInputProperty{InputGraphiteProperty=$inputGraphiteCarbonProperty}"
   }
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(GraphiteInputProperty::class.java)
+    private val logger = LoggerFactory.getLogger(InputGraphiteProperty::class.java)
   }
 }

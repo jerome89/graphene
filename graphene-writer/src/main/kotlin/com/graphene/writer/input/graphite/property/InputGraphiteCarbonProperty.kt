@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @author Andrei Ivanov
  */
 @ConfigurationProperties(prefix = "graphene.writer.input.graphite.carbon")
-class CarbonProperty {
+class InputGraphiteCarbonProperty {
 
   var bind: String? = null
   var port: Int = 0
@@ -25,11 +25,11 @@ class CarbonProperty {
 
   @PostConstruct
   fun init() {
-    logger.info("Load Graphene carbon configuration : {}", toString())
+    logger.info("Load InputGraphiteCarbonProperty : {}", toString())
   }
 
   override fun toString(): String {
-    return "CarbonProperty{" +
+    return "InputGraphiteCarbonProperty{" +
       "bind='" + bind + '\''.toString() +
       ", port=" + port +
       ", rollups=" + this.rollups +
@@ -45,6 +45,6 @@ class CarbonProperty {
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(CarbonProperty::class.java)
+    private val logger = LoggerFactory.getLogger(InputGraphiteCarbonProperty::class.java)
   }
 }

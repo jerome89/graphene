@@ -19,7 +19,7 @@ graphene:
       kafka:
         enabled: false
         bootstrapServer: "localhost:9092"
-        consumerGroupId: "local"
+        consumerGroupId: "graphene-writer"
         pollIntervalMs: 5000
         maxPollRecords: 1000
         topics: "graphene-test-0,graphene-test-1"

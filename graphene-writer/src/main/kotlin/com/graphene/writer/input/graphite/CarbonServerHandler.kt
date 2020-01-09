@@ -3,7 +3,7 @@ package com.graphene.writer.input.graphite
 import com.google.common.base.CharMatcher
 import com.graphene.writer.config.Rollup
 import com.graphene.writer.domain.Metric
-import com.graphene.writer.input.graphite.property.CarbonProperty
+import com.graphene.writer.input.graphite.property.InputGraphiteCarbonProperty
 import com.graphene.writer.processor.GrapheneProcessor
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandler
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component
 @Component
 @ChannelHandler.Sharable
 class CarbonServerHandler(
-  private val carbonProperty: CarbonProperty,
+  private val inputGraphiteCarbonProperty: InputGraphiteCarbonProperty,
   private val grapheneProcessor: GrapheneProcessor
 ) : ChannelInboundHandlerAdapter() {
 
@@ -36,12 +36,12 @@ class CarbonServerHandler(
 
   @PostConstruct
   fun init() {
-    this.rollup = carbonProperty.baseRollup!!
+    this.rollup = inputGraphiteCarbonProperty.baseRollup!!
     this.graphiteConverter = GraphiteMetricConverter()
-    if (Objects.nonNull(carbonProperty.route)) {
+    if (Objects.nonNull(inputGraphiteCarbonProperty.route)) {
       this.graphiteWriter = GraphiteWriter()
-      this.graphiteWriter.settings["host"] = carbonProperty.route!!.host
-      this.graphiteWriter.settings["port"] = carbonProperty.route!!.port
+      this.graphiteWriter.settings["host"] = inputGraphiteCarbonProperty.route!!.host
+      this.graphiteWriter.settings["port"] = inputGraphiteCarbonProperty.route!!.port
       this.graphiteWriter.settings["namePrefix"] = IGNORE
       this.graphiteWriter.start()
     }
@@ -62,7 +62,7 @@ class CarbonServerHandler(
         for (grapheneMetric in grapheneMetrics) {
           grapheneProcessor.process(grapheneMetric)
 
-          if (Objects.nonNull(carbonProperty.route)) {
+          if (Objects.nonNull(inputGraphiteCarbonProperty.route)) {
             graphiteWriter.write(listOf(QueryResult(metric.path, metric.value, metric.timestamp * 1_000L)))
           }
         }
@@ -82,7 +82,9 @@ class CarbonServerHandler(
 
   @PreDestroy
   fun destroy() {
-    graphiteWriter.stop()
+    if (Objects.nonNull(inputGraphiteCarbonProperty.route)) {
+      graphiteWriter.stop()
+    }
   }
 
   companion object {

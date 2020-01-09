@@ -1,4 +1,4 @@
-package com.graphene.writer.config
+package com.graphene.writer.input.kafka.config
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
@@ -7,7 +7,6 @@ import java.util.concurrent.Executor
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
@@ -19,12 +18,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 @EnableKafka
 @Configuration
 @ConditionalOnProperty(prefix = "graphene.writer.input.kafka", name = ["enabled"], havingValue = "true")
-@ConfigurationProperties(prefix = "graphene.writer.input.kafka")
-class MetricKafkaInputConfiguration {
-  var bootstrapServer: String = "localhost:9092"
-  var consumerGroupId: String? = null
-  var pollIntervalMs = 5000
-  var maxPollRecords = 1000
+class MetricKafkaInputConfiguration(
+  val inputKafkaProperty: InputKafkaProperty
+) {
 
   @Bean
   fun objectMapper(): ObjectMapper {
@@ -39,12 +35,12 @@ class MetricKafkaInputConfiguration {
   @Bean
   fun consumerConfigs(): Map<String, Any?> {
     val props: MutableMap<String, Any?> = HashMap()
-    props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServer
-    props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
-    props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
-    props[ConsumerConfig.GROUP_ID_CONFIG] = consumerGroupId
-    props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "latest"
-    props[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = maxPollRecords
+    props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = inputKafkaProperty.bootstrapServer
+    props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = inputKafkaProperty.keyDeserializerClass
+    props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = inputKafkaProperty.valueDeserializerClass
+    props[ConsumerConfig.GROUP_ID_CONFIG] = inputKafkaProperty.consumerGroupId
+    props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = inputKafkaProperty.autoOffsetReset
+    props[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = inputKafkaProperty.maxPollRecords
     return props
   }
 
@@ -56,10 +52,10 @@ class MetricKafkaInputConfiguration {
   }
 
   @Bean
-  fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
+  fun kafkaInputContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
     val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
     factory.consumerFactory = consumerFactory()
-    factory.containerProperties.idleBetweenPolls = pollIntervalMs.toLong()
+    factory.containerProperties.idleBetweenPolls = inputKafkaProperty.pollIntervalMs.toLong()
     return factory
   }
 
