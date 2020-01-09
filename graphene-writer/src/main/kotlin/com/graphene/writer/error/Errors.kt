@@ -1,9 +1,9 @@
 package com.graphene.writer.error
 
 import com.graphene.writer.error.exception.GrapheneWriterException
+import com.graphene.writer.error.exception.IllegalArgumentException
 import com.graphene.writer.error.exception.UnknownGrapheneWriterException
 import com.graphene.writer.error.exception.UnsupportedKeyStoreHandlerException
-import com.graphene.writer.error.exception.IllegalArgumentException
 import java.util.function.Function
 
 enum class Errors(

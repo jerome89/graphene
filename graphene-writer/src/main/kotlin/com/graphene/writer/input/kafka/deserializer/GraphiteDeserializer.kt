@@ -5,8 +5,8 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.input.graphite.GraphiteMetric
 import com.graphene.writer.input.graphite.GraphiteMetricConverter
 import io.netty.util.CharsetUtil
-import org.apache.kafka.common.serialization.Deserializer
 import java.util.Objects
+import org.apache.kafka.common.serialization.Deserializer
 
 class GraphiteDeserializer : Deserializer<GrapheneMetric> {
 
