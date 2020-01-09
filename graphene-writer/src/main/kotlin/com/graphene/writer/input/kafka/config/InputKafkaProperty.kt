@@ -1,5 +1,6 @@
 package com.graphene.writer.input.kafka.config
 
+import com.graphene.writer.input.kafka.deserializer.GraphiteDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -13,5 +14,5 @@ data class InputKafkaProperty(
   var pollIntervalMs: Int = 5000,
   var maxPollRecords: Int = 1000,
   val keyDeserializerClass: String = StringDeserializer::class.qualifiedName!!,
-  val valueDeserializerClass: String = StringDeserializer::class.qualifiedName!!
+  val valueDeserializerClass: String = GraphiteDeserializer::class.qualifiedName!!
 )
