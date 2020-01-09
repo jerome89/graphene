@@ -16,17 +16,17 @@ graphene:
         port: 2003
         rollups:
           - 60s:5356800s
+#        route:
+#          host: 127.0.0.1
+#          port: 2003
       kafka:
-        enabled: false
+        enabled: true
         bootstrapServer: "localhost:9092"
         consumerGroupId: "graphene-writer"
         pollIntervalMs: 5000
         maxPollRecords: 1000
         topics: "graphene-test-0,graphene-test-1"
         payloadFormat: "GraphiteMetric"
-#        route:
-#          host: 127.0.0.1
-#          port: 2003
     store:
       key:
         handlers:

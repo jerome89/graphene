@@ -12,6 +12,6 @@ data class InputKafkaProperty(
   var consumerGroupId: String? = null,
   var pollIntervalMs: Int = 5000,
   var maxPollRecords: Int = 1000,
-  val keyDeserializerClass: Class<*> = StringDeserializer::class.java,
-  val valueDeserializerClass: Class<*> = StringDeserializer::class.java
+  val keyDeserializerClass: String = StringDeserializer::class.qualifiedName!!,
+  val valueDeserializerClass: String = StringDeserializer::class.qualifiedName!!
 )

@@ -3,9 +3,9 @@ package com.graphene.writer.input.kafka.config
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.util.concurrent.Executor
+import com.graphene.writer.input.GrapheneMetric
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.kafka.common.serialization.Deserializer
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,7 +13,6 @@ import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 
 @EnableKafka
 @Configuration
@@ -36,8 +35,8 @@ class MetricKafkaInputConfiguration(
   fun consumerConfigs(): Map<String, Any?> {
     val props: MutableMap<String, Any?> = HashMap()
     props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = inputKafkaProperty.bootstrapServer
-    props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = inputKafkaProperty.keyDeserializerClass
-    props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = inputKafkaProperty.valueDeserializerClass
+    props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = keyDeserializer(inputKafkaProperty.keyDeserializerClass)
+    props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = valueDeserializer(inputKafkaProperty.valueDeserializerClass)
     props[ConsumerConfig.GROUP_ID_CONFIG] = inputKafkaProperty.consumerGroupId
     props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = inputKafkaProperty.autoOffsetReset
     props[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = inputKafkaProperty.maxPollRecords
@@ -45,28 +44,25 @@ class MetricKafkaInputConfiguration(
   }
 
   @Bean
-  fun consumerFactory(): ConsumerFactory<String, String> {
+  fun consumerFactory(): ConsumerFactory<String, GrapheneMetric> {
     return DefaultKafkaConsumerFactory(consumerConfigs(),
-      StringDeserializer(),
-      StringDeserializer())
+      keyDeserializer(inputKafkaProperty.keyDeserializerClass),
+      valueDeserializer(inputKafkaProperty.valueDeserializerClass))
   }
 
   @Bean
-  fun kafkaInputContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
-    val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
+  fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, GrapheneMetric> {
+    val factory = ConcurrentKafkaListenerContainerFactory<String, GrapheneMetric>()
     factory.consumerFactory = consumerFactory()
     factory.containerProperties.idleBetweenPolls = inputKafkaProperty.pollIntervalMs.toLong()
     return factory
   }
 
-  @Bean
-  fun metricKafkaInputTransformExecutor(): Executor {
-    val executor = ThreadPoolTaskExecutor()
-    executor.corePoolSize = Runtime.getRuntime().availableProcessors() * 2
-    executor.maxPoolSize = Runtime.getRuntime().availableProcessors() * 2
-    executor.threadNamePrefix = "MetricKafkaInputTransformExecutor-"
-    executor.setWaitForTasksToCompleteOnShutdown(true)
-    executor.initialize()
-    return executor
+  private fun keyDeserializer(deserializerClass: String): Deserializer<String> {
+    return Class.forName(deserializerClass).constructors.first().newInstance() as Deserializer<String>
+  }
+
+  private fun valueDeserializer(deserializerClass: String): Deserializer<GrapheneMetric> {
+    return Class.forName(deserializerClass).constructors.first().newInstance() as Deserializer<GrapheneMetric>
   }
 }
