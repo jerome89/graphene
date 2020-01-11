@@ -13,8 +13,8 @@ class ElasticsearchKeyStoreHandlerProperty(
   var index: String = "metric",
   var type: String = "path",
   var cluster: String = "127.0.0.1",
-  var port: Int = 443,
-  var protocol: String = "https",
+  var port: Int = 9200,
+  var protocol: String = "http",
   var bulk: IndexBulkConfiguration? = null
 ) {
 

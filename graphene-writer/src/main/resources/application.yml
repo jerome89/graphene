@@ -47,7 +47,7 @@ graphene:
               property:
                 clusterName: "metric"
                 cluster: "127.0.0.1"
-                port: 9300
+                port: 9200
                 templateIndexPattern: "simple-key-path*"
                 index: "simple-key-path"
                 type: "path"
@@ -64,7 +64,7 @@ graphene:
               property:
                 clusterName: "metric"
                 cluster: "127.0.0.1"
-                port: 9300
+                port: 9200
                 templateIndexPattern: "simple-key-path*"
                 index: "simple-key-path"
                 type: "path"
@@ -81,7 +81,7 @@ graphene:
               property:
                 clusterName: "metric"
                 cluster: "127.0.0.1"
-                port: 9300
+                port: 9200
                 templateIndexPattern: "index-based-key-path*"
                 index: "index-based-key-path"
                 type: "path"
@@ -98,7 +98,7 @@ graphene:
               property:
                 clusterName: "metric"
                 cluster: "127.0.0.1"
-                port: 9300
+                port: 9200
                 templateIndexPattern: "tag-based-key-path*"
                 index: "tag-based-key-path"
                 type: "path"
