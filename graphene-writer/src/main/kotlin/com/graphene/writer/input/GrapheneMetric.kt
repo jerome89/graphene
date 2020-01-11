@@ -1,7 +1,7 @@
 package com.graphene.writer.input
 
 import com.graphene.reader.utils.MetricRule
-import com.graphene.writer.input.graphite.GraphiteAware
+import java.util.TreeMap
 
 /***
  *
@@ -9,18 +9,16 @@ import com.graphene.writer.input.graphite.GraphiteAware
  * @author dark
  */
 data class GrapheneMetric(
-  val meta: Map<String, String>,
-  internal val tags: Map<String, String>,
-  val value: Double,
-  val timestampSeconds: Long
-) : GraphiteAware {
+  val source: Source,
+  val id: String? = null,
+  val meta: MutableMap<String, String>,
+  var tags: TreeMap<String, String>,
+  var value: Double,
+  var timestampSeconds: Long
+) {
 
-  override fun getTags(): Map<String, String> {
-    return this.tags
-  }
-
-  fun getId(): String {
-    return "${meta.getOrDefault(TENANT, MetricRule.defaultTenant())}_${getGraphiteKey()}"
+  fun metricKey(): String {
+    return id!!.split(";")[0]
   }
 
   fun getTenant(): String {
@@ -34,4 +32,13 @@ data class GrapheneMetric(
   companion object {
     private val TENANT = "@tenant"
   }
+}
+
+enum class Source {
+
+  GRAPHITE,
+
+  GRAPHITE_TAG,
+
+  INFLUXDB
 }

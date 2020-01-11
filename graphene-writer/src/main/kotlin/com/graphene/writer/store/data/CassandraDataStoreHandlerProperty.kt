@@ -22,6 +22,7 @@ class CassandraDataStoreHandlerProperty {
   var readTimeout: Int = 0
   var connectTimeout: Int = 0
   var maxRequests: Int = 0
+  var maxQueueSize: Int = 4 * 1024 * 1024
   var isBatch: Boolean = false
   var batchSize: Int = 0
   var pool: Int = 0

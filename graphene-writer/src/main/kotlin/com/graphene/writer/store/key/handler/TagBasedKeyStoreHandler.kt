@@ -4,47 +4,43 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
+import java.util.TreeMap
+import org.apache.logging.log4j.LogManager
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
 
-/**
- *
- * @author dark
- * @since 1.0.0
- */
-class IndexBasedKeyStoreHandler(
+class TagBasedKeyStoreHandler(
   private val elasticsearchClientFactory: ElasticsearchClientFactory,
   val property: KeyStoreHandlerProperty
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
+  private val log = LogManager.getLogger(javaClass)
+
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
-    return mutableListOf(GrapheneIndexRequest(metric!!.id!!, source(metric), metric.timestampMillis()))
+    val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
+    grapheneIndexRequests.add(GrapheneIndexRequest("${metric!!.id}", source(metric.tags, metric), metric.timestampMillis()))
+    return grapheneIndexRequests
   }
 
   override fun templateSource(): String = SOURCE
 
   override fun templateName(): String = TEMPLATE_NAME
 
-  private fun source(metric: GrapheneMetric): XContentBuilder {
-    val tags = metric.tags
-
+  private fun source(tags: TreeMap<String, String>, grapheneMetric: GrapheneMetric): XContentBuilder {
     val source = XContentFactory.jsonBuilder()
       .startObject()
-      .field(DEPTH, tags.size)
-      .field(LEAF, true)
 
     for (tag in tags) {
       source.field(tag.key, tag.value)
     }
 
+    source.field("@name", grapheneMetric.metricKey())
+
     return source.endObject()
   }
 
   companion object {
-    const val DEPTH = "depth"
-    const val LEAF = "leaf"
-
-    const val TEMPLATE_NAME = "index-based-key-path-template"
+    const val TEMPLATE_NAME = "tag-based-key-path-template"
     const val SOURCE = """
       {
         "settings": {
@@ -55,24 +51,6 @@ class IndexBasedKeyStoreHandler(
         "mappings": {
           "path": {
             "dynamic_templates": [
-              {
-                "leaf": {
-                  "match": "leaf",
-                  "match_mapping_type": "boolean",
-                  "mapping": {
-                    "type": "boolean"
-                  }
-                }
-              },
-              {
-                "depth": {
-                  "match": "depth",
-                  "match_mapping_type": "long",
-                  "mapping": {
-                    "type": "integer"
-                  }
-                }
-              },
               {
                 "else": {
                   "match": "*",

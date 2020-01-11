@@ -16,18 +16,18 @@ class ElasticsearchClientFactory {
     elasticsearchClients = mutableListOf()
   }
 
-  fun createElasticsearchClient(rotationProperty: RotationProperty, cluster: List<String>): ElasticsearchClient {
-    val elasticsearchClientImpl = ElasticsearchClientTemplate(httpHosts(cluster), rotationProperty)
+  fun createElasticsearchClient(rotationProperty: RotationProperty, cluster: List<String>, port: Int, protocol: String): ElasticsearchClient {
+    val elasticsearchClientImpl = ElasticsearchClientTemplate(httpHosts(cluster, port, protocol), rotationProperty)
 
     elasticsearchClients.add(elasticsearchClientImpl)
 
     return elasticsearchClientImpl
   }
 
-  private fun httpHosts(cluster: List<String>): Array<HttpHost> {
+  private fun httpHosts(cluster: List<String>, port: Int, protocol: String): Array<HttpHost> {
     val httpHosts = mutableListOf<HttpHost>()
     for (index in cluster.indices) {
-      httpHosts.add(HttpHost(cluster[index], 9200, "http"))
+      httpHosts.add(HttpHost(cluster[index], port, protocol))
     }
     return httpHosts.toTypedArray()
   }

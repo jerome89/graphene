@@ -66,7 +66,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   }
 
   private fun elasticsearchClient(keyStoreHandlerProperty: KeyStoreHandlerProperty, elasticsearchClientFactory: ElasticsearchClientFactory, property: ElasticsearchKeyStoreHandlerProperty): ElasticsearchClient {
-    return elasticsearchClientFactory.createElasticsearchClient(keyStoreHandlerProperty.rotation, listOf(property.cluster))
+    return elasticsearchClientFactory.createElasticsearchClient(keyStoreHandlerProperty.rotation, listOf(property.cluster), property.port, property.protocol)
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
@@ -94,7 +94,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private fun addToBatch(metric: GrapheneMetric) {
     val index = elasticsearchClient.getIndexWithDate(index, tenant, metric.timestampMillis())
-    if (keyCache.putIfAbsent("${index}_${metric.getId()}", metric)) {
+    if (keyCache.putIfAbsent("${index}_${metric.id}", metric)) {
       multiGetRequestContainer.add(index, type, metric)
     }
   }

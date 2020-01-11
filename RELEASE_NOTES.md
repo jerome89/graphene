@@ -1,3 +1,15 @@
+# 1.6.0
+
+## Feature
+- add InfluxDB write api support [#35] (https://github.com/graphene-monitoring/graphene/pull/35)
+- forward to another graphene server for zero downtime upgrade [#36] (https://github.com/graphene-monitoring/graphene/pull/36)
+
+## Improvement
+- add Errors enum for handling exception more easily [#37] (https://github.com/graphene-monitoring/graphene/pull/37)
+
+## Bug fix
+- fix rotated index with leading zero [#34] (https://github.com/graphene-monitoring/graphene/pull/34)
+
 # 1.5.0
 
 ## Feature

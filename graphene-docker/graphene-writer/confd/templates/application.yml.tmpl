@@ -16,26 +16,14 @@ graphene:
         port: 2003
         rollups:
           - 60s:5356800s
+        {{if exists "/input/route/host"}}
+        route:
+          host: "{{getv "/input/route/host" "127.0.0.1"}}"
+          port: "{{getv "/input/route/port" "2003"}}"
+        {{end}}
     store:
       key:
         handlers:
-          simple-key-store-handler:
-            tenant: none
-            rotation:
-              strategy: "timeBasedRotation"
-              period: "1w"
-            handler:
-              type: "SimpleKeyStoreHandler"
-              property:
-                clusterName: "{{getv "/index/elasticsearch/cluster/name" "metric"}}"
-                cluster: "{{getv "/index/elasticsearch/cluster" "elasticsearch"}}"
-                port: 9300
-                templateIndexPattern: "metric*"
-                index: "metric"
-                type: "path"
-                bulk:
-                  actions: 10000
-                  interval: 500
           index-based-key-store-handler:
             tenant: none
             rotation:
@@ -65,11 +53,11 @@ graphene:
             userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
             keyspace: "{{getv "/data/cassandra/keyspace" "metric"}}"
             columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
-            maxConnections: 2048
+            maxConnections: "{{getv "/data/cassandra/max/connections" "2048"}}"
             pool: 1
             readTimeout: 10
             connectTimeout: 10
-            maxRequests: 128
+            maxRequests: "{{getv "/data/cassandra/max/connections" "128"}}"
             loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
             protocolVersion: "V2"
     stats:

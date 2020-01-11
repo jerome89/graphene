@@ -13,7 +13,7 @@ class GrapheneWriterConfig {
     val executor = ThreadPoolTaskExecutor()
     executor.corePoolSize = Runtime.getRuntime().availableProcessors() * 2
     executor.maxPoolSize = Runtime.getRuntime().availableProcessors() * 2
-    executor.setQueueCapacity(5000)
+    executor.setQueueCapacity(4 * 1024 * 1024)
     executor.threadNamePrefix = "GrapheneProcessorExecutor-"
     executor.setWaitForTasksToCompleteOnShutdown(true)
     executor.setAwaitTerminationSeconds(30)

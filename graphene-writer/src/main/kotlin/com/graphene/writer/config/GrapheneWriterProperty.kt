@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @author Andrei Ivanov
  */
 @ConfigurationProperties(prefix = "graphene.writer")
-class GrapheneWriterConfiguration(
+class GrapheneWriterProperty(
   var cassandraDataStoreHandlerProperty: CassandraDataStoreHandlerProperty,
   var statsProperty: StatsProperty
 ) {

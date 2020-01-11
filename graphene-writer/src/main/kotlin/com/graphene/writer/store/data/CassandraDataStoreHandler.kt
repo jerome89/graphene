@@ -9,7 +9,7 @@ import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.writer.input.GrapheneMetric
-import com.graphene.writer.input.graphite.property.CarbonProperty
+import com.graphene.writer.input.graphite.property.InputGraphiteCarbonProperty
 import com.graphene.writer.store.DataStoreHandler
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -23,13 +23,13 @@ import org.apache.logging.log4j.LogManager
  * @since 1.0.0
  */
 class CassandraDataStoreHandler(
-  carbonProperty: CarbonProperty,
+  inputGraphiteCarbonProperty: InputGraphiteCarbonProperty,
   private val handlerProperty: CassandraDataStoreHandlerProperty,
   private val cassandraFactory: CassandraFactory
 ) : DataStoreHandler {
 
   private val logger = LogManager.getLogger(CassandraDataStoreHandler::class.java)
-  private val retention: Int = carbonProperty.baseRollup!!.retention
+  private val retention: Int = inputGraphiteCarbonProperty.baseRollup!!.retention
   private val query: String = """
     UPDATE ${handlerProperty.keyspace}.${handlerProperty.columnFamily} 
     USING TTL ? 
@@ -73,7 +73,7 @@ class CassandraDataStoreHandler(
       retention,
       grapheneMetric.value,
       grapheneMetric.getTenant(),
-      grapheneMetric.getGraphiteKey(),
+      grapheneMetric.id,
       grapheneMetric.timestampSeconds)
   }
 
