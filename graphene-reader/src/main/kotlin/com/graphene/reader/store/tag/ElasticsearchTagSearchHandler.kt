@@ -5,11 +5,15 @@ import com.graphene.reader.store.key.handler.ElasticsearchClient
 import com.graphene.reader.store.tag.optimizer.ElasticsearchTagSearchQueryOptimizer
 import com.graphene.reader.store.tag.optimizer.TagSearchTarget
 import java.util.Objects
-import java.util.stream.Collectors
-import org.apache.commons.lang3.RegExUtils
+import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.LogManager
 import org.springframework.stereotype.Component
 
+/**
+ *
+ * @author jerome89
+ * @since 1.6.0
+ */
 @Component
 class ElasticsearchTagSearchHandler(
   private val elasticsearchClient: ElasticsearchClient,
@@ -18,15 +22,27 @@ class ElasticsearchTagSearchHandler(
 
   private val logger = LogManager.getLogger(javaClass)
 
-  override fun getTags(tagPrefix: String, tagExpressions: MutableList<String>, tag: String, from: Long, to: Long, limit: Int): List<String> {
+  override fun getTags(tagPrefix: String, tagExpressions: MutableList<String>, tag: String, from: Long, to: Long): List<String> {
     return if (tagExpressions.isNullOrEmpty()) {
-      val prefix = RegExUtils.removeAll(tagPrefix, "\\s+")
-      val fieldToInspect = "$TAGS_BUCKET_NAME.$prefix*"
-      getTagsFromMappings(fieldToInspect, from, to)
+      return listOf(NAME_FIELD)
     } else {
-      val tagsToExclude = tagExpressions.stream().map { t -> t.split(EQUALS)[0] }.collect(Collectors.toList())
-      val tagSearchTarget = TagSearchTarget(tagExpressions = tagExpressions)
-      getTagsFromSearchResults(tagSearchTarget, from, to, tagsToExclude)
+      val tagsToExclude = mutableListOf<String>()
+      for (tagExpression in tagExpressions) {
+        val head = tagExpression.split(EQUALS)[0]
+        if (head.endsWith('!')) {
+          tagsToExclude.add(head.substring(0, head.length - 1))
+        } else {
+          tagsToExclude.add(head)
+        }
+      }
+      if (! tagsToExclude.contains(NAME_FIELD)) {
+        return listOf(NAME_FIELD)
+      } else if (tagsToExclude.size == 1) {
+        return getTagsFromMappings(from, to)
+      } else {
+        val tagSearchTarget = TagSearchTarget(tagExpressions = tagExpressions)
+        getTagsFromSearchResults(tagSearchTarget, from, to, tagsToExclude)
+      }
     }
   }
 
@@ -37,7 +53,7 @@ class ElasticsearchTagSearchHandler(
         elasticsearchTagSearchQueryOptimizer.optimize(TagSearchTarget(tagKey = tag, tagValue = valuePrefix, tagExpressions = tagExpressions)),
         from,
         to,
-        "$TAGS_BUCKET_NAME.$tag",
+        tag,
         limit
       )
       tagValues.addAll(response.tagValues)
@@ -58,14 +74,13 @@ class ElasticsearchTagSearchHandler(
       var response = elasticsearchClient.query(
         elasticsearchTagSearchQueryOptimizer.optimize(tagSearchTarget),
         from,
-        to,
-        TAGS_BUCKET_NAME
+        to
       )
       val scrollIds = mutableListOf<String>()
       while (response.hits.hits.isNotEmpty()) {
         for (hit in response.hits) {
-          if (Objects.nonNull(hit.sourceAsMap[TAGS_BUCKET_NAME])) {
-            (hit.sourceAsMap[TAGS_BUCKET_NAME] as Map<String, *>).keys.forEach {
+          if (Objects.nonNull(hit.sourceAsMap)) {
+            (hit.sourceAsMap as Map<String, *>).keys.forEach {
               if (!tagsToExclude.contains(it)) {
                 result.add(it)
               }
@@ -85,15 +100,16 @@ class ElasticsearchTagSearchHandler(
     return result.sorted()
   }
 
-  private fun getTagsFromMappings(fieldToInspect: String, from: Long, to: Long): List<String> {
+  private fun getTagsFromMappings(from: Long, to: Long): List<String> {
     val result = mutableSetOf<String>()
     try {
-      val response = elasticsearchClient.getFieldMapping(fieldToInspect, from, to)
-      for (mappings in response.fieldMappings) {
-        for (key in mappings.keys) {
-          val mappingPieces = key.split(DOT)
-          if (mappingPieces.size > 1) {
-            result.add(mappingPieces[1])
+      val response = elasticsearchClient.getFieldMapping(from, to)
+      for (mappingMeta in response.mappings) {
+        if (Objects.nonNull(mappingMeta.sourceAsMap[MAPPING_PROPERTIES])) {
+          (mappingMeta.sourceAsMap[MAPPING_PROPERTIES] as Map<String, *>).keys.forEach {
+            if (!StringUtils.equals(it, NAME_FIELD)) {
+              result.add(it)
+            }
           }
         }
       }
@@ -104,8 +120,8 @@ class ElasticsearchTagSearchHandler(
   }
 
   companion object {
-    internal val TAGS_BUCKET_NAME = "tags"
-    internal val DOT = "."
+    internal val MAPPING_PROPERTIES = "properties"
+    internal val NAME_FIELD = "@name"
     internal val EQUALS = "="
   }
 }

@@ -6,8 +6,6 @@ import com.graphene.common.beans.Path
 import com.graphene.common.utils.PathExpressionUtils
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.index.KeySearchHandler
-import com.graphene.reader.store.tag.optimizer.ElasticsearchTagSearchQueryOptimizer
-import com.graphene.reader.store.tag.optimizer.TagSearchTarget
 import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
@@ -17,10 +15,10 @@ import org.slf4j.LoggerFactory
  *
  * @author Andrei Ivanov
  * @author dark
+ * @author jerome89
  */
 class SimpleKeySearchHandler(
-  private val elasticsearchClient: ElasticsearchClient,
-  private val elasticsearchTagSearchQueryOptimizer: ElasticsearchTagSearchQueryOptimizer
+  private val elasticsearchClient: ElasticsearchClient
 ) : KeySearchHandler {
 
   @Throws(TooMuchDataExpectedException::class)
@@ -53,10 +51,8 @@ class SimpleKeySearchHandler(
   }
 
   override fun getPathsByTags(tenant: String, tagExpressions: List<String>, from: Long, to: Long): List<Path> {
-    val result = mutableSetOf<Path>()
-    val queryBuilder = elasticsearchTagSearchQueryOptimizer.optimize(TagSearchTarget(tagExpressions = tagExpressions))
-    queryAndAppendToResult(result, queryBuilder, from, to)
-    return result.sortedWith(compareBy { it.path })
+    logger.info("Search paths by tags is not supported on SimpleKeySearchHandler.")
+    return emptyList()
   }
 
   private fun queryAndAppendToResult(result: MutableSet<Path>, queryBuilder: QueryBuilder, from: Long, to: Long) {
@@ -70,14 +66,7 @@ class SimpleKeySearchHandler(
 
       while (response.hits.hits.isNotEmpty()) {
         for (hit in response.hits) {
-          val path = Path(hit.sourceAsMap["path"] as String)
-          if (hit.sourceAsMap[TAGS_BUCKET_NAME] != null) {
-            val tags = (hit.sourceAsMap[TAGS_BUCKET_NAME] as Map<String, *>)
-            for (tag in tags) {
-              path.addTag(tag.key, tag.value.toString())
-            }
-          }
-          result.add(path)
+          result.add(Path(hit.sourceAsMap["path"] as String))
         }
 
         if (response.scrollId.isNotBlank()) {
@@ -128,7 +117,6 @@ class SimpleKeySearchHandler(
   }
 
   companion object {
-    const val TAGS_BUCKET_NAME = "tags"
-    internal val logger = LoggerFactory.getLogger(javaClass)
+    internal val logger = LoggerFactory.getLogger(SimpleKeySearchHandler::class.java)
   }
 }

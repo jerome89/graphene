@@ -13,8 +13,9 @@ import org.elasticsearch.action.search.SearchScrollRequest
 import org.elasticsearch.action.support.IndicesOptions
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestHighLevelClient
-import org.elasticsearch.client.indices.GetFieldMappingsRequest
-import org.elasticsearch.client.indices.GetFieldMappingsResponse
+import org.elasticsearch.client.indices.GetMappingsRequest
+import org.elasticsearch.client.indices.GetMappingsResponse
+import org.elasticsearch.cluster.metadata.MappingMetaData
 import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHits
@@ -51,17 +52,16 @@ class ElasticsearchClient(
     return Response.of(searchResponse)
   }
 
-  fun getFieldMapping(fieldToInspect: String, from: Long, to: Long): MappingsResponse {
-    val getFieldMappingsRequest = GetFieldMappingsRequest()
+  fun getFieldMapping(from: Long, to: Long): MappingsResponse {
+    val getMappingsRequest = GetMappingsRequest()
     val selectedIndex = keySelector.select(indexProperty.index()!!, indexProperty.tenant(), from, to)
-    getFieldMappingsRequest.indices(*selectedIndex.toTypedArray())
-    getFieldMappingsRequest.fields(fieldToInspect)
-    getFieldMappingsRequest.indicesOptions(
+    getMappingsRequest.indices(*selectedIndex.toTypedArray())
+    getMappingsRequest.indicesOptions(
       IndicesOptions.fromOptions(
         true, true, true, false
       )
     )
-    val response = client.indices().getFieldMapping(getFieldMappingsRequest, RequestOptions.DEFAULT)
+    val response = client.indices().getMapping(getMappingsRequest, RequestOptions.DEFAULT)
 
     return MappingsResponse.of(response)
   }
@@ -104,10 +104,10 @@ class ElasticsearchClient(
   }
 
   data class MappingsResponse(
-    val fieldMappings: Collection<Map<String, GetFieldMappingsResponse.FieldMappingMetaData>>
+    val mappings: MutableCollection<MappingMetaData>
   ) {
     companion object {
-      fun of(response: GetFieldMappingsResponse): MappingsResponse {
+      fun of(response: GetMappingsResponse): MappingsResponse {
         return MappingsResponse(
           response.mappings().values
         )

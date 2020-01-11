@@ -4,12 +4,14 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
+import java.util.Collections
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
 
 /**
  *
  * @author dark
+ * @authot jerome89
  * @since 1.0.0
  */
 class IndexBasedKeyStoreHandler(
@@ -18,7 +20,10 @@ class IndexBasedKeyStoreHandler(
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
-    return mutableListOf(GrapheneIndexRequest(metric!!.id!!, source(metric), metric.timestampMillis()))
+    if (! metric!!.tags.isNullOrEmpty()) {
+      return Collections.emptyList<GrapheneIndexRequest>()
+    }
+    return mutableListOf(GrapheneIndexRequest(metric.id!!, source(metric), metric.timestampMillis()))
   }
 
   override fun templateSource(): String = SOURCE
@@ -26,15 +31,15 @@ class IndexBasedKeyStoreHandler(
   override fun templateName(): String = TEMPLATE_NAME
 
   private fun source(metric: GrapheneMetric): XContentBuilder {
-    val tags = metric.tags
+    val nodes = metric.nodes
 
     val source = XContentFactory.jsonBuilder()
       .startObject()
-      .field(DEPTH, tags.size)
+      .field(DEPTH, nodes.size)
       .field(LEAF, true)
 
-    for (tag in tags) {
-      source.field(tag.key, tag.value)
+    for (node in nodes) {
+      source.field(node.key, node.value)
     }
 
     return source.endObject()

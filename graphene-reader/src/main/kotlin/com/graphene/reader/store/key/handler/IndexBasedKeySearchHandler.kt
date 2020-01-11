@@ -4,9 +4,6 @@ import com.graphene.common.HierarchyMetricPaths
 import com.graphene.common.beans.Path
 import com.graphene.reader.service.index.KeySearchHandler
 import com.graphene.reader.store.key.optimizer.ElasticsearchQueryOptimizer
-import com.graphene.reader.store.tag.optimizer.ElasticsearchTagSearchQueryOptimizer
-import com.graphene.reader.store.tag.optimizer.TagSearchTarget
-import java.util.Objects
 import java.util.StringJoiner
 import org.apache.logging.log4j.LogManager
 import org.elasticsearch.index.query.QueryBuilder
@@ -15,12 +12,12 @@ import org.elasticsearch.search.SearchHit
 /**
  *
  * @author dark
+ * @author jerome89
  * @since 1.4.0
  */
 class IndexBasedKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient,
-  private val elasticsearchQueryOptimizer: ElasticsearchQueryOptimizer,
-  private val elasticsearchTagSearchQueryOptimizer: ElasticsearchTagSearchQueryOptimizer
+  private val elasticsearchQueryOptimizer: ElasticsearchQueryOptimizer
 ) : KeySearchHandler {
 
   private val log = LogManager.getLogger(javaClass)
@@ -35,10 +32,8 @@ class IndexBasedKeySearchHandler(
   }
 
   override fun getPathsByTags(tenant: String, tagExpressions: List<String>, from: Long, to: Long): List<Path> {
-    val result = mutableSetOf<Path>()
-    val queryBuilder = elasticsearchTagSearchQueryOptimizer.optimize(TagSearchTarget(tagExpressions = tagExpressions))
-    queryThenAppend(result, queryBuilder, from, to)
-    return result.sortedWith(compareBy { it.path })
+    log.info("Search paths by tags is not supported on SimpleKeySearchHandler.")
+    return emptyList()
   }
 
   private fun queryThenAppend(result: MutableSet<Path>, queryBuilder: QueryBuilder, from: Long, to: Long) {
@@ -53,15 +48,7 @@ class IndexBasedKeySearchHandler(
           for (i in 0 until depth) {
             stringJoiner.add(hit.sourceAsMap[index(i)] as String)
           }
-
-          val path = Path(stringJoiner.toString())
-          if (Objects.nonNull(hit.sourceAsMap[TAGS_BUCKET_NAME])) {
-            val tags = (hit.sourceAsMap[TAGS_BUCKET_NAME] as Map<String, *>)
-            for (tag in tags) {
-              path.addTag(tag.key, tag.value.toString())
-            }
-          }
-          result.add(path)
+          result.add(Path(stringJoiner.toString()))
         }
 
         response = elasticsearchClient.searchScroll(response)
@@ -80,7 +67,7 @@ class IndexBasedKeySearchHandler(
     val result = mutableMapOf<String, HierarchyMetricPaths.HierarchyMetricPath>()
 
     try {
-      var response = elasticsearchClient.query(elasticsearchQueryOptimizer.optimizeBranchQuery(pathExpression), from, to, "")
+      var response = elasticsearchClient.query(elasticsearchQueryOptimizer.optimizeBranchQuery(pathExpression), from, to)
       val scrollIds = mutableListOf<String>()
 
       val maximumDepth = pathExpression.split(DOT).size
@@ -124,7 +111,6 @@ class IndexBasedKeySearchHandler(
     hit.sourceAsMap["depth"] as Int == maximumDepth
 
   companion object {
-    const val TAGS_BUCKET_NAME = "tags"
     const val DOT = "."
     const val DEPTH = "depth"
   }

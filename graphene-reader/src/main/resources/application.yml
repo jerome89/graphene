@@ -33,7 +33,7 @@ graphene:
             key-selector:
               type: "RollingKeySelector"
               period: "1w"
-            enabled: true
+            enabled: false
             tenant: none
             clusterName: "metric"
             cluster:
@@ -44,6 +44,21 @@ graphene:
             scroll: 10000
             timeout: 120000
             maxPaths: 50000
+          tag-based-key-search-handler:
+            key-selector:
+              type: "RollingKeySelector"
+              period: "1w"
+            enabled: true
+            tenant: none
+            clusterName: "metric"
+            cluster:
+              - "127.0.0.1"
+            port: 9300
+            index: "tag-based-key-path"
+            type: "path"
+            scroll: 10000
+            timeout: 120000
+            maxPaths: 200000
       data:
         cluster:
           - "127.0.0.1"
@@ -57,7 +72,7 @@ graphene:
         connectTimeout: 10
         maxRequests: 128
         loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-        protocolVersion: "V2"
+        protocolVersion: "V3"
     throttling:
       # enable throttling
       throttlingEnabled: true

@@ -4,11 +4,16 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
+import java.util.Collections
 import java.util.TreeMap
 import org.apache.logging.log4j.LogManager
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
 
+/**
+ * @author jerome89
+ * @since 1.6.0
+ */
 class TagBasedKeyStoreHandler(
   private val elasticsearchClientFactory: ElasticsearchClientFactory,
   val property: KeyStoreHandlerProperty
@@ -17,6 +22,9 @@ class TagBasedKeyStoreHandler(
   private val log = LogManager.getLogger(javaClass)
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
+    if (metric!!.tags.isNullOrEmpty()) {
+      return Collections.emptyList<GrapheneIndexRequest>()
+    }
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
     grapheneIndexRequests.add(GrapheneIndexRequest("${metric!!.id}", source(metric.tags, metric), metric.timestampMillis()))
     return grapheneIndexRequests
