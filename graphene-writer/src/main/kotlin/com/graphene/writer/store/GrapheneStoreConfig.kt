@@ -1,6 +1,6 @@
 package com.graphene.writer.store
 
-import com.graphene.writer.input.graphite.property.CarbonProperty
+import com.graphene.writer.input.graphite.property.InputGraphiteCarbonProperty
 import com.graphene.writer.store.data.CassandraDataStoreHandler
 import com.graphene.writer.store.data.CassandraDataStoreHandlerProperty
 import com.graphene.writer.store.data.CassandraFactory
@@ -12,12 +12,12 @@ class GrapheneStoreConfig {
 
   @Bean
   fun cassandraDataStoreHandler(
-    carbonProperty: CarbonProperty,
+    inputGraphiteCarbonProperty: InputGraphiteCarbonProperty,
     handlerProperty: CassandraDataStoreHandlerProperty
   ): StoreHandler {
 
     return CassandraDataStoreHandler(
-      carbonProperty,
+      inputGraphiteCarbonProperty,
       handlerProperty,
       CassandraFactory()
     )

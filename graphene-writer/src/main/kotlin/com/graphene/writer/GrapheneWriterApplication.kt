@@ -1,10 +1,11 @@
 package com.graphene.writer
 
 import com.graphene.writer.blacklist.BlacklistConfiguration
-import com.graphene.writer.config.GrapheneWriterConfiguration
+import com.graphene.writer.config.GrapheneWriterProperty
 import com.graphene.writer.config.StatsProperty
-import com.graphene.writer.input.graphite.property.CarbonProperty
-import com.graphene.writer.input.graphite.property.GraphiteInputProperty
+import com.graphene.writer.input.graphite.property.InputGraphiteCarbonProperty
+import com.graphene.writer.input.graphite.property.InputGraphiteProperty
+import com.graphene.writer.input.kafka.config.InputKafkaProperty
 import com.graphene.writer.store.data.CassandraDataStoreHandlerProperty
 import com.graphene.writer.store.data.StoreDataProperty
 import com.graphene.writer.store.key.KeyStoreHandlersProperty
@@ -21,13 +22,14 @@ import org.springframework.scheduling.annotation.EnableAsync
 @SpringBootApplication(exclude = [CassandraAutoConfiguration::class, GsonAutoConfiguration::class])
 @EnableConfigurationProperties(
   BlacklistConfiguration::class,
-  GrapheneWriterConfiguration::class,
-  CarbonProperty::class,
+  GrapheneWriterProperty::class,
+  InputGraphiteCarbonProperty::class,
   StatsProperty::class,
   CassandraDataStoreHandlerProperty::class,
-  GraphiteInputProperty::class,
+  InputGraphiteProperty::class,
   StoreDataProperty::class,
-  KeyStoreHandlersProperty::class
+  KeyStoreHandlersProperty::class,
+  InputKafkaProperty::class
 )
 class GrapheneWriterApplication
 

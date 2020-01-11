@@ -1,6 +1,6 @@
 package com.graphene.writer.input.graphite
 
-import com.graphene.writer.input.graphite.property.GraphiteInputProperty
+import com.graphene.writer.input.graphite.property.InputGraphiteProperty
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInitializer
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class CarbonServer(
-  private val property: GraphiteInputProperty,
+  private val graphiteProperty: InputGraphiteProperty,
   private val carbonServerHandler: CarbonServerHandler
 ) {
 
@@ -53,7 +53,7 @@ class CarbonServer(
       })
 
     // Start the server.
-    b.bind(property.carbon.bind, property.carbon.port).sync()
+    b.bind(graphiteProperty.inputGraphiteCarbonProperty.bind, graphiteProperty.inputGraphiteCarbonProperty.port).sync()
   }
 
   @PreDestroy

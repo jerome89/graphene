@@ -35,16 +35,6 @@ class Metric {
     this.value = java.lang.Double.parseDouble(splitInput[1])
   }
 
-  constructor(tenant: String, path: String, value: Double, timestamp: Long) {
-    this.key = MetricKey(tenant, path, timestamp)
-    this.value = value
-  }
-
-  constructor(key: MetricKey, value: Double) {
-    this.key = key
-    this.value = value
-  }
-
   private fun normalizeTimestamp(timestamp: Long, rollup: Rollup): Long {
     return timestamp / rollup.rollup * rollup.rollup
   }
