@@ -10,17 +10,16 @@ import org.apache.kafka.common.serialization.Deserializer
 
 class GraphiteDeserializer : Deserializer<GrapheneMetric> {
 
+  private val graphiteMetricConverter = GraphiteMetricConverter()
+
   override fun deserialize(topic: String?, data: ByteArray?): GrapheneMetric {
     if (Objects.isNull(data)) {
       throw Errors.ILLEGAL_ARGUMENT_EXCEPTION.exception()
     }
 
     val metric = data!!.toString(CharsetUtil.UTF_8).trim { it <= ' ' }
-
     val metricWithIndex = metric.split(" ")
-
     val graphiteMetric = GraphiteMetric(metricWithIndex[0], metricWithIndex[1].toDouble(), metricWithIndex[2].toLong())
-    val graphiteMetricConverter = GraphiteMetricConverter()
 
     return graphiteMetricConverter.convert(graphiteMetric)[0]
   }

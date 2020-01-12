@@ -5,9 +5,10 @@ import java.util.TreeMap
 
 /***
  *
- * @since 1.0.0
  * @author dark
  * @author jerome89
+ *
+ * @since 1.0.0
  */
 data class GrapheneMetric(
   val source: Source,

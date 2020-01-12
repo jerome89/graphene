@@ -1,6 +1,7 @@
 package com.graphene.writer.store.key.handler
 
 import com.graphene.writer.input.GrapheneMetric
+import com.graphene.writer.input.Source
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
@@ -22,7 +23,8 @@ class TagBasedKeyStoreHandler(
   private val log = LogManager.getLogger(javaClass)
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
-    if (metric!!.tags.isNullOrEmpty()) {
+    if (Source.GRAPHITE == metric!!.source) {
+      log.warn("Please change store handler to simple or index-based key store handler because TagBasedKeyStoreHandler does not support the old graphite format.")
       return Collections.emptyList<GrapheneIndexRequest>()
     }
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
