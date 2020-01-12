@@ -17,7 +17,7 @@ metrics can be maintained and managed in isolated clusters.
 
 ## Architecture Overview
 
-![Graphene](docs/main/Graphene Architecture.png)   
+![Graphene](docs/main/GrapheneArchitecture.png)   
 
 ## Prerequisite
 
