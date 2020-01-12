@@ -117,10 +117,13 @@ public class FunctionRegistry {
         registry.put("timeStack", TimeStackFunction.class);
         registry.put("transformNull", TransformNullFunction.class);
         registry.put("useSeriesAbove", UseSeriesAboveFunction.class);
+        registry.put("seriesByTag", SeriesByTagFunction.class);
+        registry.put("groupByTags", GroupByTagsFunction.class);
+        registry.put("aliasByTags", AliasByTagsFunction.class);
     }
 
     //todo: from & to parameters are only because of constantLine function. sort this out?
-    public static GrapheneFunction getFunction(EvaluationContext context, String name, long from, long to) throws InvalidFunctionException {
+    public static GrapheneFunction getFunction(EvaluationContext context, String name, String tenant, long from, long to) throws InvalidFunctionException {
         if (registry.get(name) == null) {
             throw new InvalidFunctionException("Unknown function: " + name);
         }
@@ -129,6 +132,7 @@ public class FunctionRegistry {
             @SuppressWarnings("unchecked")
             Constructor<GrapheneFunction> constructor = (Constructor<GrapheneFunction>) registry.get(name).getConstructor(String.class);
             GrapheneFunction function = constructor.newInstance(name);
+            function.setTenant(tenant);
             function.setFrom(from);
             function.setTo(to);
             function.setContext(context);

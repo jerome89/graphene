@@ -5,14 +5,17 @@ import java.util.TreeMap
 
 /***
  *
- * @since 1.0.0
  * @author dark
+ * @author jerome89
+ *
+ * @since 1.0.0
  */
 data class GrapheneMetric(
   val source: Source,
   val id: String? = null,
   val meta: MutableMap<String, String>,
   var tags: TreeMap<String, String>,
+  var nodes: TreeMap<String, String>,
   var value: Double,
   var timestampSeconds: Long
 ) {

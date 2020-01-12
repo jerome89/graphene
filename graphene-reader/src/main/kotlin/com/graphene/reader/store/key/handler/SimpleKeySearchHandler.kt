@@ -2,9 +2,11 @@ package com.graphene.reader.store.key.handler
 
 import com.google.common.base.Joiner
 import com.graphene.common.HierarchyMetricPaths
+import com.graphene.common.beans.Path
 import com.graphene.common.utils.PathExpressionUtils
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.index.KeySearchHandler
+import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.slf4j.LoggerFactory
@@ -13,50 +15,72 @@ import org.slf4j.LoggerFactory
  *
  * @author Andrei Ivanov
  * @author dark
+ * @author jerome89
  */
 class SimpleKeySearchHandler(
   private val elasticsearchClient: ElasticsearchClient
 ) : KeySearchHandler {
 
   @Throws(TooMuchDataExpectedException::class)
-  override fun getPaths(tenant: String, pathExpressions: List<String>, from: Long, to: Long): Set<String> {
+  override fun getPaths(tenant: String, pathExpressions: List<String>, from: Long, to: Long): List<Path> {
     val regExs = mutableListOf<String>()
-    val result = mutableSetOf<String>()
+    val plains = mutableListOf<String>()
+    val result = mutableSetOf<Path>()
 
-    for (wildcard in pathExpressions) {
-      if (PathExpressionUtils.isPlainPath(wildcard)) {
-        result.add(wildcard)
+    for (pathExpression in pathExpressions) {
+      if (PathExpressionUtils.isPlainPath(pathExpression)) {
+        plains.add(pathExpression)
       } else {
-        regExs.add(PathExpressionUtils.getEscapedPathExpression(wildcard))
+        regExs.add(PathExpressionUtils.getEscapedPathExpression(pathExpression))
       }
     }
 
     logger.debug("getPaths plain paths: " + result.size + ", wildcard paths: " + regExs.size)
 
     if (0 < regExs.size) {
-      val scrollIds = mutableListOf<String>()
+      val queryBuilder = QueryBuilders.regexpQuery("path", Joiner.on("|").skipNulls().join(regExs))
+      queryAndAppendToResult(result, queryBuilder, from, to)
+    }
 
+    if (0 < plains.size) {
+      val queryBuilder = QueryBuilders.termsQuery("path", plains)
+      queryAndAppendToResult(result, queryBuilder, from, to)
+    }
+
+    return result.sortedWith(compareBy { it.path })
+  }
+
+  override fun getPathsByTags(tenant: String, tagExpressions: List<String>, from: Long, to: Long): List<Path> {
+    logger.info("Search paths by tags is not supported on SimpleKeySearchHandler.")
+    return emptyList()
+  }
+
+  private fun queryAndAppendToResult(result: MutableSet<Path>, queryBuilder: QueryBuilder, from: Long, to: Long) {
+    val scrollIds = mutableListOf<String>()
+    try {
       var response = elasticsearchClient.query(
-        QueryBuilders.regexpQuery("path", Joiner.on("|").skipNulls().join(regExs)),
+        queryBuilder,
         from * 1000L,
         to * 1000L
       )
 
       while (response.hits.hits.isNotEmpty()) {
         for (hit in response.hits) {
-          result.add(hit.sourceAsMap["path"] as String)
+          result.add(Path(hit.sourceAsMap["path"] as String))
         }
 
-        response = elasticsearchClient.searchScroll(response)
-        scrollIds.add(response.scrollId)
+        if (response.scrollId.isNotBlank()) {
+          response = elasticsearchClient.searchScroll(response)
+          scrollIds.add(response.scrollId)
+        }
       }
 
       if (scrollIds.isNotEmpty()) {
         elasticsearchClient.clearScroll(scrollIds)
       }
+    } catch (e: Exception) {
+      logger.warn("Search request failed: " + e.message)
     }
-
-    return result
   }
 
   @Throws(TooMuchDataExpectedException::class)
@@ -93,6 +117,6 @@ class SimpleKeySearchHandler(
   }
 
   companion object {
-    internal val logger = LoggerFactory.getLogger(javaClass)
+    internal val logger = LoggerFactory.getLogger(SimpleKeySearchHandler::class.java)
   }
 }

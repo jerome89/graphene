@@ -1,5 +1,6 @@
 package com.graphene.reader.graphite.functions
 
+import com.graphene.common.beans.Path
 import com.graphene.common.utils.DateTimeUtils
 import com.graphene.reader.beans.TimeSeries
 import com.graphene.reader.graphite.PathTarget
@@ -36,7 +37,8 @@ abstract class GrapheneFunctionTestHelper {
 
   private fun setUpFunctionArguments(grapheneFunction: GrapheneFunction, timeSeriesList: List<TimeSeries>) {
     pathTarget = PathTarget(TIME_SERIES_NAME_1, EvaluationContext(ValueFormatter.getInstance(ValueFormatter.ValueFormatterType.MACHINE)), TIME_SERIES_NAME_1, "NONE", DateTimeUtils.from("2019-10-10 10:00:00"), DateTimeUtils.from("2019-10-10 10:02:00"))
-
+    grapheneFunction.from = DateTimeUtils.from("2019-10-10 10:00:00")
+    grapheneFunction.to = DateTimeUtils.from("2019-10-10 10:02:00")
     grapheneFunction.addArg(pathTarget)
   }
 
@@ -51,9 +53,11 @@ abstract class GrapheneFunctionTestHelper {
   }
 
   private fun setUpTimeSeriesKeys(timeSeriesList: List<TimeSeries>) {
-    val timeSeriesKeys = mutableSetOf<String>()
+    val timeSeriesKeys = mutableListOf<Path>()
     for (timeSeries in timeSeriesList) {
-      timeSeriesKeys.add(timeSeries.name)
+      val path = Path(timeSeries.name)
+      path.setTags(timeSeries.tags)
+      timeSeriesKeys.add(path)
     }
 
     every {
@@ -69,6 +73,12 @@ abstract class GrapheneFunctionTestHelper {
 
     fun timeSeries(name: String, from: String, to: String, step: Int, values: Array<Double>): TimeSeries {
       return TimeSeries(name, DateTimeUtils.from(from), DateTimeUtils.from(to), step, values)
+    }
+
+    fun timeSeriesWithTags(name: String, from: String, to: String, step: Int, values: Array<Double>, tags: Map<String, String>): TimeSeries {
+      val ts = timeSeries(name, from, to, step, values)
+      ts.tags = tags
+      return ts
     }
   }
 }

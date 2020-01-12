@@ -1,5 +1,6 @@
 package com.graphene.reader.store.key
 
+import com.graphene.common.beans.Path
 import com.graphene.reader.store.key.handler.ElasticsearchClient
 import com.graphene.reader.store.key.handler.SimpleKeySearchHandler
 import com.graphene.reader.utils.ElasticsearchTestUtils
@@ -49,6 +50,16 @@ internal class SimpleKeySearchHandlerTest {
 
   @Test
   internal fun `should return a plain path if without complex query path`() {
+    // given
+    val response = ElasticsearchClient.Response.of(
+      ElasticsearchTestUtils.searchResponse(arrayOf(
+        arrayOf(Pair("@tenant", "NONE"), Pair("depth", 4), Pair("leaf", true), Pair("path", "servers.server1.cpu.usage"))
+      )))
+
+    every { elasticsearchClient.query(any(), any(), any()) } answers { response }
+    every { elasticsearchClient.searchScroll(any()) } answers { ElasticsearchTestUtils.emptyResponse() }
+    every { elasticsearchClient.clearScroll(any()) } answers { Unit }
+
     // when
     val paths = simpleKeySearchHandler
       .getPaths(
@@ -60,7 +71,7 @@ internal class SimpleKeySearchHandlerTest {
 
     // then
     assertEquals(1, paths.size)
-    assertTrue(paths.contains("servers.server1.cpu.usage"))
+    assertTrue(paths.contains(Path("servers.server1.cpu.usage")))
   }
 
   @Test
@@ -86,6 +97,6 @@ internal class SimpleKeySearchHandlerTest {
 
     // then
     assertEquals(1, paths.size)
-    assertTrue(paths.contains("servers.server1.cpu.usage"))
+    assertTrue(paths[0].path.equals("servers.server1.cpu.usage"))
   }
 }

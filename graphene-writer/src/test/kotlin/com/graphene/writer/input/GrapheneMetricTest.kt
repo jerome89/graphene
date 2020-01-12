@@ -20,8 +20,9 @@ internal class GrapheneMetricTest {
         Pair("1", "b"),
         Pair("2", "c"))
       ),
-      1.0,
-      DateTimeUtils.currentTimeMillis()
+      TreeMap(),
+      value = 1.0,
+      timestampSeconds = DateTimeUtils.currentTimeMillis()
     )
 
     // when

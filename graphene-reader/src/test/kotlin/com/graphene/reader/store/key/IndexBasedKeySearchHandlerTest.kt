@@ -1,6 +1,7 @@
 package com.graphene.reader.store.key
 
 import com.graphene.common.HierarchyMetricPaths
+import com.graphene.common.beans.Path
 import com.graphene.common.utils.DateTimeUtils
 import com.graphene.reader.store.key.handler.ElasticsearchClient
 import com.graphene.reader.store.key.handler.IndexBasedKeySearchHandler
@@ -110,8 +111,8 @@ internal class IndexBasedKeySearchHandlerTest {
 
     assertEquals(
       listOf(
-        "servers.server1.cpu.usage",
-        "servers.server2.cpu.usage"
+        Path("servers.server1.cpu.usage"),
+        Path("servers.server2.cpu.usage")
       ),
       metricPaths.toList())
   }

@@ -8,11 +8,13 @@ import java.util.*;
 public class TimeSeries {
 
     private String name;
+    private String pathExpression;
     private Long from;
     private Long to;
     private int step;
     private Double[] values;
     private Map<TimeSeriesOption, Object> options = new HashMap<>();
+    private Map<String, String> tags = new HashMap<>();
 
     public TimeSeries(String name, Long from, Long to, int step) {
         this(name, from, to, step, new Double[0]);
@@ -26,12 +28,29 @@ public class TimeSeries {
         this.values = values;
     }
 
+  public TimeSeries(String name, String pathExpression, Long from, Long to, int step, Double[] values) {
+    this.name = name;
+    this.pathExpression = pathExpression;
+    this.from = from;
+    this.to = to;
+    this.step = step;
+    this.values = values;
+  }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPathExpression() {
+      return pathExpression;
+    }
+
+    public void setPathExpression(String pathExpression) {
+      this.pathExpression = pathExpression;
     }
 
     public Long getFrom() {
@@ -80,6 +99,14 @@ public class TimeSeries {
 
     public boolean hasOption(TimeSeriesOption option) {
         return options.containsKey(option);
+    }
+
+    public Map<String, String> getTags() {
+      return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+      this.tags = tags;
     }
 
     @Override

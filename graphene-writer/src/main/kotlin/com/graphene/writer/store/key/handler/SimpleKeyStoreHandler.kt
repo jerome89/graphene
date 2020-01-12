@@ -13,22 +13,23 @@ import org.elasticsearch.common.xcontent.XContentFactory
 /**
  * @author Andrei Ivanov
  * @author dark
+ * @author jerome89
  */
 class SimpleKeyStoreHandler(
-  val elasticsearchClientFactory: ElasticsearchClientFactory,
+  elasticsearchClientFactory: ElasticsearchClientFactory,
   val property: KeyStoreHandlerProperty
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
-    if (Objects.isNull(metric)) {
+    if (Objects.isNull(metric) || ! metric!!.tags.isNullOrEmpty()) {
       return Collections.emptyList<GrapheneIndexRequest>()
     }
 
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
-    val tags = metric!!.tags
+    val nodes = metric.nodes
     val graphiteKeySb = StringBuilder()
 
-    for (indexedValue in tags.entries.withIndex()) {
+    for (indexedValue in nodes.entries.withIndex()) {
       val depth = indexedValue.index
       if (graphiteKeySb.toString().isNotEmpty()) {
         graphiteKeySb.append(".")
@@ -37,7 +38,7 @@ class SimpleKeyStoreHandler(
       try {
         val graphiteKeyPart = graphiteKeySb.toString()
         val id = "${metric.getTenant()}_$graphiteKeyPart"
-        grapheneIndexRequests.add(GrapheneIndexRequest(id, source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, tags)), metric.timestampMillis()))
+        grapheneIndexRequests.add(GrapheneIndexRequest(id, source(metric.getTenant(), graphiteKeyPart, depth, isLeaf(depth, nodes)), metric.timestampMillis()))
       } catch (e: Exception) {
         throw IllegalStateException("Invokes illegal state in map to index requests", e)
       }
