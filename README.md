@@ -15,6 +15,10 @@ these methods later to help you manage your metrics cost-effectively. It
 also supports multi-tenancy for metrics later, so that large numbers of
 metrics can be maintained and managed in isolated clusters.
 
+## Architecture Overview
+
+![Graphene](docs/main/Graphene Architecture.png)   
+
 ## Prerequisite
 
 | Storage       | Version |
