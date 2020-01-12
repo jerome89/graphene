@@ -24,7 +24,7 @@ class TagBasedKeyStoreHandler(
 
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     if (Source.GRAPHITE == metric!!.source) {
-      log.debug("Please change store handler to simple or index-based key store handler because TagBasedKeyStoreHandler does not support the previous graphite format.")
+      log.warn("Please change store handler to simple or index-based key store handler because TagBasedKeyStoreHandler does not support the old graphite format.")
       return Collections.emptyList<GrapheneIndexRequest>()
     }
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
