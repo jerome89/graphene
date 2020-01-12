@@ -14,13 +14,15 @@ class GraphiteMetricConverter : MetricConverter<GraphiteMetric>, GraphiteAware {
   override fun convert(metric: GraphiteMetric): List<GrapheneMetric> {
     val nodes = convertNodes(metric)
     val tags = convertTags(metric)
+    val source = judgeSource(tags)
+
     var id = getGraphiteKey(nodes)
-    if (! tags.isNullOrEmpty()) {
+    if (Source.GRAPHITE_TAG == source) {
       id = appendTagsToId(id, tags)
     }
 
     val grapheneMetric = GrapheneMetric(
-      source = Source.GRAPHITE,
+      source = source,
       id = id,
       meta = Collections.emptyMap(),
       tags = tags,
@@ -30,6 +32,11 @@ class GraphiteMetricConverter : MetricConverter<GraphiteMetric>, GraphiteAware {
     )
 
     return listOf(grapheneMetric)
+  }
+
+  private fun judgeSource(tags: TreeMap<String, String>): Source {
+    return if (tags.isEmpty()) Source.GRAPHITE
+    else Source.GRAPHITE_TAG
   }
 
   private fun convertTags(metric: GraphiteMetric): TreeMap<String, String> {
