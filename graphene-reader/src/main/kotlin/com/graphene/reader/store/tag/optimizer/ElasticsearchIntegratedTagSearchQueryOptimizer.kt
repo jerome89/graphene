@@ -32,9 +32,10 @@ class ElasticsearchIntegratedTagSearchQueryOptimizer : ElasticsearchTagSearchQue
         }
         var tagKey = head
         var tagValue = tail
-
         when {
           isNegativeQuery(head) -> tagKey = head.substring(0, head.length - 1)
+        }
+        when {
           isStartWithTilde(tail) -> tagValue = tail.substring(1, tail.length)
         }
 

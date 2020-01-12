@@ -214,4 +214,45 @@ internal class ElasticsearchIntegratedTagSearchQueryOptimizerTest {
     }"""
     assertEquals(expectedQuery.trimIndent(), query.toString().trimIndent())
   }
+
+  @Test
+  internal fun `should optimize tag value search query when tagExpressions including negative regex expression without brackets`() {
+    // given
+    val optimizer = ElasticsearchIntegratedTagSearchQueryOptimizer()
+
+    // when
+    val query = optimizer.optimize(TagSearchTarget(tagExpressions = arrayListOf("az=a", "dc!=~a*") as List<String>))
+
+    // then
+    val expectedQuery = """
+    {
+      "bool" : {
+        "filter" : [
+          {
+            "terms" : {
+              "az" : [
+                "a"
+              ],
+              "boost" : 1.0
+            }
+          }
+        ],
+        "must_not" : [
+          {
+            "regexp" : {
+              "dc" : {
+                "value" : "a[^\\.]*",
+                "flags_value" : 65535,
+                "max_determinized_states" : 10000,
+                "boost" : 1.0
+              }
+            }
+          }
+        ],
+        "adjust_pure_negative" : true,
+        "boost" : 1.0
+      }
+    }"""
+    assertEquals(expectedQuery.trimIndent(), query.toString().trimIndent())
+  }
 }
