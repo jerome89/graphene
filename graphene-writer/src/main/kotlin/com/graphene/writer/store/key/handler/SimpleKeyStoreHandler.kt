@@ -5,8 +5,6 @@ import com.graphene.writer.input.Source
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
-import java.util.Collections
-import java.util.Objects
 import java.util.TreeMap
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
