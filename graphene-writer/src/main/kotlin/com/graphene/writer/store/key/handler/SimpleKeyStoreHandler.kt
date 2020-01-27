@@ -1,6 +1,7 @@
 package com.graphene.writer.store.key.handler
 
 import com.graphene.writer.input.GrapheneMetric
+import com.graphene.writer.input.Source
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
@@ -20,13 +21,13 @@ class SimpleKeyStoreHandler(
   val property: KeyStoreHandlerProperty
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
-  override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
-    if (Objects.isNull(metric) || ! metric!!.tags.isNullOrEmpty()) {
-      return Collections.emptyList<GrapheneIndexRequest>()
-    }
+  override fun isProcessable(metric: GrapheneMetric): Boolean {
+    return metric.source == Source.GRAPHITE
+  }
 
+  override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
-    val nodes = metric.nodes
+    val nodes = metric!!.nodes
     val graphiteKeySb = StringBuilder()
 
     for (indexedValue in nodes.entries.withIndex()) {

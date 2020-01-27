@@ -1,10 +1,10 @@
 package com.graphene.writer.store.key.handler
 
 import com.graphene.writer.input.GrapheneMetric
+import com.graphene.writer.input.Source
 import com.graphene.writer.store.key.ElasticsearchClientFactory
 import com.graphene.writer.store.key.GrapheneIndexRequest
 import com.graphene.writer.store.key.KeyStoreHandlerProperty
-import java.util.Collections
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory
 
@@ -19,11 +19,12 @@ class IndexBasedKeyStoreHandler(
   val property: KeyStoreHandlerProperty
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
+  override fun isProcessable(metric: GrapheneMetric): Boolean {
+    return metric.source == Source.GRAPHITE
+  }
+
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
-    if (! metric!!.tags.isNullOrEmpty()) {
-      return Collections.emptyList<GrapheneIndexRequest>()
-    }
-    return mutableListOf(GrapheneIndexRequest(metric.id!!, source(metric), metric.timestampMillis()))
+    return mutableListOf(GrapheneIndexRequest(metric!!.id!!, source(metric), metric.timestampMillis()))
   }
 
   override fun templateSource(): String = SOURCE
