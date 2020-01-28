@@ -78,7 +78,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       val metricsList = mutableListOf<GrapheneMetric>()
       metrics.drainTo(metricsList)
       for (metric in metricsList) {
-        if (Objects.nonNull(metric)) {
+        if (Objects.nonNull(metric) && isProcessable(metric)) {
           addToBatch(metric)
         }
       }
@@ -145,6 +145,8 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     } catch (ignored: InterruptedException) {
     }
   }
+
+  abstract fun isProcessable(metric: GrapheneMetric): Boolean
 
   abstract fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest>
 

@@ -27,9 +27,6 @@ class ElasticsearchIntegratedTagSearchQueryOptimizer : ElasticsearchTagSearchQue
       if (isValidTagExpression(tagExpressionParts)) {
         val head = tagExpressionParts[0]
         val tail = tagExpressionParts[1]
-        if (tail == ASTERISK) {
-          continue
-        }
         var tagKey = head
         var tagValue = tail
         when {
@@ -37,6 +34,10 @@ class ElasticsearchIntegratedTagSearchQueryOptimizer : ElasticsearchTagSearchQue
         }
         when {
           isStartWithTilde(tail) -> tagValue = tail.substring(1, tail.length)
+        }
+        if (tagValue == ASTERISK) {
+          boolQuery.filter(QueryBuilders.existsQuery(tagKey))
+          continue
         }
 
         when {
@@ -116,12 +117,12 @@ class ElasticsearchIntegratedTagSearchQueryOptimizer : ElasticsearchTagSearchQue
 
   private fun getEscapedExpression(expr: String): String {
     return expr.replace(".", "\\.")
-      .replace("*", "[^\\.]*")
       .replace("{", "(")
       .replace("{", "(")
       .replace("}", ")")
       .replace(",", "|")
       .replace("?", "[^\\.]")
+      .replace("*", ".*")
   }
 
   companion object {

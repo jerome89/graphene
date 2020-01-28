@@ -22,6 +22,14 @@ class TagBasedKeyStoreHandler(
 
   private val log = LogManager.getLogger(javaClass)
 
+  override fun isProcessable(metric: GrapheneMetric): Boolean {
+    if (Source.GRAPHITE == metric.source) {
+      log.warn("Please change store handler to simple or index-based key store handler because TagBasedKeyStoreHandler does not support the old graphite format.")
+      return false
+    }
+    return true
+  }
+
   override fun mapToGrapheneIndexRequests(metric: GrapheneMetric?): List<GrapheneIndexRequest> {
     if (Source.GRAPHITE == metric!!.source) {
       log.warn("Please change store handler to simple or index-based key store handler because TagBasedKeyStoreHandler does not support the old graphite format.")
