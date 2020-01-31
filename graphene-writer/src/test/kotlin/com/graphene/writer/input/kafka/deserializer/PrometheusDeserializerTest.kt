@@ -28,15 +28,13 @@ internal class PrometheusDeserializerTest {
   internal fun `should deserialize from byte array`() {
     val grapheneMetric = prometheusDeserializer.deserialize("prometheus.topic", PROMETHEUS_METRIC.toByteArray())
 
-    grapheneMetric?.run {
-      grapheneMetric shouldNotBe null
+    grapheneMetric shouldNotBe null
 
-      grapheneMetric.id shouldBe "http_requests_total;method=post&code=200"
-      grapheneMetric.tags shouldContainAll mapOf(Pair("@name", "http_requests_total"), Pair("method", "post"), Pair("code", "200"))
-      grapheneMetric.value shouldBe 1027
-      grapheneMetric.source shouldBe Source.PROMETHEUS
-      grapheneMetric.timestampMillis() shouldBe 1395066363000
-    }
+    grapheneMetric!!.id shouldBe "http_requests_total;method=post&code=200"
+    grapheneMetric.tags shouldContainAll mapOf(Pair("@name", "http_requests_total"), Pair("method", "post"), Pair("code", "200"))
+    grapheneMetric.value shouldBe 1027.0
+    grapheneMetric.source shouldBe Source.PROMETHEUS
+    grapheneMetric.timestampMillis() shouldBe 1395066363000
   }
 
   companion object {
