@@ -20,7 +20,7 @@ class MetricKafkaInputConsumer(
   fun handle(grapheneMetric: GrapheneMetric) {
     try {
       grapheneProcessor.process(grapheneMetric)
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
       logger.error("Cannot process metric: $grapheneMetric")
     }
   }

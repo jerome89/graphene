@@ -43,5 +43,7 @@ enum class Source {
 
   GRAPHITE_TAG,
 
-  INFLUXDB
+  INFLUXDB,
+
+  PROMETHEUS
 }
