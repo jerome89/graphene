@@ -1,4 +1,4 @@
-![Graphene](docs/logo/GrapheneSignature.png)   
+![Graphene](docs/logo/GrapheneSignature.png)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)  [![CircleCI](https://circleci.com/gh/graphene-monitoring/graphene.svg?style=svg)](https://circleci.com/gh/graphene-monitoring/graphene)   [![Join the chat at https://gitter.im/graphene-community/community](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/graphene-community/community)
 
 ## What is Graphene?
@@ -7,7 +7,7 @@ store metrics, it uses [Cassandra](https://github.com/apache/cassandra)
 and [Elasticsearch](https://github.com/elastic/elasticsearch) instead of
 [Whisper](https://github.com/graphite-project/whisper) to handle data in
 a scalable way. It is designed to be compatible with Graphite's API and
-easily integrates with Grafana's Graphite datasource.   
+easily integrates with Grafana's Graphite datasource.
 In a cloud environment, the metric key increases exponentially. To cope
 with this, each metric needs to be managed by time and removed or
 archived according to the policy. Graphene is a system that supports
@@ -17,7 +17,25 @@ metrics can be maintained and managed in isolated clusters.
 
 ## Architecture Overview
 
-![Graphene](docs/main/GrapheneArchitecture.png)   
+![Graphene](docs/main/GrapheneArchitecture.png)
+
+## API Support
+
+### Graphite
+
+|           API             | Support |
+|---------------------------|---------|
+| /render                   |    O    |
+| /find                     |    O    |
+| /metrics/find             |    O    |
+| /tags/autoComplete/tags   |    O    |
+| /tags/autoComplete/values |    O    |
+
+### InfluxDB
+
+|     API       | Support |
+|---------------|---------|
+| /write        |    O    |
 
 ## Prerequisite
 
@@ -42,11 +60,11 @@ Thanks, this project is useless without their work on **cyanite**, **graphite-ap
 
 Many people helped with the Graphene project.
 
-- Keyn : Keyn had provided a lot of insights to improve Graphene system. Without Keyn, this project could not grow.    
-- Tiger : Tiger showed how to modify the open source and apply it to the production environment in order to improve the Graphite system operated by one server. This led to an understanding of the metric system and the ability to continue to expand the current system.      
-- El : El provided continuous insight based on superior technology than others. Based on this, the system can be viewed from various points of view instead of just one part.   
-- drunkencoding / panda84 : They developed and maintained the entire metric core system like Elasticsearch indexing logic and time life cycle in the metric key (path). Without them, the metric system would only be able to handle simple traffic.   
-- jerome89 ([https://github.com/jerome89]) : He found the grammar of Graphite functions in the disthene project. This helped us to create a better metric system. Additionally, he helped develop the faulty function of the graphene itself and the overall system development.   
+- Keyn : Keyn had provided a lot of insights to improve Graphene system. Without Keyn, this project could not grow.
+- Tiger : Tiger showed how to modify the open source and apply it to the production environment in order to improve the Graphite system operated by one server. This led to an understanding of the metric system and the ability to continue to expand the current system.
+- El : El provided continuous insight based on superior technology than others. Based on this, the system can be viewed from various points of view instead of just one part.
+- drunkencoding / panda84 : They developed and maintained the entire metric core system like Elasticsearch indexing logic and time life cycle in the metric key (path). Without them, the metric system would only be able to handle simple traffic.
+- jerome89 ([https://github.com/jerome89]) : He found the grammar of Graphite functions in the disthene project. This helped us to create a better metric system. Additionally, he helped develop the faulty function of the graphene itself and the overall system development.
 
 ## License
 
