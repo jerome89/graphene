@@ -66,11 +66,15 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
 
       timestamp = tmp.toString()
 
-      return GrapheneMetric(Source.PROMETHEUS, id.toString(), mutableMapOf(), tags, TreeMap(), value.toDouble(), timestamp.toLong() / 1000)
+      return GrapheneMetric(Source.PROMETHEUS, id.toString(), mutableMapOf(), tags, TreeMap(), value.toDouble(), normalizedTimestamp(timestamp.toLong() / 1000))
     } catch (e: Throwable) {
       log.error("Fail to deserialize from prometheus format metric to graphene metric : $plainPrometheusMetric")
     }
 
     return null
+  }
+
+  private fun normalizedTimestamp(timestamp: Long): Long {
+    return timestamp / 60 * 60
   }
 }
