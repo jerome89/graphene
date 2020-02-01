@@ -27,7 +27,7 @@ internal class PrometheusDeserializerTest {
     grapheneMetric[0].tags shouldContainAll mapOf(Pair("method", "post"), Pair("code", "200"))
     grapheneMetric[0].value shouldBe 1027.0
     grapheneMetric[0].source shouldBe Source.PROMETHEUS
-    grapheneMetric[0].timestampMillis() shouldBe 1580531540000
+    grapheneMetric[0].timestampMillis() shouldBe 1580531520000
   }
 
   @Test
