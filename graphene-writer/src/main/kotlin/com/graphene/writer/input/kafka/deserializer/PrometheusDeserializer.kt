@@ -45,6 +45,10 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
   }
 
   private fun newGrapheneMetric(plainPrometheusMetric: String): GrapheneMetric? {
+    if (plainPrometheusMetric.isEmpty()) {
+      return null
+    }
+
     try {
       val tags = TreeMap<String, String>()
       var value = ""
