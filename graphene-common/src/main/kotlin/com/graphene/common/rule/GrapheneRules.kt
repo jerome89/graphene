@@ -14,6 +14,7 @@ object GrapheneRules {
     const val HASH = '#'
     const val DOUBLE_QUOTE = '"'
     const val AND = '&'
+    const val SEMICOLON = ';'
     const val COMMA = ','
     const val BRACE_OPEN = '{'
     const val BRACE_CLOSE = '}'

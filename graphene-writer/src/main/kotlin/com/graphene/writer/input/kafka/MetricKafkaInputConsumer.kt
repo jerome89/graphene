@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,14 +15,18 @@ class MetricKafkaInputConsumer(
   private val grapheneProcessor: GrapheneProcessor
 ) {
 
-  private val logger: Logger = LogManager.getLogger(MetricKafkaInputConsumer::class)
+  private val log: Logger = LogManager.getLogger(javaClass)
 
   @KafkaListener(topics = ["#{'\${graphene.writer.input.kafka.topics}'.split(',')}"], containerFactory = "kafkaListenerContainerFactory")
-  fun handle(grapheneMetric: GrapheneMetric) {
+  fun handle(@Payload(required = false) grapheneMetrics: List<GrapheneMetric>?) {
+    if (grapheneMetrics.isNullOrEmpty()) return
+
     try {
-      grapheneProcessor.process(grapheneMetric)
+      for (grapheneMetric in grapheneMetrics) {
+        grapheneProcessor.process(grapheneMetric)
+      }
     } catch (e: Throwable) {
-      logger.error("Cannot process metric: $grapheneMetric")
+      log.error("Cannot process metric: $grapheneMetrics")
     }
   }
 }
