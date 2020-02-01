@@ -1,6 +1,5 @@
-package com.graphene.reader.store.key.optimizer
+package com.graphene.reader.store.key.elasticsearch.optimizer
 
-import com.graphene.reader.store.key.elasticsearch.optimizer.IndexBasedElasticsearchQueryOptimizer
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

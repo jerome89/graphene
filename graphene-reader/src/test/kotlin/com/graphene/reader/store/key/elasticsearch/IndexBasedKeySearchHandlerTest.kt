@@ -1,4 +1,4 @@
-package com.graphene.reader.store.key
+package com.graphene.reader.store.key.elasticsearch
 
 import com.graphene.common.HierarchyMetricPaths
 import com.graphene.common.beans.Path

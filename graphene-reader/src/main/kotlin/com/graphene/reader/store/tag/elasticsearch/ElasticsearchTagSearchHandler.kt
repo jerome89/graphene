@@ -1,9 +1,9 @@
-package com.graphene.reader.store.tag
+package com.graphene.reader.store.tag.elasticsearch
 
 import com.graphene.reader.service.tag.TagSearchHandler
 import com.graphene.reader.store.key.elasticsearch.handler.ElasticsearchClient
-import com.graphene.reader.store.tag.optimizer.ElasticsearchTagSearchQueryOptimizer
-import com.graphene.reader.store.tag.optimizer.TagSearchTarget
+import com.graphene.reader.store.tag.elasticsearch.optimizer.ElasticsearchTagSearchQueryOptimizer
+import com.graphene.reader.store.tag.elasticsearch.optimizer.TagSearchTarget
 import java.util.Objects
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.LogManager

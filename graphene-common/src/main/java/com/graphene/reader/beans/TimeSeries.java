@@ -1,6 +1,6 @@
 package com.graphene.reader.beans;
 
-import com.graphene.common.beans.QueryRange;
+import com.graphene.common.beans.SeriesRange;
 
 import java.util.*;
 
@@ -30,36 +30,31 @@ public class TimeSeries {
     this.values = values;
   }
 
-  public TimeSeries(String name, String pathExpression, Map<String, String> tags, QueryRange queryRange) {
+  public TimeSeries(String name, String pathExpression, Map<String, String> tags, SeriesRange seriesRange) {
+    this(name, pathExpression, tags, seriesRange, new Double[seriesRange.getExpectedCount()]);
+  }
+
+  public TimeSeries(String name, String pathExpression, Map<String, String> tags, SeriesRange seriesRange, Double[] values) {
     this.name = name;
     this.pathExpression = pathExpression;
     this.tags = tags;
-    this.from = queryRange.getFrom();
-    this.to = queryRange.getTo();
-    this.step = queryRange.getRollup();
-    this.values = new Double[queryRange.getExpectedCount()];
-  }
-
-  public TimeSeries(String name, String pathExpression, Long from, Long to, int step, Double[] values) {
-    this.name = name;
-    this.pathExpression = pathExpression;
-    this.from = from;
-    this.to = to;
-    this.step = step;
+    this.from = seriesRange.getFrom();
+    this.to = seriesRange.getTo();
+    this.step = seriesRange.getRollup();
     this.values = values;
   }
 
-  public void addValues(Double[] vals, Long startTime) {
+  public void addValues(Double[] valuesToAdd, Long startTime) {
     int index = 0;
     if (startTime <= from) {
-      while (index < vals.length) {
-        this.values[index] = vals[index];
+      while (index < valuesToAdd.length) {
+        this.values[index] = valuesToAdd[index];
         index++;
       }
     } else {
       int valueIndex = (int) ((startTime - this.from) / this.step);
-      while (index < vals.length) {
-        this.values[valueIndex] = vals[index];
+      while (index < valuesToAdd.length) {
+        this.values[valueIndex] = valuesToAdd[index];
         index++;
         valueIndex++;
       }

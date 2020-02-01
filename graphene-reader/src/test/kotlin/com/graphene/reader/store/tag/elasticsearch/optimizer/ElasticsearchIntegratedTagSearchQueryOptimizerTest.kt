@@ -1,4 +1,4 @@
-package com.graphene.reader.store.tag.optimizer
+package com.graphene.reader.store.tag.elasticsearch.optimizer
 
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test

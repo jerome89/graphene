@@ -1,4 +1,4 @@
-package com.graphene.reader.store.tag.optimizer
+package com.graphene.reader.store.tag.elasticsearch.optimizer
 
 import org.apache.commons.lang3.StringUtils
 import org.elasticsearch.index.query.BoolQueryBuilder

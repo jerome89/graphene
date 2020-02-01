@@ -10,7 +10,7 @@ import com.graphene.reader.store.key.elasticsearch.property.IndexBasedKeySearchH
 import com.graphene.reader.store.key.elasticsearch.property.IndexProperty
 import com.graphene.reader.store.key.elasticsearch.property.SimpleKeySearchHandlerProperty
 import com.graphene.reader.store.key.elasticsearch.property.TagBasedKeySearchHandlerProperty
-import com.graphene.reader.store.tag.optimizer.ElasticsearchTagSearchQueryOptimizer
+import com.graphene.reader.store.tag.elasticsearch.optimizer.ElasticsearchTagSearchQueryOptimizer
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean

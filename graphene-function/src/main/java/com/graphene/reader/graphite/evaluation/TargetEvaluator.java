@@ -43,7 +43,7 @@ public class TargetEvaluator {
       List<Path> paths =
         (List<Path>) keySearchHandler.getPathsByTags(tenant, tagExpressions, from, to);
 
-      return dataFetchHandler.getMetricsAsList(
+      return dataFetchHandler.getMetrics(
         tenant,
         paths,
         from,
@@ -67,7 +67,7 @@ public class TargetEvaluator {
 
       logger.debug("resolved paths : " + paths);
 
-      return dataFetchHandler.getMetricsAsList(
+      return dataFetchHandler.getMetrics(
           pathTarget.getTenant(),
           paths,
           pathTarget.getFrom(),

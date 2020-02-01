@@ -6,17 +6,15 @@ import com.datastax.driver.core.ResultSet
 import com.datastax.driver.core.ResultSetFuture
 import com.datastax.driver.core.Session
 import com.google.common.base.Function
-import com.google.common.base.Joiner
 import com.google.common.base.Stopwatch
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import com.google.gson.Gson
 import com.graphene.common.beans.OffsetRange
 import com.graphene.common.beans.Path
-import com.graphene.common.beans.QueryRange
+import com.graphene.common.beans.SeriesRange
 import com.graphene.common.store.data.cassandra.CassandraFactory
 import com.graphene.common.store.data.cassandra.property.CassandraDataHandlerProperty
 import com.graphene.reader.beans.TimeSeries
@@ -28,7 +26,9 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import javax.annotation.PreDestroy
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
 /**
  * @author Andrei Ivanov
@@ -80,59 +80,17 @@ class OffsetBasedDataFetchHandler(
   }
 
   private val executorService: ExecutorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())
-  @Throws(ExecutionException::class, InterruptedException::class, TooMuchDataExpectedException::class)
-  override fun getMetricsAsJson(tenant: String, paths: List<Path>, from: Long, to: Long): String { // Calculate rollup etc
-    val queryRange = QueryRange(from, to, rollup)
-    val queryOffsetRanges = createQueryOffsetRanges(queryRange)
-    logger.debug(queryRange.toString())
-    logger.debug("Expected number of series is ${paths.size}")
-    if (paths.size * queryRange.expectedCount > maxPoints) {
-      logger.debug("Expected total number of data points exceeds the limit: ${paths.size * queryRange.expectedCount}")
-      throw TooMuchDataExpectedException("Expected total number of data points exceeds the limit: ${paths.size * queryRange.expectedCount} (the limit is $maxPoints)")
-    }
-    // Now let's query C*
-    var futures: MutableList<ListenableFuture<PartialPathResult>> = Lists.newArrayListWithExpectedSize(paths.size * queryOffsetRanges.keys.size)
-    for (path in paths) {
-      for ((startTime, offsetRange) in queryOffsetRanges) {
-        val serializeFunction = Function<ResultSet, PartialPathResult> {
-          resultSet: ResultSet? ->
-          val result = PartialPathResult(path, startTime, offsetRange)
-          result.makeJson(resultSet)
-          result
-        }
-        futures.add(
-          Futures.transform(
-            executeAsync(path.path, tenant, startTime, offsetRange.startOffset, offsetRange.endOffset),
-            serializeFunction,
-            executorService
-          )
-        )
-      }
-    }
-
-    futures = Futures.inCompletionOrder(futures)
-    // Build response content JSON
-    val singlePathJsons: MutableList<String?> = ArrayList()
-
-    for (future in futures) {
-      val partialPathResult = future.get()
-      if (!partialPathResult.isAllNulls) {
-        singlePathJsons.add("\"" + partialPathResult.path + "\":" + partialPathResult.json)
-      }
-    }
-    return "{\"from\":${queryRange.from},\"to\":${queryRange.to},\"step\":$rollup,\"series\":{${Joiner.on(",").skipNulls().join(singlePathJsons)}}}"
-  }
 
   @Throws(ExecutionException::class, InterruptedException::class, TooMuchDataExpectedException::class)
-  override fun getMetricsAsList(tenant: String, paths: List<Path>, from: Long, to: Long): List<TimeSeries> {
+  override fun getMetrics(tenant: String, paths: List<Path>, from: Long, to: Long): List<TimeSeries> {
     // Calculate rollup etc
-    val queryRange = QueryRange(from, to, rollup)
-    val queryOffsetRanges = createQueryOffsetRanges(queryRange)
-    logger.debug(queryRange.toString())
+    val seriesRange = SeriesRange(from, to, rollup)
+    val queryOffsetRanges = createQueryOffsetRanges(seriesRange)
+    logger.debug(seriesRange.toString())
     logger.debug("Expected number of series is ${paths.size}")
-    if (paths.size * queryRange.expectedCount > maxPoints) {
-      logger.debug("Expected total number of data points exceeds the limit: ${paths.size * queryRange.expectedCount}")
-      throw TooMuchDataExpectedException("Expected total number of data points exceeds the limit: ${paths.size * queryRange.expectedCount} (the limit is $maxPoints)")
+    if (paths.size * seriesRange.expectedCount > maxPoints) {
+      logger.debug("Expected total number of data points exceeds the limit: ${paths.size * seriesRange.expectedCount}")
+      throw TooMuchDataExpectedException("Expected total number of data points exceeds the limit: ${paths.size * seriesRange.expectedCount} (the limit is $maxPoints)")
     }
     // Now let's query C*
     var futures: MutableList<ListenableFuture<PartialPathResult>> = Lists.newArrayListWithExpectedSize(paths.size * queryOffsetRanges.keys.size)
@@ -162,16 +120,16 @@ class OffsetBasedDataFetchHandler(
       val partialPathResult = future.get()
       if (partialPathResult.values != null) {
         if (! timeSeriesMap.containsKey(partialPathResult.path)) {
-          timeSeriesMap[partialPathResult.path] = TimeSeries(partialPathResult.path, partialPathResult.path, partialPathResult.tags, queryRange)
+          timeSeriesMap[partialPathResult.path] = TimeSeries(partialPathResult.path, partialPathResult.path, partialPathResult.tags, seriesRange)
         }
         timeSeriesMap[partialPathResult.path]!!.addValues(partialPathResult.values, partialPathResult.startTime)
       }
     }
 
     timeSeriesList.addAll(timeSeriesMap.values)
-    logger.debug("Number of series fetched: " + timeSeriesList.size)
+    logger.debug("Number of series fetched: ${timeSeriesList.size}")
     timer.stop()
-    logger.debug("Fetching from Cassandra took " + timer.elapsed(TimeUnit.MILLISECONDS) + " milliseconds (" + paths + ")")
+    logger.debug("Fetching from Cassandra took ${timer.elapsed(TimeUnit.MILLISECONDS)} milliseconds ($paths)")
     var totalPoints = 0
     for (ts in timeSeriesList) {
       totalPoints += ts.values.size
@@ -180,10 +138,10 @@ class OffsetBasedDataFetchHandler(
     return timeSeriesList
   }
 
-  private fun createQueryOffsetRanges(queryRange: QueryRange): Map<Long, OffsetRange> {
-    val from = queryRange.from
-    val to = queryRange.to
-    val rollup = queryRange.rollup
+  private fun createQueryOffsetRanges(seriesRange: SeriesRange): Map<Long, OffsetRange> {
+    val from = seriesRange.from
+    val to = seriesRange.to
+    val rollup = seriesRange.rollup
     var startTime = from - from % bucketSize
     val queryOffsetRange = Maps.newTreeMap<Long, OffsetRange>()
     while (startTime <= to) {
@@ -208,21 +166,36 @@ class OffsetBasedDataFetchHandler(
     return rollup
   }
 
+  @PreDestroy
+  fun shutdown() {
+    logger.info("Shutting down OffsetBasedDataFetchHandler.")
+    logger.info("Closing OffsetBasedDataFetchHandler C* session.")
+    logger.info("Waiting for C* queries to be completed.")
+    while (getInFlightQueries(session.state) > 0) {
+      try {
+        Thread.sleep(100)
+      } catch (ignored: InterruptedException) {
+      }
+    }
+    session.close()
+    logger.info("Closing OffsetBasedDataFetchHandler.")
+    cluster.close()
+  }
+
+  private fun getInFlightQueries(state: Session.State): Int {
+    var result = 0
+    val hosts = state.connectedHosts
+    for (host in hosts) {
+      result += state.getInFlightQueries(host)
+    }
+    return result
+  }
+
   private class PartialPathResult constructor(path: Path, val startTime: Long, val offsetRange: OffsetRange) {
     val path: String = path.path
     val tags: Map<String, String> = path.getTags()
-    var json: String? = null
     var values: Array<Double?>? = null
     var isAllNulls = true
-
-    fun makeJson(resultSet: ResultSet?) {
-      values = arrayOfNulls(offsetRange.endOffset - offsetRange.startOffset + 1)
-      for (row in resultSet!!) {
-        isAllNulls = false
-        values!![row.getShort("offset").toInt() - offsetRange.startOffset] = row.getDouble("data")
-      }
-      json = Gson().toJson(values)
-    }
 
     fun makeArray(resultSet: ResultSet?) {
       values = arrayOfNulls(offsetRange.endOffset - offsetRange.startOffset + 1)
@@ -233,15 +206,9 @@ class OffsetBasedDataFetchHandler(
         }
       }
     }
-
-    companion object {
-      private fun isSumMetric(path: String): Boolean {
-        return path.startsWith("sum")
-      }
-    }
   }
 
   companion object {
-    val logger = LogManager.getLogger(OffsetBasedDataFetchHandler::class.java)
+    val logger: Logger = LogManager.getLogger(OffsetBasedDataFetchHandler::class.java)
   }
 }

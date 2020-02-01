@@ -3,8 +3,8 @@ package com.graphene.reader.store.key.elasticsearch.handler
 import com.graphene.common.HierarchyMetricPaths
 import com.graphene.common.beans.Path
 import com.graphene.reader.service.index.KeySearchHandler
-import com.graphene.reader.store.tag.optimizer.ElasticsearchTagSearchQueryOptimizer
-import com.graphene.reader.store.tag.optimizer.TagSearchTarget
+import com.graphene.reader.store.tag.elasticsearch.optimizer.ElasticsearchTagSearchQueryOptimizer
+import com.graphene.reader.store.tag.elasticsearch.optimizer.TagSearchTarget
 import java.util.Objects
 import org.apache.logging.log4j.LogManager
 import org.elasticsearch.index.query.QueryBuilder

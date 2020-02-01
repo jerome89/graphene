@@ -23,11 +23,11 @@ object RenderParameters {
 
   fun from(renderRequest: RenderRequest): RenderParameter {
 
-    var timeZone: DateTimeZone = DateTimeZone.UTC
+    val timeZone: DateTimeZone = DateTimeZone.UTC
 
     // parse from defaulting to -1d
     var from: Long = getFrom(renderRequest.from, timeZone)
-    var until: Long = getUntil(renderRequest.until, timeZone)
+    val until: Long = getUntil(renderRequest.until, timeZone)
 
     // Prohibiting "from greater than until"
     if (from > until) {

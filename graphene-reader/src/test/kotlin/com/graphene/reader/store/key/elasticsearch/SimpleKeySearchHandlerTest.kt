@@ -1,4 +1,4 @@
-package com.graphene.reader.store.key
+package com.graphene.reader.store.key.elasticsearch
 
 import com.graphene.common.beans.Path
 import com.graphene.reader.store.key.elasticsearch.handler.ElasticsearchClient
