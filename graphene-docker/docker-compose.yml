@@ -29,7 +29,7 @@ services:
       - 9000:9000
     container_name: cerebro
   graphene-reader:
-    image: dark0096/graphene-reader:1.6.0
+    image: dark0096/graphene-reader:1.7.0
     links:
       - cassandra:cassandra
       - elasticsearch:elasticsearch
@@ -42,18 +42,39 @@ services:
       - 8080:8080
     container_name: graphene-reader
   graphene-writer:
-    image: dark0096/graphene-writer:1.6.0
+    image: dark0096/graphene-writer:1.7.0
     links:
       - cassandra:cassandra
       - elasticsearch:elasticsearch
+      - kafka:kafka
     environment:
       GRAPHENE_DATA_CASSANDRA_CLUSTER: 'cassandra'
       GRAPHENE_INDEX_ELASTICSEARCH_CLUSTER: 'elasticsearch'
       GRAPHENE_CARBON_HOST: 'graphene-writer'
       GRAPHENE_HEAP_OPTS: '-Xmx1G -Xms1G'
+      GRAPHENE_INPUT_KAFKA_ENABLED: 'true'
+      GRAPHENE_INPUT_KAFKA_BOOTSTRAP_SERVER: 'kafka:9092'
+      GRAPHENE_INPUT_KAFKA_CONSUMER_GROUP_ID: 'graphene-writer1'
+      GRAPHENE_INPUT_KAFKA_TOPICS: 'graphene-test'
+      GRAPHENE_INPUT_KAFKA_KEY_DESERIALIZER_CLASS: 'org.apache.kafka.common.serialization.StringDeserializer'
+      GRAPHENE_INPUT_KAFKA_VALUE_DESERIALIZER_CLASS: 'com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer'
     ports:
       - 2003:2003
     container_name: graphene-writer
+  kafka:
+    image: wurstmeister/kafka:2.11-2.0.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    expose:
+      - "2181"
   grafana:
     image: grafana/grafana:6.3.5
     ports:
