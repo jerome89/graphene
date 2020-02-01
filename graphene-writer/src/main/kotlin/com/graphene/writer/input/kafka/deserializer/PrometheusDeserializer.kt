@@ -23,7 +23,7 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
 
     val grapheneMetrics = mutableListOf<GrapheneMetric>()
     for (i in plainPrometheusMetrics.indices step 1) {
-      if (startsWithHash(plainPrometheusMetrics[i][0], i)) {
+      if (startsWithHash(plainPrometheusMetrics[i][0])) {
         continue
       }
 
@@ -35,7 +35,9 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
     return grapheneMetrics
   }
 
-  private fun startsWithHash(char: Char, i: Int): Boolean = char == SpecialChar.HASH
+  private fun startsWithHash(char: Char): Boolean {
+    return Objects.nonNull(char) && char == SpecialChar.HASH
+  }
 
   private fun newGrapheneMetric(plainPrometheusMetric: String): GrapheneMetric? {
     try {
