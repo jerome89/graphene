@@ -1,10 +1,10 @@
 package com.graphene.writer.domain
 
 import com.graphene.reader.utils.MetricRule
-import com.graphene.writer.config.Rollup
 
 /**
  * @author Andrei Ivanov
+ * @author jerome89
  */
 class Metric {
 
@@ -23,7 +23,7 @@ class Metric {
   val timestamp: Long
     get() = key!!.timestamp
 
-  constructor(input: String, rollup: Rollup) {
+  constructor(input: String, rollup: Int) {
     val splitInput = input.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     // We were interning tenant and path here - we are going to store them all (or almost so) constantly anyhow in multiple places
     // In fact this also work for a moderate metrics stream. Once we start receiving 10s of millions different metrics, it tends to degrade quite a bit
@@ -35,8 +35,8 @@ class Metric {
     this.value = java.lang.Double.parseDouble(splitInput[1])
   }
 
-  private fun normalizeTimestamp(timestamp: Long, rollup: Rollup): Long {
-    return timestamp / rollup.rollup * rollup.rollup
+  private fun normalizeTimestamp(timestamp: Long, rollup: Int): Long {
+    return timestamp / rollup * rollup
   }
 
   override fun toString(): String {

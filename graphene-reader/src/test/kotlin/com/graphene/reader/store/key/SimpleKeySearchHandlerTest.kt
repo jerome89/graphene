@@ -1,8 +1,8 @@
 package com.graphene.reader.store.key
 
 import com.graphene.common.beans.Path
-import com.graphene.reader.store.key.handler.ElasticsearchClient
-import com.graphene.reader.store.key.handler.SimpleKeySearchHandler
+import com.graphene.reader.store.key.elasticsearch.handler.ElasticsearchClient
+import com.graphene.reader.store.key.elasticsearch.handler.SimpleKeySearchHandler
 import com.graphene.reader.utils.ElasticsearchTestUtils
 import io.mockk.every
 import io.mockk.mockk

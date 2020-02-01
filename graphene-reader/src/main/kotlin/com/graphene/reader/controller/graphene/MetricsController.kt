@@ -1,7 +1,7 @@
 package com.graphene.reader.controller.graphene
 
 import com.graphene.common.beans.Path
-import com.graphene.reader.service.metric.CassandraMetricService
+import com.graphene.reader.service.metric.DataFetchHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class MetricsController(
-  private var cassandraMetricService: CassandraMetricService
+  private var dataFetchHandler: DataFetchHandler
 ) {
 
   @GetMapping("/metrics")
@@ -20,12 +20,12 @@ class MetricsController(
     @RequestParam from: Long,
     @RequestParam to: Long
   ): String? {
-    return cassandraMetricService.getMetricsAsJson(tenant, path, from, to)
+    return dataFetchHandler.getMetricsAsJson(tenant, path, from, to)
   }
 
   @PostMapping("/metrics")
   fun postMetrics(@RequestBody parameters: MetricsParameters): String? {
-    return cassandraMetricService.getMetricsAsJson(parameters.tenant, parameters.path, parameters.from, parameters.to)
+    return dataFetchHandler.getMetricsAsJson(parameters.tenant!!, parameters.path, parameters.from, parameters.to)
   }
 
   data class MetricsParameters(

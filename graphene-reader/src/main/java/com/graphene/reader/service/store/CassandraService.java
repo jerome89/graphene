@@ -14,7 +14,7 @@ import java.util.Collection;
 /**
  * @author Andrei Ivanov
  */
-@Component
+//@Component
 public class CassandraService {
 
     private Logger logger = LogManager.getLogger(CassandraService.class);

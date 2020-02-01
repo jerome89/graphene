@@ -3,9 +3,9 @@ package com.graphene.reader.store.key
 import com.graphene.common.HierarchyMetricPaths
 import com.graphene.common.beans.Path
 import com.graphene.common.utils.DateTimeUtils
-import com.graphene.reader.store.key.handler.ElasticsearchClient
-import com.graphene.reader.store.key.handler.IndexBasedKeySearchHandler
-import com.graphene.reader.store.key.optimizer.IndexBasedElasticsearchQueryOptimizer
+import com.graphene.reader.store.key.elasticsearch.handler.ElasticsearchClient
+import com.graphene.reader.store.key.elasticsearch.handler.IndexBasedKeySearchHandler
+import com.graphene.reader.store.key.elasticsearch.optimizer.IndexBasedElasticsearchQueryOptimizer
 import com.graphene.reader.utils.ElasticsearchTestUtils
 import io.mockk.every
 import io.mockk.mockk

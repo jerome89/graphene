@@ -4,7 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.graphene.reader.beans.TimeSeries;
-import com.graphene.reader.config.ReaderConfiguration;
+import com.graphene.reader.config.RenderConfiguration;
 import com.graphene.reader.exceptions.EvaluationException;
 import com.graphene.reader.exceptions.InvalidParameterValueException;
 import com.graphene.reader.exceptions.LogarithmicScaleNotAllowed;
@@ -18,7 +18,7 @@ import com.graphene.reader.graphite.grammar.GraphiteLexer;
 import com.graphene.reader.graphite.grammar.GraphiteParser;
 import com.graphene.reader.graphite.utils.ValueFormatter;
 import com.graphene.reader.service.index.KeySearchHandler;
-import com.graphene.reader.service.metric.CassandraMetricService;
+import com.graphene.reader.service.metric.DataFetchHandler;
 import com.graphene.reader.service.stats.StatsService;
 import com.graphene.reader.service.throttling.ThrottlingService;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -46,17 +46,23 @@ public class RenderHandler {
     private TargetEvaluator evaluator;
     private StatsService statsService;
     private ThrottlingService throttlingService;
-    private ReaderConfiguration readerConfiguration;
+    private RenderConfiguration renderConfiguration;
 
     private static final ExecutorService executor = Executors.newCachedThreadPool();
     private TimeLimiter timeLimiter = SimpleTimeLimiter.create(executor);
 
 
-    public RenderHandler(CassandraMetricService cassandraMetricService, KeySearchHandler keySearchHandler, StatsService statsService, ThrottlingService throttlingService, ReaderConfiguration readerConfiguration) {
-        this.evaluator = new TargetEvaluator(cassandraMetricService, keySearchHandler);
+    public RenderHandler(
+      DataFetchHandler dataFetchHandler,
+      KeySearchHandler keySearchHandler,
+      StatsService statsService,
+      ThrottlingService throttlingService,
+      RenderConfiguration renderConfiguration
+    ) {
+        this.evaluator = new TargetEvaluator(dataFetchHandler, keySearchHandler);
         this.statsService = statsService;
         this.throttlingService = throttlingService;
-        this.readerConfiguration = readerConfiguration;
+        this.renderConfiguration = renderConfiguration;
     }
 
     public ResponseEntity<?> handle(RenderParameter parameters) throws ParameterParsingException {
@@ -74,7 +80,7 @@ public class RenderHandler {
         final List<Target> targets = new ArrayList<>();
 
         EvaluationContext context = new EvaluationContext(
-                readerConfiguration.isHumanReadableNumbers() ? ValueFormatter.getInstance(parameters.getFormat()) : ValueFormatter.getInstance(ValueFormatter.ValueFormatterType.MACHINE)
+                renderConfiguration.isHumanReadableNumbers() ? ValueFormatter.getInstance(parameters.getFormat()) : ValueFormatter.getInstance(ValueFormatter.ValueFormatterType.MACHINE)
         );
 
         // Let's parse the targets
@@ -101,7 +107,7 @@ public class RenderHandler {
                 public ResponseEntity<?> call() throws EvaluationException, LogarithmicScaleNotAllowed {
                     return handleInternal(targets, parameters);
                 }
-            }, readerConfiguration.getRequestTimeout(), TimeUnit.SECONDS);
+            }, renderConfiguration.getRequestTimeout(), TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             logger.debug("Request timed out: " + parameters);
             statsService.incTimedOutRequests(parameters.getTenant());

@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author Andrei Ivanov
  */
-@ConfigurationProperties("graphene.reader.store.data")
+//@ConfigurationProperties("graphene.reader.store.data")
 public class StoreConfiguration {
     private List<String> cluster = new ArrayList<>();
     private String keyspace;

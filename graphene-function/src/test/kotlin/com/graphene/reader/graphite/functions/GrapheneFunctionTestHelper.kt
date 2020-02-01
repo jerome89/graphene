@@ -8,14 +8,14 @@ import com.graphene.reader.graphite.evaluation.EvaluationContext
 import com.graphene.reader.graphite.evaluation.TargetEvaluator
 import com.graphene.reader.graphite.utils.ValueFormatter
 import com.graphene.reader.service.index.KeySearchHandler
-import com.graphene.reader.service.metric.MetricService
+import com.graphene.reader.service.metric.DataFetchHandler
 import io.mockk.every
 import io.mockk.mockk
 
 abstract class GrapheneFunctionTestHelper {
 
   private val indexService = mockk<KeySearchHandler>()
-  private val metricService = mockk<MetricService>()
+  private val metricService = mockk<DataFetchHandler>()
 
   private val targetEvaluator = TargetEvaluator(metricService, indexService)
   private lateinit var pathTarget: PathTarget

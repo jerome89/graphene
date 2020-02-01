@@ -53,11 +53,11 @@ public class DateUtils {
                 unitValue = 60L;
             }
             // calc offset as (now) - (number * unit value)
-            return (System.currentTimeMillis() / 1000L) - (Long.valueOf(value) * unitValue);
+            return (System.currentTimeMillis() / 1000L) - (Long.parseLong(value) * unitValue);
         } else if ("now".equals(timeString.toLowerCase())) {
             return System.currentTimeMillis() / 1000L;
         } else {
-            return new DateTime(Long.valueOf(timeString) * 1000, tz).getMillis() / 1000L;
+            return new DateTime(Long.parseLong(timeString) * 1000, tz).getMillis() / 1000L;
         }
     }
 }

@@ -8,8 +8,7 @@ logging:
 graphene:
   reader:
     render:
-      rollups:
-        - 60s:5356800s
+      requestTimeout: 30
       humanReadableNumbers: true
     store:
       key:
@@ -60,19 +59,49 @@ graphene:
             timeout: 120000
             maxPaths: 200000
       data:
-        cluster:
-          - "127.0.0.1"
-        port: 9042
-        userName: 'cassandra'
-        userPassword: 'cassandra'
-        keyspace: 'metric'
-        columnFamily: 'metric'
-        maxConnections: 2048
-        readTimeout: 10
-        connectTimeout: 10
-        maxRequests: 128
-        loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-        protocolVersion: "V3"
+        handlers:
+          simple-data-fetch-handler:
+            enabled: false
+            tenant: NONE
+            maxPoints: 60000000
+            keyspace: "metric"
+            columnFamily: "metric"
+            bucketSize: 0
+            rollup: 60
+            handler:
+              property:
+                cluster: "127.0.0.1"
+                port: 9042
+                userName: "cassandra"
+                userPassword: "cassandra"
+                maxConnections: 2048
+                readTimeout: 10
+                connectTimeout: 10
+                maxRequests: 128
+                maxQueueSize: 4194304 # 4 * 1024 * 1024
+                loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+                protocolVersion: "V4"
+          offset-based-data-fetch-handler:
+            enabled: true
+            tenant: NONE
+            maxPoints: 60000000
+            keyspace: "metric_offset"
+            columnFamily: "metric"
+            bucketSize: 604800
+            rollup: 60
+            handler:
+              property:
+                cluster: "127.0.0.1"
+                port: 9042
+                userName: "cassandra"
+                userPassword: "cassandra"
+                maxConnections: 2048
+                readTimeout: 10
+                connectTimeout: 10
+                maxRequests: 128
+                maxQueueSize: 4194304 # 4 * 1024 * 1024
+                loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+                protocolVersion: "V4"
     throttling:
       # enable throttling
       throttlingEnabled: true
