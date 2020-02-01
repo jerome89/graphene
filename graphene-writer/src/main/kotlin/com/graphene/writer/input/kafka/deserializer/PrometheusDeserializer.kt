@@ -15,21 +15,25 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
   private val log: Logger = LogManager.getLogger(javaClass)
 
   override fun deserialize(topic: String?, data: ByteArray?): List<GrapheneMetric> {
-    if (Objects.isNull(data)) {
-      return emptyList()
-    }
-
-    val plainPrometheusMetrics = String(data!!).split("\n")
-
     val grapheneMetrics = mutableListOf<GrapheneMetric>()
-    for (i in plainPrometheusMetrics.indices step 1) {
-      if (startsWithHash(plainPrometheusMetrics[i][0])) {
-        continue
+
+    try {
+      if (Objects.isNull(data)) {
+        return emptyList()
       }
 
-      newGrapheneMetric(plainPrometheusMetrics[i])?.run {
-        grapheneMetrics.add(this)
+      val plainPrometheusMetrics = String(data!!).split("\n")
+      for (i in plainPrometheusMetrics.indices step 1) {
+        if (startsWithHash(plainPrometheusMetrics[i][0])) {
+          continue
+        }
+
+        newGrapheneMetric(plainPrometheusMetrics[i])?.run {
+          grapheneMetrics.add(this)
+        }
       }
+    } catch (e: Throwable) {
+      log.error("Fail to deserialize from prometheus format metric to graphene metric : ${data?.toString()}")
     }
 
     return grapheneMetrics
