@@ -33,7 +33,8 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
         }
       }
     } catch (e: Throwable) {
-      log.error("Fail to deserialize from prometheus format metric to graphene metric : ${data?.toString()}")
+      val convertedData = data?.run { toString() }
+      log.error("Fail to deserialize from prometheus format metric to graphene metric : $convertedData")
     }
 
     return grapheneMetrics
