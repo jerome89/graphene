@@ -1,6 +1,5 @@
 package com.graphene.writer.input.kafka.deserializer
 
-import com.graphene.common.rule.GrapheneRules
 import com.graphene.common.rule.GrapheneRules.SpecialChar
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.input.Source
@@ -44,7 +43,6 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
       val metricChars = plainPrometheusMetric.toCharArray()
       for (metricChar in metricChars) {
         if (metricChar == SpecialChar.BRACE_OPEN) {
-          tags[GrapheneRules.METRIC_NAME_TAG] = tmp.toString()
           id.append("$tmp;")
           tmp.clear()
         } else if (metricChar == SpecialChar.EQUAL) {

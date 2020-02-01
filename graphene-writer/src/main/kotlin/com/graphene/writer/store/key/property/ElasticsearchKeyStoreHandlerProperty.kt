@@ -15,7 +15,7 @@ class ElasticsearchKeyStoreHandlerProperty(
   var cluster: String = "127.0.0.1",
   var port: Int = 9200,
   var protocol: String = "http",
-  var bulk: IndexBulkConfiguration? = null
+  var bulk: IndexBulkConfiguration = IndexBulkConfiguration()
 ) {
 
   @PostConstruct
