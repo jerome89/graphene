@@ -1,6 +1,7 @@
 package com.graphene.writer.input.kafka.deserializer
 
 import com.graphene.common.rule.GrapheneRules.SpecialChar
+import com.graphene.common.utils.DateTimeUtils
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.input.Source
 import java.util.Objects
@@ -21,7 +22,11 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
     val plainPrometheusMetrics = String(data!!).split("\n")
 
     val grapheneMetrics = mutableListOf<GrapheneMetric>()
-    for (i in 2..plainPrometheusMetrics.size step 3) {
+    for (i in plainPrometheusMetrics.indices step 1) {
+      if (startsWithHash(plainPrometheusMetrics[i][0], i)) {
+        continue
+      }
+
       newGrapheneMetric(plainPrometheusMetrics[i])?.run {
         grapheneMetrics.add(this)
       }
@@ -30,15 +35,18 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
     return grapheneMetrics
   }
 
+  private fun startsWithHash(char: Char, i: Int): Boolean = char == SpecialChar.HASH
+
   private fun newGrapheneMetric(plainPrometheusMetric: String): GrapheneMetric? {
     try {
       val tags = TreeMap<String, String>()
       var value = ""
-      var timestamp: String
 
       val tmp = StringBuilder()
       val id = StringBuilder()
       var tmpTagKey = ""
+
+      var withoutTimestamp = true
 
       val metricChars = plainPrometheusMetric.toCharArray()
       for (metricChar in metricChars) {
@@ -56,15 +64,27 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
           if (metricChar == SpecialChar.COMMA) {
             id.append(SpecialChar.SEMICOLON)
           }
-        } else if (metricChar == SpecialChar.WHITESPACE && tmp.isNotEmpty()) {
+        } else if (metricChar == SpecialChar.WHITESPACE) {
+          if (tmp.isEmpty()) {
+            continue
+          }
+
           value = tmp.toString()
+          withoutTimestamp = false
           tmp.clear()
         } else if (metricChar != SpecialChar.DOUBLE_QUOTE) {
           tmp.append(metricChar)
         }
       }
 
-      timestamp = tmp.toString()
+      var timestamp: String
+      // your prometheus format metric hasn't timestamp
+      if (withoutTimestamp) {
+        value = tmp.toString()
+        timestamp = DateTimeUtils.currentTimeMillis().toString()
+      } else {
+        timestamp = tmp.toString()
+      }
 
       return GrapheneMetric(Source.PROMETHEUS, id.toString(), mutableMapOf(), tags, TreeMap(), value.toDouble(), normalizedTimestamp(timestamp.toLong() / 1000))
     } catch (e: Throwable) {
