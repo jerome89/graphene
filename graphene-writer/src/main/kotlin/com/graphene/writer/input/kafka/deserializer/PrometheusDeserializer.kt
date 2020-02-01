@@ -95,7 +95,7 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
 
       return GrapheneMetric(Source.PROMETHEUS, id.toString(), mutableMapOf(), tags, TreeMap(), value.toDouble(), normalizedTimestamp(timestamp.toLong() / 1000))
     } catch (e: Throwable) {
-      log.error("Fail to deserialize from prometheus format metric to graphene metric : $plainPrometheusMetric")
+      log.error("Fail to deserialize from prometheus format metric to graphene metric : $plainPrometheusMetric", e)
     }
 
     return null
