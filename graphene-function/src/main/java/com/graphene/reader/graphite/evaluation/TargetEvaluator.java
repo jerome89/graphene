@@ -52,7 +52,6 @@ public class TargetEvaluator {
       );
     } catch (ExecutionException | InterruptedException | TooMuchDataExpectedException e) {
       logger.error(e.getMessage());
-      logger.debug(e);
       throw new EvaluationException(e);
     }
   }

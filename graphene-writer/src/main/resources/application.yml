@@ -26,8 +26,8 @@ graphene:
         pollIntervalMs: 5000
         maxPollRecords: 1000
         topics: "graphene-test-0,graphene-test-1"
-        payloadFormat: "GraphiteMetric"
-        valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.GraphiteDeserializer"
+        keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
+        valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
     store:
       key:
         handlers:

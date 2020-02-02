@@ -35,8 +35,8 @@ class MetricKafkaInputConfiguration(
   fun consumerConfigs(): Map<String, Any?> {
     val props: MutableMap<String, Any?> = HashMap()
     props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = inputKafkaProperty.bootstrapServer
-    props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = keyDeserializer(inputKafkaProperty.keyDeserializerClass)
-    props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = valueDeserializer(inputKafkaProperty.valueDeserializerClass)
+    props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = keyDeserializer(inputKafkaProperty.keyDeserializerClass!!)
+    props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = valueDeserializer(inputKafkaProperty.valueDeserializerClass!!)
     props[ConsumerConfig.GROUP_ID_CONFIG] = inputKafkaProperty.consumerGroupId
     props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = inputKafkaProperty.autoOffsetReset
     props[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = inputKafkaProperty.maxPollRecords
@@ -46,8 +46,8 @@ class MetricKafkaInputConfiguration(
   @Bean
   fun consumerFactory(): ConsumerFactory<String, GrapheneMetric> {
     return DefaultKafkaConsumerFactory(consumerConfigs(),
-      keyDeserializer(inputKafkaProperty.keyDeserializerClass),
-      valueDeserializer(inputKafkaProperty.valueDeserializerClass))
+      keyDeserializer(inputKafkaProperty.keyDeserializerClass!!),
+      valueDeserializer(inputKafkaProperty.valueDeserializerClass!!))
   }
 
   @Bean

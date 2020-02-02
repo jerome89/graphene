@@ -8,6 +8,19 @@ object GrapheneRules {
 
   const val DEFAULT_ROTATION_STRATEGY = "timeBasedRotation"
   const val DEFAULT_TENANT = "NONE"
+  const val METRIC_NAME_TAG = "@name"
+
+  object SpecialChar {
+    const val HASH = '#'
+    const val DOUBLE_QUOTE = '"'
+    const val AND = '&'
+    const val SEMICOLON = ';'
+    const val COMMA = ','
+    const val BRACE_OPEN = '{'
+    const val BRACE_CLOSE = '}'
+    const val WHITESPACE = ' '
+    const val EQUAL = '='
+  }
 
   object Date {
     const val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss"
