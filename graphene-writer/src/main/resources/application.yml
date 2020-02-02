@@ -25,7 +25,7 @@ graphene:
         consumerGroupId: "graphene-writer"
         pollIntervalMs: 5000
         maxPollRecords: 1000
-        topics: "graphene-test-0,graphene-test-1"
+        topics: "graphene-test"
         keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
         valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
     store:

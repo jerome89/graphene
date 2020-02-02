@@ -1,5 +1,7 @@
 package com.graphene.reader.store.key.property
 
+import com.graphene.reader.store.key.selector.KeySelectorProperty
+
 /**
  * @author Andrei Ivanov
  * @author Dark
@@ -7,6 +9,7 @@ package com.graphene.reader.store.key.property
  * @since 1.0.0
  */
 interface IndexProperty {
+  fun keySelectorProperty(): KeySelectorProperty
   fun clusterName(): String?
   fun index(): String?
   fun tenant(): String
