@@ -14,8 +14,8 @@ graphene:
     store:
       key:
         handlers:
-          index-based-key-search-handler:
-            key-selector:
+          tag-based-key-search-handler:
+            key-selector-property:
               type: "RollingKeySelector"
               period: "1w"
             enabled: true
@@ -24,7 +24,7 @@ graphene:
             cluster:
               - "{{getv "/index/elasticsearch/cluster" "elasticsearch"}}"
             port: 9300
-            index: "index-based-key-path"
+            index: "tag-based-key-path"
             type: "path"
             scroll: 10000
             timeout: 120000

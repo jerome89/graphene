@@ -46,7 +46,8 @@ mv /tmp/graphene/${GRAPHENE_TYPE}/build/libs/${GRAPHENE_TYPE}-${GRAPHENE_VERSION
 if [[ -z "$1" ]];
 then
   # https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html
-  exec java $GRAPHENE_HEAP_OPTS -jar ${GRAPHENE_PROGRAM_DIR}/${GRAPHENE_TYPE}-${GRAPHENE_VERSION}.jar --spring.config.location=file:${GRAPHENE_CONF_DIR}/application.yml >> ${GRAPHENE_LOG_DIR}/${GRAPHENE_TYPE}.log 2>&1
+#  exec java $GRAPHENE_HEAP_OPTS -jar ${GRAPHENE_PROGRAM_DIR}/${GRAPHENE_TYPE}-${GRAPHENE_VERSION}.jar --spring.config.location=file:${GRAPHENE_CONF_DIR}/application.yml >> ${GRAPHENE_LOG_DIR}/${GRAPHENE_TYPE}.log 2>&1
+  exec java $GRAPHENE_HEAP_OPTS -jar ${GRAPHENE_PROGRAM_DIR}/${GRAPHENE_TYPE}-${GRAPHENE_VERSION}.jar --spring.config.location=file:${GRAPHENE_CONF_DIR}/application.yml
 else
   exec "$@"
 fi

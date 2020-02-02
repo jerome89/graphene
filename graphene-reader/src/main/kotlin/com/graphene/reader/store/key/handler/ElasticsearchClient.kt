@@ -3,6 +3,7 @@ package com.graphene.reader.store.key.handler
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.store.key.property.IndexProperty
 import com.graphene.reader.store.key.selector.KeySelector
+import com.graphene.reader.store.key.selector.RollingKeySelector
 import java.util.Objects
 import javax.annotation.PreDestroy
 import org.apache.commons.lang3.StringUtils
@@ -28,9 +29,10 @@ import org.springframework.stereotype.Component
 @Component
 class ElasticsearchClient(
   private val client: RestHighLevelClient,
-  private val indexProperty: IndexProperty,
-  private val keySelector: KeySelector
+  private val indexProperty: IndexProperty
 ) {
+
+  val keySelector: KeySelector = RollingKeySelector(indexProperty.keySelectorProperty())
 
   fun query(query: QueryBuilder, from: Long, to: Long, specifiedField: String = "", limit: Int = 100): Response {
     val searchSourceBuilder = SearchSourceBuilder()
