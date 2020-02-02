@@ -138,7 +138,7 @@ class OffsetBasedDataFetchHandler(
     return timeSeriesList
   }
 
-  private fun createQueryOffsetRanges(seriesRange: SeriesRange): Map<Long, OffsetRange> {
+  fun createQueryOffsetRanges(seriesRange: SeriesRange): Map<Long, OffsetRange> {
     val from = seriesRange.from
     val to = seriesRange.to
     val rollup = seriesRange.rollup
@@ -191,7 +191,7 @@ class OffsetBasedDataFetchHandler(
     return result
   }
 
-  private class PartialPathResult constructor(path: Path, val startTime: Long, val offsetRange: OffsetRange) {
+  class PartialPathResult constructor(path: Path, val startTime: Long, private val offsetRange: OffsetRange) {
     val path: String = path.path
     val tags: Map<String, String> = path.getTags()
     var values: Array<Double?>? = null
