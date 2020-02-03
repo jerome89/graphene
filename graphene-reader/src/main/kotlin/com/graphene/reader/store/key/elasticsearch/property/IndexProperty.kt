@@ -1,6 +1,6 @@
 package com.graphene.reader.store.key.elasticsearch.property
 
-import com.graphene.reader.store.key.selector.KeySelectorProperty
+import com.graphene.reader.store.key.elasticsearch.selector.KeySelectorProperty
 
 /**
  * @author Andrei Ivanov

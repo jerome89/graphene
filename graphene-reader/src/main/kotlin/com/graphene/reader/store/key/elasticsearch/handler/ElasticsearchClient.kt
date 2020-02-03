@@ -3,6 +3,7 @@ package com.graphene.reader.store.key.elasticsearch.handler
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.store.key.elasticsearch.property.IndexProperty
 import com.graphene.reader.store.key.elasticsearch.selector.KeySelector
+import com.graphene.reader.store.key.elasticsearch.selector.RollingKeySelector
 import java.util.Objects
 import javax.annotation.PreDestroy
 import org.apache.commons.lang3.StringUtils
