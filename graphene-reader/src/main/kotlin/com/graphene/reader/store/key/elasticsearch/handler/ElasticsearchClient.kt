@@ -28,9 +28,10 @@ import org.springframework.stereotype.Component
 @Component
 class ElasticsearchClient(
   private val client: RestHighLevelClient,
-  private val indexProperty: IndexProperty,
-  private val keySelector: KeySelector
+  private val indexProperty: IndexProperty
 ) {
+
+  val keySelector: KeySelector = RollingKeySelector(indexProperty.keySelectorProperty())
 
   fun query(query: QueryBuilder, from: Long, to: Long, specifiedField: String = "", limit: Int = 100): Response {
     val searchSourceBuilder = SearchSourceBuilder()
@@ -109,7 +110,7 @@ class ElasticsearchClient(
     companion object {
       fun of(response: GetMappingsResponse): MappingsResponse {
         return MappingsResponse(
-                response.mappings().values
+          response.mappings().values
         )
       }
     }
@@ -132,10 +133,10 @@ class ElasticsearchClient(
           }
         }
         return Response(
-                response.scrollId,
-                response.hits,
-                response.hits.hits.size,
-                tagValues
+          response.scrollId,
+          response.hits,
+          response.hits.hits.size,
+          tagValues
         )
       }
     }

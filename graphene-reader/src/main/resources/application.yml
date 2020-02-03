@@ -14,7 +14,7 @@ graphene:
       key:
         handlers:
           simple-key-search-handler:
-            key-selector:
+            key-selector-property:
               type: "RollingKeySelector"
               period: "1w"
             enabled: false
@@ -29,7 +29,7 @@ graphene:
             timeout: 120000
             maxPaths: 50000
           index-based-key-search-handler:
-            key-selector:
+            key-selector-property:
               type: "RollingKeySelector"
               period: "1w"
             enabled: false
@@ -44,7 +44,7 @@ graphene:
             timeout: 120000
             maxPaths: 50000
           tag-based-key-search-handler:
-            key-selector:
+            key-selector-property:
               type: "RollingKeySelector"
               period: "1w"
             enabled: true

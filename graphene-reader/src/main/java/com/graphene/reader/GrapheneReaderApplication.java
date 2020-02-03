@@ -3,7 +3,6 @@ package com.graphene.reader;
 import com.graphene.reader.config.RenderConfiguration;
 import com.graphene.reader.config.ThrottlingConfiguration;
 import com.graphene.reader.store.data.DataFetchHandlersProperty;
-import com.graphene.reader.store.key.elasticsearch.selector.KeySelectorProperty;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
@@ -16,8 +15,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties({
   DataFetchHandlersProperty.class,
   ThrottlingConfiguration.class,
-  RenderConfiguration.class,
-  KeySelectorProperty.class
+  RenderConfiguration.class
 })
 public class GrapheneReaderApplication {
   public static void main(String[] args) {

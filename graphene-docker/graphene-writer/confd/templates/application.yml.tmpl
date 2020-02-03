@@ -11,6 +11,15 @@ graphene:
       'test':
         - '^xxx_sum.*\.system\..*'
     input:
+      kafka:
+        enabled: {{getv "/input/kafka/enabled" "false"}}
+        bootstrapServer: "{{getv "/input/kafka/bootstrap/server" "localhost:9092"}}"
+        consumerGroupId: "{{getv "/input/kafka/consumer/group/id" "graphene-writer"}}"
+        pollIntervalMs: {{getv "/input/kafka/poll/interval/ms" "500"}}
+        maxPollRecords: {{getv "/input/kafka/max/poll/records" "1000"}}
+        topics: "{{getv "/input/kafka/topics" "graphene"}}"
+        keyDeserializerClass: "{{getv "/input/kafka/key/deserializer/class" "org.apache.kafka.common.serialization.StringDeserializer"}}"
+        valueDeserializerClass: "{{getv "/input/kafka/value/deserializer/class" "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"}}"
       graphite.carbon:
         bind: "0.0.0.0"
         port: 2003
@@ -24,19 +33,19 @@ graphene:
     store:
       key:
         handlers:
-          index-based-key-store-handler:
+          tag-based-key-store-handler:
             tenant: none
             rotation:
               strategy: "timeBasedRotation"
               period: "1w"
             handler:
-              type: "IndexBasedKeyStoreHandler"
+              type: "TagBasedKeyStoreHandler"
               property:
                 clusterName: "{{getv "/index/elasticsearch/cluster/name" "metric"}}"
                 cluster: "{{getv "/index/elasticsearch/cluster" "elasticsearch"}}"
-                port: 9300
-                templateIndexPattern: "index-based-key-path*"
-                index: "index-based-key-path"
+                port: 9200
+                templateIndexPattern: "tag-based-key-path*"
+                index: "tag-based-key-path"
                 type: "path"
                 bulk:
                   actions: 10000

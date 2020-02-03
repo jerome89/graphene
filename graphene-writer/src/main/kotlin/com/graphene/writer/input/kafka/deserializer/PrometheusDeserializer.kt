@@ -19,25 +19,36 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
       return emptyList()
     }
 
-    val plainPrometheusMetrics = String(data!!).split("\n")
-
     val grapheneMetrics = mutableListOf<GrapheneMetric>()
-    for (i in plainPrometheusMetrics.indices step 1) {
-      if (startsWithHash(plainPrometheusMetrics[i][0], i)) {
-        continue
-      }
 
-      newGrapheneMetric(plainPrometheusMetrics[i])?.run {
-        grapheneMetrics.add(this)
+    try {
+      val plainPrometheusMetrics = String(data!!).split("\n")
+      for (i in plainPrometheusMetrics.indices step 1) {
+        if (startsWithHash(plainPrometheusMetrics[i])) {
+          continue
+        }
+
+        newGrapheneMetric(plainPrometheusMetrics[i])?.run {
+          grapheneMetrics.add(this)
+        }
       }
+    } catch (e: Throwable) {
+      val convertedData = data?.run { String(this) }
+      log.error("Fail to deserialize from prometheus format metric to graphene metric : $convertedData", e)
     }
 
     return grapheneMetrics
   }
 
-  private fun startsWithHash(char: Char, i: Int): Boolean = char == SpecialChar.HASH
+  private fun startsWithHash(plainPrometheusMetric: String): Boolean {
+    return plainPrometheusMetric.isNotEmpty() && plainPrometheusMetric[0] == SpecialChar.HASH
+  }
 
   private fun newGrapheneMetric(plainPrometheusMetric: String): GrapheneMetric? {
+    if (plainPrometheusMetric.isEmpty()) {
+      return null
+    }
+
     try {
       val tags = TreeMap<String, String>()
       var value = ""
@@ -88,7 +99,7 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
 
       return GrapheneMetric(Source.PROMETHEUS, id.toString(), mutableMapOf(), tags, TreeMap(), value.toDouble(), normalizedTimestamp(timestamp.toLong() / 1000))
     } catch (e: Throwable) {
-      log.error("Fail to deserialize from prometheus format metric to graphene metric : $plainPrometheusMetric")
+      log.error("Fail to deserialize from prometheus format metric to graphene metric : $plainPrometheusMetric", e)
     }
 
     return null

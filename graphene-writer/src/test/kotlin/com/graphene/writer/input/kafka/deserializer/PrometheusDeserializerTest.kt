@@ -120,6 +120,7 @@ internal class PrometheusDeserializerTest {
         |# TYPE swap_in counter
         |swap_in{host="local"} 0 1580532000000
         |swap_out{host="local"} 0 1580532000000
+        |
       """.trimMargin("|")
   }
 }
