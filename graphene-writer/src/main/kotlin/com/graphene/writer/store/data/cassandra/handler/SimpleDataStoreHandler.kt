@@ -9,8 +9,6 @@ import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.common.store.data.cassandra.CassandraFactory
-import com.graphene.common.store.data.cassandra.property.CassandraDataHandlerProperty
-import com.graphene.reader.utils.Jsons
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.DataStoreHandler
 import com.graphene.writer.store.DataStoreHandlerProperty
@@ -40,14 +38,12 @@ class SimpleDataStoreHandler(
           AND path = ?
           AND time = ?;"""
 
-  private var cluster: Cluster
+  private var cluster: Cluster = cassandraFactory.createCluster(dataStoreHandlerProperty.property)
   private var session: Session
   private var statement: PreparedStatement
   private var executor: Executor
 
   init {
-    val property = Jsons.from(dataStoreHandlerProperty.handler["property"], CassandraDataHandlerProperty::class.java)
-    this.cluster = cassandraFactory.createCluster(property)
     this.session = cluster.connect()
     this.statement = session.prepare(query)
     this.executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())

@@ -1,6 +1,5 @@
 package com.graphene.reader.store.data.cassandra.handler
 
-import com.datastax.driver.core.Cluster
 import com.graphene.common.beans.OffsetRange
 import com.graphene.common.beans.Path
 import com.graphene.common.beans.SeriesRange
@@ -8,7 +7,6 @@ import com.graphene.common.store.data.cassandra.CassandraFactory
 import com.graphene.common.store.data.cassandra.property.CassandraDataHandlerProperty
 import com.graphene.reader.beans.TimeSeries
 import com.graphene.reader.store.data.DataFetchHandlerProperty
-import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -19,7 +17,6 @@ internal class OffsetBasedDataFetchHandlerTest {
   private lateinit var offsetBasedDataFetchHandler: OffsetBasedDataFetchHandler
   private lateinit var dataFetchHandlerProperty: DataFetchHandlerProperty
   private val cassandraFactory: CassandraFactory = mockk(relaxed = true)
-  private val cluster: Cluster = mockk()
 
   @BeforeEach
   internal fun setUp() {
@@ -29,9 +26,8 @@ internal class OffsetBasedDataFetchHandlerTest {
       keyspace = "",
       columnFamily = "",
       bucketSize = 300,
-      handler = mapOf(Pair("property", emptyMap<String, Any>()))
+      property = cassandraDataHandlerProperty
     )
-    every { return@every cassandraFactory.createCluster(cassandraDataHandlerProperty) } returns cluster
     offsetBasedDataFetchHandler = OffsetBasedDataFetchHandler(cassandraFactory, dataFetchHandlerProperty)
   }
 

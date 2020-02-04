@@ -53,25 +53,25 @@ graphene:
       data:
         handlers:
           simple-data-store-handler:
+            type: "SimpleDataStoreHandler"
             tenant: NONE
             ttl: 604800
             keyspace: "{{getv "/data/cassandra/keyspace" "metric"}}"
             columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
             bucketSize: 0
-            handler:
-              type: "SimpleDataStoreHandler"
-              property:
-                cluster: "{{getv "/data/cassandra/cluster" "127.0.0.1"}}"
-                port: 9042
-                userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
-                userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
-                maxConnections: {{getv "/data/cassandra/max/connections" "2048"}}
-                readTimeout: 10
-                connectTimeout: 10
-                maxRequests: {{getv "/data/cassandra/max/connections" "128"}}
-                maxQueueSize: 4194304
-                loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
-                protocolVersion: "V4"
+            property:
+              cluster: "{{getv "/data/cassandra/cluster" "127.0.0.1"}}"
+              port: 9042
+              userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
+              userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
+              maxConnections: {{getv "/data/cassandra/max/connections" "2048"}}
+              readTimeout: 10
+              connectTimeout: 10
+              maxRequests: {{getv "/data/cassandra/max/connections" "128"}}
+              maxQueueSize: 4194304
+              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+              consistencyLevel: "{{getv "/data/cassandra/consistencylevel" "ONE"}}"
+              protocolVersion: "V4"
     stats:
       interval: 60
       tenant: "NONE"

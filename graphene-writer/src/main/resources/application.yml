@@ -108,45 +108,47 @@ graphene:
       data:
         handlers:
           simple-data-store-handler:
+            type: "SimpleDataStoreHandler"
             tenant: NONE
             ttl: 604800
             keyspace: "metric"
             columnFamily: "metric"
             bucketSize: 0
-            handler:
-              type: "SimpleDataStoreHandler"
-              property:
-                cluster: "127.0.0.1"
-                port: 9042
-                userName: "cassandra"
-                userPassword: "cassandra"
-                maxConnections: 2048
-                readTimeout: 10
-                connectTimeout: 10
-                maxRequests: 128
-                maxQueueSize: 4194304 # 4 * 1024 * 1024
-                loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
-                protocolVersion: "V4"
+            property:
+              cluster:
+                - "127.0.0.1"
+              port: 9042
+              userName: "cassandra"
+              userPassword: "cassandra"
+              maxConnections: 2048
+              readTimeout: 10
+              connectTimeout: 10
+              maxRequests: 128
+              maxQueueSize: 4194304 # 4 * 1024 * 1024
+              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+              consistencyLevel: "ONE"
+              protocolVersion: "V4"
           offset-based-data-store-handler:
+            type: "OffsetBasedDataStoreHandler"
             tenant: NONE
             ttl: 604800
             keyspace: "metric_offset"
             columnFamily: "metric"
             bucketSize: 604800
-            handler:
-              type: "OffsetBasedDataStoreHandler"
-              property:
-                cluster: "127.0.0.1"
-                port: 9042
-                userName: "cassandra"
-                userPassword: "cassandra"
-                maxConnections: 2048
-                readTimeout: 10
-                connectTimeout: 10
-                maxRequests: 128
-                maxQueueSize: 4194304 # 4 * 1024 * 1024
-                loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
-                protocolVersion: "V4"
+            property:
+              cluster:
+                - "127.0.0.1"
+              port: 9042
+              userName: "cassandra"
+              userPassword: "cassandra"
+              maxConnections: 2048
+              readTimeout: 10
+              connectTimeout: 10
+              maxRequests: 128
+              maxQueueSize: 4194304 # 4 * 1024 * 1024
+              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+              consistencyLevel: "ONE"
+              protocolVersion: "V4"
     stats:
       interval: 60
       tenant: "graphene"

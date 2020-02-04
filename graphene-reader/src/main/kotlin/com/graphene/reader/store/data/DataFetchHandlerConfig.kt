@@ -2,6 +2,7 @@ package com.graphene.reader.store.data
 
 import com.graphene.common.rule.GrapheneRules
 import com.graphene.common.store.data.cassandra.CassandraFactory
+import com.graphene.common.store.data.cassandra.property.CassandraDataHandlerProperty
 import com.graphene.reader.service.metric.DataFetchHandler
 import com.graphene.reader.store.data.cassandra.handler.OffsetBasedDataFetchHandler
 import com.graphene.reader.store.data.cassandra.handler.SimpleDataFetchHandler
@@ -60,7 +61,7 @@ data class DataFetchHandlerProperty(
   var rollup: Int = 60,
   var maxPoints: Int = Int.MAX_VALUE,
   var bucketSize: Int,
-  var handler: Map<String, Any> = mapOf()
+  var property: CassandraDataHandlerProperty
 )
 
 typealias HandlerId = String

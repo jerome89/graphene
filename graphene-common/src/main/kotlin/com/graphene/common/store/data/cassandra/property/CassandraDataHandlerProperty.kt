@@ -1,5 +1,7 @@
 package com.graphene.common.store.data.cassandra.property
 
+import com.datastax.driver.core.ConsistencyLevel
+import com.datastax.driver.core.ProtocolVersion
 import com.graphene.common.store.data.cassandra.CassandraLoadBalancingPolicy
 import javax.annotation.PostConstruct
 import org.slf4j.LoggerFactory
@@ -9,7 +11,7 @@ import org.slf4j.LoggerFactory
  * @author dark
  */
 class CassandraDataHandlerProperty(
-  var cluster: String? = null,
+  var cluster: List<String> = arrayListOf(),
   var port: Int = 0,
   var userName: String? = null,
   var userPassword: String? = null,
@@ -19,7 +21,8 @@ class CassandraDataHandlerProperty(
   var maxRequests: Int = 0,
   var maxQueueSize: Int = 4 * 1024 * 1024,
   var loadBalancingPolicyName: String = CassandraLoadBalancingPolicy.tokenDcAwareRoundRobinPolicy,
-  var protocolVersion: String = "V4"
+  var consistencyLevel: ConsistencyLevel = ConsistencyLevel.ONE,
+  var protocolVersion: ProtocolVersion = ProtocolVersion.V4
 ) {
 
   @PostConstruct
@@ -39,6 +42,7 @@ class CassandraDataHandlerProperty(
       ", maxRequests=$maxRequests" +
       ", maxQueueSize=$maxQueueSize" +
       ", loadBalancingPolicyName=$loadBalancingPolicyName" +
+      ", consistencyLevel=$consistencyLevel" +
       ", protocolVersion=$protocolVersion}"
   }
 

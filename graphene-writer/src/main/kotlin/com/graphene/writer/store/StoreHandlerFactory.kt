@@ -3,6 +3,7 @@ package com.graphene.writer.store
 import com.graphene.common.key.RotationProperty
 import com.graphene.common.rule.GrapheneRules
 import com.graphene.common.store.data.cassandra.CassandraFactory
+import com.graphene.common.store.data.cassandra.property.CassandraDataHandlerProperty
 import com.graphene.writer.error.Errors
 import com.graphene.writer.store.data.cassandra.handler.OffsetBasedDataStoreHandler
 import com.graphene.writer.store.data.cassandra.handler.SimpleDataStoreHandler
@@ -81,7 +82,7 @@ class StoreHandlerFactory(
     for (handler in dataStoreHandlersProperty.handlers) {
       log.info("DataStoreHandlerFactory Key : ${handler.key} / Value : ${handler.value}")
 
-      when (val storeHandlerType = dataStoreHandlersProperty.handlers[handler.key]!!.handler["type"]) {
+      when (val storeHandlerType = dataStoreHandlersProperty.handlers[handler.key]!!.type) {
         "SimpleDataStoreHandler" -> dataStoreHandlers.add(createSimpleDataStoreHandler(handler.key, handler.value))
         "OffsetBasedDataStoreHandler" -> dataStoreHandlers.add(createOffsetBasedDataStoreHandler(handler.key, handler.value))
         else -> throw Errors.UNSUPPORTED_DATA_STORE_HANDLER_EXCEPTION.exception("$storeHandlerType is not supported!")
@@ -122,12 +123,13 @@ data class DataStoreHandlersProperty(
 )
 
 data class DataStoreHandlerProperty(
+  var type: String,
   var tenant: String = GrapheneRules.DEFAULT_TENANT,
   var ttl: Int = 0,
   var keyspace: String,
   var columnFamily: String,
   var bucketSize: Int,
-  var handler: Map<String, Any> = mapOf()
+  var property: CassandraDataHandlerProperty
 )
 
 @ConstructorBinding

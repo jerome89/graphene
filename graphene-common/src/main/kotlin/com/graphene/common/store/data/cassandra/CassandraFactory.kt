@@ -1,11 +1,9 @@
 package com.graphene.common.store.data.cassandra
 
 import com.datastax.driver.core.Cluster
-import com.datastax.driver.core.ConsistencyLevel
 import com.datastax.driver.core.HostDistance
 import com.datastax.driver.core.PoolingOptions
 import com.datastax.driver.core.ProtocolOptions
-import com.datastax.driver.core.ProtocolVersion
 import com.datastax.driver.core.QueryOptions
 import com.datastax.driver.core.SocketOptions
 import com.graphene.common.store.data.cassandra.property.CassandraDataHandlerProperty
@@ -23,8 +21,8 @@ class CassandraFactory {
       .withCompression(ProtocolOptions.Compression.LZ4)
       .withLoadBalancingPolicy(CassandraLoadBalancingPolicy.createLoadBalancingPolicy(cassandraDataHandlerProperty.loadBalancingPolicyName))
       .withPoolingOptions(poolingOptions(cassandraDataHandlerProperty))
-      .withQueryOptions(QueryOptions().setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM))
-      .withProtocolVersion(ProtocolVersion.valueOf(cassandraDataHandlerProperty.protocolVersion))
+      .withQueryOptions(QueryOptions().setConsistencyLevel(cassandraDataHandlerProperty.consistencyLevel))
+      .withProtocolVersion(cassandraDataHandlerProperty.protocolVersion)
       // TODO Enable jmx reporting
       .withoutJMXReporting()
       .withPort(cassandraDataHandlerProperty.port)
@@ -33,10 +31,9 @@ class CassandraFactory {
       builder = builder.withCredentials(cassandraDataHandlerProperty.userName, cassandraDataHandlerProperty.userPassword)
     }
 
-    builder.addContactPoint(cassandraDataHandlerProperty.cluster)
-//    for (cp in cassandraDataStoreHandlerProperty.cluster) {
-//      builder.addContactPoint(cp)
-//    }
+    for (cp in cassandraDataHandlerProperty.cluster) {
+      builder.addContactPoint(cp)
+    }
 
     val cluster = builder.build()
     val metadata = cluster.metadata

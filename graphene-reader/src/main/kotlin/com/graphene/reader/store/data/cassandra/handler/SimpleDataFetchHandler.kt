@@ -14,12 +14,10 @@ import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.common.beans.Path
 import com.graphene.common.beans.SeriesRange
 import com.graphene.common.store.data.cassandra.CassandraFactory
-import com.graphene.common.store.data.cassandra.property.CassandraDataHandlerProperty
 import com.graphene.reader.beans.TimeSeries
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.metric.DataFetchHandler
 import com.graphene.reader.store.data.DataFetchHandlerProperty
-import com.graphene.reader.utils.Jsons
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -47,15 +45,13 @@ class SimpleDataFetchHandler(
           AND time <= ?
     ORDER BY time;"""
 
-  private var cluster: Cluster
+  private var cluster: Cluster = cassandraFactory.createCluster(dataFetchHandlerProperty.property)
   private var session: Session
   private var statement: PreparedStatement
   private var rollup: Int = 60
   private var maxPoints: Int = Int.MAX_VALUE
 
   init {
-    val property = Jsons.from(dataFetchHandlerProperty.handler["property"], CassandraDataHandlerProperty::class.java)
-    this.cluster = cassandraFactory.createCluster(property)
     this.session = cluster.connect()
     this.statement = session.prepare(query)
     this.rollup = dataFetchHandlerProperty.rollup

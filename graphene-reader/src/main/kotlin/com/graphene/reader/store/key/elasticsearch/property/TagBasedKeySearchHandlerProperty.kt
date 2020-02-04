@@ -39,7 +39,8 @@ class TagBasedKeySearchHandlerProperty : IndexProperty {
 
   override fun toString(): String {
     return "TagBasedKeySearchHandler{" +
-      "clusterName=$clusterName" +
+      "keySelectorProperty=$keySelectorProperty" +
+      ", clusterName=$clusterName" +
       ", index=$index" +
       ", type=$type" +
       ", tenant=$tenant" +
@@ -48,6 +49,6 @@ class TagBasedKeySearchHandlerProperty : IndexProperty {
       ", scroll=$scroll" +
       ", timeout=$timeout" +
       ", maxPaths=$maxPaths" +
-      '}'
+      "}"
   }
 }

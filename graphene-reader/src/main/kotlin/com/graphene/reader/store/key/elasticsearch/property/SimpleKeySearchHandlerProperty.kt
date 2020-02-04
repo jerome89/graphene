@@ -39,7 +39,8 @@ class SimpleKeySearchHandlerProperty : IndexProperty {
 
   override fun toString(): String {
     return "SimpleKeySearchHandler{" +
-      "clusterName=$clusterName" +
+      "keySelectorProperty=$keySelectorProperty" +
+      ", clusterName=$clusterName" +
       ", index=$index" +
       ", type=$type" +
       ", tenant=$tenant" +
@@ -48,6 +49,6 @@ class SimpleKeySearchHandlerProperty : IndexProperty {
       ", scroll=$scroll" +
       ", timeout=$timeout" +
       ", maxPaths=$maxPaths" +
-      '}'
+      "}"
   }
 }
