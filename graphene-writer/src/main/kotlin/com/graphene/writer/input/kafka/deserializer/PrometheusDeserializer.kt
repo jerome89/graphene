@@ -58,6 +58,7 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
       var tmpTagKey = ""
 
       var withoutTimestamp = true
+      var metBraceClose = false
 
       val metricChars = plainPrometheusMetric.toCharArray()
       for (metricChar in metricChars) {
@@ -67,7 +68,12 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
         } else if (metricChar == SpecialChar.EQUAL) {
           tmpTagKey = tmp.toString()
           tmp.clear()
-        } else if (metricChar == SpecialChar.COMMA || metricChar == SpecialChar.BRACE_CLOSE) {
+        } else if (metricChar == SpecialChar.COMMA || metricChar == SpecialChar.BRACE_CLOSE || (!metBraceClose && metricChar == SpecialChar.WHITESPACE)) {
+          if (metricChar == SpecialChar.WHITESPACE) {
+            tmp.append("_")
+            continue
+          }
+
           tags[tmpTagKey] = tmp.toString()
           id.append("$tmpTagKey=$tmp")
           tmp.clear()
@@ -75,7 +81,10 @@ class PrometheusDeserializer : Deserializer<List<GrapheneMetric>> {
           if (metricChar == SpecialChar.COMMA) {
             id.append(SpecialChar.SEMICOLON)
           }
-        } else if (metricChar == SpecialChar.WHITESPACE) {
+          if (metricChar == SpecialChar.BRACE_CLOSE) {
+            metBraceClose = true
+          }
+        } else if (metBraceClose && metricChar == SpecialChar.WHITESPACE) {
           if (tmp.isEmpty()) {
             continue
           }
