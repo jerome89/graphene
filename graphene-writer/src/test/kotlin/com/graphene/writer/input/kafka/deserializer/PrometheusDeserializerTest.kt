@@ -87,6 +87,25 @@ internal class PrometheusDeserializerTest {
     grapheneMetric[1].timestampMillis() shouldBe 1580532000000
   }
 
+  @Test
+  internal fun `should deserialize converted metric if label value has whitespace`() {
+    val grapheneMetric = prometheusDeserializer.deserialize("prometheus.topic", SINGLE_PROMETHEUS_UNTYPED_METRIC.toByteArray())
+
+    grapheneMetric shouldNotBe null
+
+    grapheneMetric[0].id shouldBe "jvm_gc_CollectionCount;host=localhost;name=G1_Old_Generation"
+    grapheneMetric[0].tags shouldContainAll mapOf(Pair("host", "localhost"), Pair("name", "G1_Old_Generation"))
+    grapheneMetric[0].value shouldBe 0.0
+    grapheneMetric[0].source shouldBe Source.PROMETHEUS
+    grapheneMetric[0].timestampMillis() shouldBe 1580532000000
+
+    grapheneMetric[1].id shouldBe "jvm_gc_CollectionCount;host=localhost;name=G1_Young_Generation"
+    grapheneMetric[1].tags shouldContainAll mapOf(Pair("host", "localhost"), Pair("name", "G1_Young_Generation"))
+    grapheneMetric[1].value shouldBe 14937.0
+    grapheneMetric[1].source shouldBe Source.PROMETHEUS
+    grapheneMetric[1].timestampMillis() shouldBe 1580532000000
+  }
+
   companion object {
     var SINGLE_PROMETHEUS_METRIC_WITHOUT_TIMESTAMP =
       """# HELP swap_in Telegraf collected metric
@@ -122,5 +141,12 @@ internal class PrometheusDeserializerTest {
         |swap_out{host="local"} 0 1580532000000
         |
       """.trimMargin("|")
+
+    var SINGLE_PROMETHEUS_UNTYPED_METRIC = """# HELP jvm_gc_CollectionCount Telegraf collected metric
+      |# TYPE jvm_gc_CollectionCount untyped
+      |jvm_gc_CollectionCount{host="localhost",name="G1 Old Generation"} 0 1580532000000
+      |jvm_gc_CollectionCount{host="localhost",name="G1 Young Generation"} 14937 1580532000000
+      |
+    """.trimMargin("|")
   }
 }
