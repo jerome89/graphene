@@ -1,7 +1,6 @@
 package com.graphene.writer.store.key
 
 import com.google.common.cache.CacheBuilder
-import com.graphene.common.utils.DateTimeUtils
 import java.util.Objects
 import java.util.concurrent.TimeUnit
 
@@ -12,37 +11,25 @@ import java.util.concurrent.TimeUnit
  *
  * @author dark
  */
-class TimeBasedLocalKeyCache<K, V>(
-  private val expireInterval: Long
-) : KeyCache<K, V> {
+class TimeBasedLocalKeyCache(
+  expireInterval: Long
+) : KeyCache {
 
   private val internalTimeBasedCache = CacheBuilder.newBuilder()
     .expireAfterAccess(expireInterval, TimeUnit.MINUTES)
-    .build<Long, MutableMap<K, V>>()
+    .build<String, Byte?>()
 
-  override fun get(key: K): V? {
-    return getOrCreate()[key]
+  override fun get(key: String): Byte? {
+    return internalTimeBasedCache.getIfPresent(key)
   }
 
-  override fun putIfAbsent(key: K, value: V): Boolean {
-    return if (getOrCreate().contains(key)) false
-    else put(key, value)
+  override fun putIfAbsent(key: String): Boolean {
+    return if (Objects.nonNull(get(key))) false
+    else put(key)
   }
 
-  override fun put(key: K, value: V): Boolean {
-    getOrCreate()[key] = value
+  override fun put(key: String): Boolean {
+    internalTimeBasedCache.put(key, 0.toByte())
     return true
-  }
-
-  private fun getOrCreate(): MutableMap<K, V> {
-    val normalizedTimeBucket = DateTimeUtils.currentTimeMillis() / TimeUnit.MINUTES.toMillis(expireInterval) * TimeUnit.MINUTES.toMillis(expireInterval)
-    var cache = internalTimeBasedCache.getIfPresent(normalizedTimeBucket)
-
-    if (Objects.isNull(cache)) {
-      cache = mutableMapOf()
-      internalTimeBasedCache.put(normalizedTimeBucket, cache)
-    }
-
-    return internalTimeBasedCache.getIfPresent(normalizedTimeBucket)!!
   }
 }

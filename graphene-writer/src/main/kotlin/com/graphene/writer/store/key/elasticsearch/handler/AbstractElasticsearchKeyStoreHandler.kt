@@ -3,6 +3,7 @@ package com.graphene.writer.store.key.elasticsearch.handler
 import com.graphene.common.utils.DateTimeUtils
 import com.graphene.reader.utils.Jsons
 import com.graphene.writer.input.GrapheneMetric
+import com.graphene.writer.input.Source
 import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.KeyStoreHandlerProperty
 import com.graphene.writer.store.key.KeyCache
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.elasticsearch.client.RequestOptions
+import org.elasticsearch.common.xcontent.XContentFactory
 
 abstract class AbstractElasticsearchKeyStoreHandler(
   elasticsearchClientFactory: ElasticsearchClientFactory,
@@ -42,7 +44,8 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   private var flushInterval: Long = 0
 
   private val metrics = LinkedBlockingDeque<GrapheneMetric>()
-  private val keyCache: KeyCache<String, GrapheneMetric> = TimeBasedLocalKeyCache(5) // Default 5 Min
+  private val names = hashSetOf<String>()
+  private val keyCache: KeyCache = TimeBasedLocalKeyCache(5) // Default 5 Min
 
   init {
     val property = Jsons.from(keyStoreHandlerProperty.handler["property"], ElasticsearchKeyStoreHandlerProperty::class.java)
@@ -52,14 +55,16 @@ abstract class AbstractElasticsearchKeyStoreHandler(
     type = property.type
     tenant = keyStoreHandlerProperty.tenant
     templateIndexPattern = property.templateIndexPattern
-    batchSize = property.bulk!!.actions
-    flushInterval = property.bulk!!.interval
+    batchSize = property.bulk.actions
+    flushInterval = property.bulk.interval
 
     elasticsearchClient = elasticsearchClient(keyStoreHandlerProperty, elasticsearchClientFactory, property)
     elasticsearchClient.createTemplateIfNotExists(templateIndexPattern, templateName(), templateSource())
     elasticsearchClient.createIndexIfNotExists(index, tenant, DateTimeUtils.currentTimeMillis(), DateTimeUtils.currentTimeMillis())
-
-    keyStoreScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(SimpleKeyStoreHandler::class.simpleName!!))
+    if (this is TagBasedKeyStoreHandler) {
+      elasticsearchClient.createNameIndexIfNotExists(NAMES_INDEX, tenant)
+    }
+    keyStoreScheduler = Executors.newSingleThreadScheduledExecutor(NamedThreadFactory(this::class.simpleName!!))
     keyStoreScheduler.scheduleWithFixedDelay(this, 3_000, 500, TimeUnit.MILLISECONDS)
 
     multiGetRequestContainer = MultiGetRequestContainer()
@@ -84,6 +89,9 @@ abstract class AbstractElasticsearchKeyStoreHandler(
       }
 
       if (batchSize <= multiGetRequestContainer.size() || lastFlushTimeMillis < DateTimeUtils.currentTimeMillis() - flushInterval) {
+        if (this is TagBasedKeyStoreHandler) {
+          flushMetricNames()
+        }
         flush()
       }
     } catch (e: Exception) {
@@ -94,8 +102,44 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private fun addToBatch(metric: GrapheneMetric) {
     val index = elasticsearchClient.getIndexWithDate(index, tenant, metric.timestampMillis())
-    if (keyCache.putIfAbsent("${index}_${metric.id}", metric)) {
+    if (keyCache.putIfAbsent("${index}_${metric.id}")) {
       multiGetRequestContainer.add(index, type, metric)
+    }
+    if (metric.source == Source.GRAPHITE_TAG && ! names.contains(metric.metricKey())) {
+      multiGetRequestContainer.addName("${NAMES_INDEX}_$tenant", TYPE_NAME, metric)
+      names.add(metric.metricKey())
+    }
+  }
+
+  private fun flushMetricNames() {
+    if (0 >= multiGetRequestContainer.namesMultiGetRequest.items.size) {
+      return
+    }
+
+    val namesMultiGetResponse = elasticsearchClient.mget(multiGetRequestContainer.namesMultiGetRequest, RequestOptions.DEFAULT)
+    val bulkRequest = mutableListOf<GrapheneIndexRequest>()
+
+    for (response in namesMultiGetResponse.responses) {
+      if (response in namesMultiGetResponse.responses) {
+        if (response.isFailed) {
+          logger.error("Names get response failed!")
+          continue
+        }
+
+        if (response.response.isExists) {
+          names.add(response.id)
+          continue
+        }
+        val tmp = XContentFactory.jsonBuilder()
+        tmp.startObject()
+        bulkRequest.add(GrapheneIndexRequest(response.id, tmp.endObject(), 0))
+      }
+
+      logger.info("Flushed namesMultiGetRequests: ${multiGetRequestContainer.namesMultiGetRequest.items.size}.")
+
+      if (bulkRequest.isNotEmpty()) {
+        elasticsearchClient.bulkAsyncNames(NAMES_INDEX, type, tenant, bulkRequest, RequestOptions.DEFAULT)
+      }
     }
   }
 
@@ -153,4 +197,9 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   abstract fun templateSource(): String
 
   abstract fun templateName(): String
+
+  companion object {
+    const val NAMES_INDEX = "metric-names"
+    const val TYPE_NAME = "name"
+  }
 }

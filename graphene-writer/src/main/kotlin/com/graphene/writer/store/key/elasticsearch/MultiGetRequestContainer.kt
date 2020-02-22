@@ -6,10 +6,15 @@ import org.elasticsearch.action.get.MultiGetRequest
 
 class MultiGetRequestContainer(
   val multiGetRequest: MultiGetRequest = MultiGetRequest(),
+  val namesMultiGetRequest: MultiGetRequest = MultiGetRequest(),
   val metrics: MutableMap<Index, GrapheneMetric> = mutableMapOf(),
   var from: Long? = null,
   var to: Long? = null
 ) {
+
+  fun addName(index: String, type: String, metric: GrapheneMetric) {
+    namesMultiGetRequest.add(MultiGetRequest.Item(index, type, metric.metricKey()))
+  }
 
   fun add(index: String, type: String, metric: GrapheneMetric) {
     val timestampMillis = metric.timestampMillis()

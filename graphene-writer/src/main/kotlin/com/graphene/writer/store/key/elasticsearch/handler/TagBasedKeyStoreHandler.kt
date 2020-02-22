@@ -16,7 +16,7 @@ import org.elasticsearch.common.xcontent.XContentFactory
  * @since 1.6.0
  */
 class TagBasedKeyStoreHandler(
-  private val elasticsearchClientFactory: ElasticsearchClientFactory,
+  elasticsearchClientFactory: ElasticsearchClientFactory,
   val property: KeyStoreHandlerProperty
 ) : AbstractElasticsearchKeyStoreHandler(elasticsearchClientFactory, property) {
 
@@ -36,7 +36,7 @@ class TagBasedKeyStoreHandler(
       return Collections.emptyList<GrapheneIndexRequest>()
     }
     val grapheneIndexRequests = mutableListOf<GrapheneIndexRequest>()
-    grapheneIndexRequests.add(GrapheneIndexRequest("${metric!!.id}", source(metric.tags, metric), metric.timestampMillis()))
+    grapheneIndexRequests.add(GrapheneIndexRequest("${metric.id}", source(metric.tags, metric), metric.timestampMillis()))
     return grapheneIndexRequests
   }
 
@@ -70,9 +70,8 @@ class TagBasedKeyStoreHandler(
           "path": {
             "dynamic_templates": [
               {
-                "else": {
+                "all": {
                   "match": "*",
-                  "unmatch": "depth",
                   "match_mapping_type": "string",
                   "mapping": {
                     "type": "keyword"

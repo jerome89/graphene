@@ -48,17 +48,42 @@ class ElasticsearchTagSearchHandler(
 
   override fun getTagValues(valuePrefix: String?, tagExpressions: MutableList<String>, tag: String, from: Long, to: Long, limit: Int): List<String> {
     val tagValues = mutableSetOf<String>()
-    try {
-      val response = elasticsearchClient.query(
-        elasticsearchTagSearchQueryOptimizer.optimize(TagSearchTarget(tagKey = tag, tagValue = valuePrefix, tagExpressions = tagExpressions)),
-        from,
-        to,
-        tag,
-        limit
-      )
-      tagValues.addAll(response.tagValues)
-    } catch (e: Exception) {
-      logger.warn("Failed to find Tag Values: {tag: $tag}, {valuePrefix: $valuePrefix}, {tagExpressions: $tagExpressions}")
+    if (tagExpressions.isEmpty() && tag == NAME_FIELD) {
+      val scrollIds = mutableListOf<String>()
+      try {
+        var response = elasticsearchClient.queryNames()
+        if (StringUtils.isNotBlank(response.scrollId)) {
+          while (response.hits.hits.isNotEmpty()) {
+            for (hit in response.hits) {
+              tagValues.add(hit.id)
+            }
+            response = elasticsearchClient.searchScroll(response)
+            scrollIds.add(response.scrollId)
+          }
+          if (scrollIds.isNotEmpty()) {
+            elasticsearchClient.clearScroll(scrollIds)
+          }
+        } else {
+          for (hit in response.hits) {
+            tagValues.add(hit.id)
+          }
+        }
+      } catch (e: Exception) {
+        logger.warn("Failed to find metric names!")
+      }
+    } else {
+      try {
+        val response = elasticsearchClient.query(
+          elasticsearchTagSearchQueryOptimizer.optimize(TagSearchTarget(tagKey = tag, tagValue = valuePrefix, tagExpressions = tagExpressions)),
+          from,
+          to,
+          tag,
+          limit
+        )
+        tagValues.addAll(response.tagValues)
+      } catch (e: Exception) {
+        logger.warn("Failed to find Tag Values: {tag: $tag}, {valuePrefix: $valuePrefix}, {tagExpressions: $tagExpressions}")
+      }
     }
     return tagValues.sorted()
   }

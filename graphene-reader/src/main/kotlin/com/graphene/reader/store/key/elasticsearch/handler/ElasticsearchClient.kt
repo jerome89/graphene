@@ -54,6 +54,12 @@ class ElasticsearchClient(
     return Response.of(searchResponse)
   }
 
+  fun queryNames(): Response {
+    val searchRequest = SearchRequest("metric-names_${indexProperty.tenant()}")
+    val searchResponse = client.search(searchRequest, RequestOptions.DEFAULT)
+    return Response.ofNames(searchResponse)
+  }
+
   fun getFieldMapping(from: Long, to: Long): MappingsResponse {
     val getMappingsRequest = GetMappingsRequest()
     val selectedIndex = keySelector.select(indexProperty.index()!!, indexProperty.tenant(), from, to)
@@ -139,6 +145,11 @@ class ElasticsearchClient(
           response.hits.hits.size,
           tagValues
         )
+      }
+
+      fun ofNames(response: SearchResponse): Response {
+        val scrollId = response.scrollId ?: ""
+        return Response(scrollId, response.hits, response.hits.hits.size, mutableSetOf())
       }
     }
   }

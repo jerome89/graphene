@@ -116,6 +116,21 @@ class ElasticsearchClientTemplate(
     }))
   }
 
+  override fun bulkAsyncNames(index: String, type: String, tenant: String, grapheneIndexRequests: List<GrapheneIndexRequest>, default: RequestOptions) {
+    val bulkRequest = BulkRequest()
+    for (grapheneIndexRequest in grapheneIndexRequests) {
+      val indexRequest = IndexRequest("${index}_$tenant", type, grapheneIndexRequest.id)
+      indexRequest.source(grapheneIndexRequest.source)
+      bulkRequest.add(indexRequest)
+    }
+
+    restHighLevelClient.bulkAsync(bulkRequest, default, ActionListener.wrap({
+      logger.info("Succeed to store ${it.items.size} metric names in Name index")
+    }, {
+      logger.error("Fail to index", it)
+    }))
+  }
+
   override fun createIndexIfNotExists(index: String, tenant: String, from: Long?, to: Long?) {
     val rangeIndices = getRangeIndex(index, tenant, from!!, to!!)
     for (rangeIndex in rangeIndices) {
@@ -125,6 +140,12 @@ class ElasticsearchClientTemplate(
 
       val createIndexRequest = CreateIndexRequest(rangeIndex)
       restHighLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT)
+    }
+  }
+
+  override fun createNameIndexIfNotExists(index: String, tenant: String) {
+    if (! restHighLevelClient.indices().exists(GetIndexRequest().indices("${index}_$tenant"))) {
+      restHighLevelClient.indices().create(CreateIndexRequest("${index}_$tenant"), RequestOptions.DEFAULT)
     }
   }
 
