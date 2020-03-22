@@ -2,5 +2,6 @@ rootProject.name = 'graphene'
 
 include 'graphene-common'
 include 'graphene-function'
+include 'graphene-function-prometheus'
 include 'graphene-reader'
 include 'graphene-writer'
