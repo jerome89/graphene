@@ -1,6 +1,5 @@
 package com.graphene.writer.config
 
-import com.graphene.writer.store.data.CassandraDataStoreHandlerProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
@@ -8,13 +7,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(prefix = "graphene.writer")
 class GrapheneWriterProperty(
-  var cassandraDataStoreHandlerProperty: CassandraDataStoreHandlerProperty,
   var statsProperty: StatsProperty
 ) {
 
   override fun toString(): String {
     return "GrapheneWriterConfiguration{" +
-      ", cassandraDataStoreHandlerProperty=" + cassandraDataStoreHandlerProperty +
       ", statsProperty=" + statsProperty +
       '}'.toString()
   }

@@ -1,6 +1,7 @@
 package com.graphene.reader.graphite.functions
 
 import com.graphene.common.beans.Path
+import com.graphene.common.beans.SeriesRange
 import com.graphene.common.utils.DateTimeUtils
 import com.graphene.reader.beans.TimeSeries
 import com.graphene.reader.graphite.PathTarget
@@ -8,14 +9,14 @@ import com.graphene.reader.graphite.evaluation.EvaluationContext
 import com.graphene.reader.graphite.evaluation.TargetEvaluator
 import com.graphene.reader.graphite.utils.ValueFormatter
 import com.graphene.reader.service.index.KeySearchHandler
-import com.graphene.reader.service.metric.MetricService
+import com.graphene.reader.service.metric.DataFetchHandler
 import io.mockk.every
 import io.mockk.mockk
 
 abstract class GrapheneFunctionTestHelper {
 
   private val indexService = mockk<KeySearchHandler>()
-  private val metricService = mockk<MetricService>()
+  private val metricService = mockk<DataFetchHandler>()
 
   private val targetEvaluator = TargetEvaluator(metricService, indexService)
   private lateinit var pathTarget: PathTarget
@@ -45,7 +46,7 @@ abstract class GrapheneFunctionTestHelper {
   private fun setUpTimeSeriesData(timeSeriesList: List<TimeSeries>) {
     for (timeSeries in timeSeriesList) {
       every {
-        metricService.getMetricsAsList(any(), any(), any(), any())
+        metricService.getMetrics(any(), any(), any(), any())
       } answers {
         timeSeriesList
       }
@@ -72,7 +73,8 @@ abstract class GrapheneFunctionTestHelper {
     const val TIME_SERIES_NAME_2 = "hosts.server2.cpu.usage"
 
     fun timeSeries(name: String, from: String, to: String, step: Int, values: Array<Double>): TimeSeries {
-      return TimeSeries(name, DateTimeUtils.from(from), DateTimeUtils.from(to), step, values)
+      val seriesRange = SeriesRange(DateTimeUtils.from(from), DateTimeUtils.from(to), step)
+      return TimeSeries(name, name, emptyMap<String, String>(), seriesRange, values)
     }
 
     fun timeSeriesWithTags(name: String, from: String, to: String, step: Int, values: Array<Double>, tags: Map<String, String>): TimeSeries {

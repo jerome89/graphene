@@ -17,11 +17,11 @@ class Path(var path: String) {
     tags[tagKey] = tagValue
   }
 
-  override fun equals(obj: Any?): Boolean {
-    if (obj !is Path) {
+  override fun equals(other: Any?): Boolean {
+    if (other !is Path) {
       return false
     }
-    return path == obj.path
+    return path == other.path
   }
 
   override fun hashCode(): Int {

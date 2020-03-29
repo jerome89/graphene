@@ -3,6 +3,7 @@ package com.graphene.writer.error
 import com.graphene.writer.error.exception.GrapheneWriterException
 import com.graphene.writer.error.exception.IllegalArgumentException
 import com.graphene.writer.error.exception.UnknownGrapheneWriterException
+import com.graphene.writer.error.exception.UnsupportedDataStoreHandlerException
 import com.graphene.writer.error.exception.UnsupportedKeyStoreHandlerException
 import java.util.function.Function
 
@@ -22,6 +23,12 @@ enum class Errors(
     code = 0,
     defaultMessage = "Fail to initialize key store handler because it's not supported handler type",
     builder = Function<String, GrapheneWriterException> { message: String -> UnsupportedKeyStoreHandlerException(message) }
+  ),
+
+  UNSUPPORTED_DATA_STORE_HANDLER_EXCEPTION(
+    code = 0,
+    defaultMessage = "Fail to initialize data store handler because it's not supported handler type",
+    builder = Function<String, GrapheneWriterException> { message: String -> UnsupportedDataStoreHandlerException(message) }
   ),
 
   ILLEGAL_ARGUMENT_EXCEPTION(

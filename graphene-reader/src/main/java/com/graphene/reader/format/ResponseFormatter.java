@@ -108,8 +108,6 @@ public class ResponseFormatter {
     private static ResponseEntity<?> formatResponseAsGraphplotJson(List<TimeSeries> timeSeriesList, RenderParameter renderParameter) {
         List<String> results = new ArrayList<>();
 
-        Gson gson = new Gson();
-
         // consolidate data points
         consolidate(timeSeriesList, renderParameter.getMaxDataPoints());
 

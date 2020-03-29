@@ -6,4 +6,6 @@ class UnknownGrapheneWriterException(message: String) : GrapheneWriterException(
 
 class UnsupportedKeyStoreHandlerException(message: String) : GrapheneWriterException(message)
 
+class UnsupportedDataStoreHandlerException(message: String) : GrapheneWriterException(message)
+
 class IllegalArgumentException(message: String) : GrapheneWriterException(message)

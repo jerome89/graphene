@@ -1,16 +1,16 @@
 package com.graphene.reader.store.key
 
 import com.graphene.reader.service.index.KeySearchHandler
-import com.graphene.reader.store.key.handler.ElasticsearchClient
-import com.graphene.reader.store.key.handler.IndexBasedKeySearchHandler
-import com.graphene.reader.store.key.handler.SimpleKeySearchHandler
-import com.graphene.reader.store.key.handler.TagBasedKeySearchHandler
-import com.graphene.reader.store.key.optimizer.ElasticsearchQueryOptimizer
-import com.graphene.reader.store.key.property.IndexBasedKeySearchHandlerProperty
-import com.graphene.reader.store.key.property.IndexProperty
-import com.graphene.reader.store.key.property.SimpleKeySearchHandlerProperty
-import com.graphene.reader.store.key.property.TagBasedKeySearchHandlerProperty
-import com.graphene.reader.store.tag.optimizer.ElasticsearchTagSearchQueryOptimizer
+import com.graphene.reader.store.key.elasticsearch.handler.ElasticsearchClient
+import com.graphene.reader.store.key.elasticsearch.handler.IndexBasedKeySearchHandler
+import com.graphene.reader.store.key.elasticsearch.handler.SimpleKeySearchHandler
+import com.graphene.reader.store.key.elasticsearch.handler.TagBasedKeySearchHandler
+import com.graphene.reader.store.key.elasticsearch.optimizer.ElasticsearchQueryOptimizer
+import com.graphene.reader.store.key.elasticsearch.property.IndexBasedKeySearchHandlerProperty
+import com.graphene.reader.store.key.elasticsearch.property.IndexProperty
+import com.graphene.reader.store.key.elasticsearch.property.SimpleKeySearchHandlerProperty
+import com.graphene.reader.store.key.elasticsearch.property.TagBasedKeySearchHandlerProperty
+import com.graphene.reader.store.tag.elasticsearch.optimizer.ElasticsearchTagSearchQueryOptimizer
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean

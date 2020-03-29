@@ -1,7 +1,6 @@
 package com.graphene.writer.input.graphite
 
 import com.google.common.base.CharMatcher
-import com.graphene.writer.config.Rollup
 import com.graphene.writer.domain.Metric
 import com.graphene.writer.input.graphite.property.InputGraphiteCarbonProperty
 import com.graphene.writer.processor.GrapheneProcessor
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Component
 
 /**
  * @author Andrei Ivanov
+ * @author jerome89
  */
 @Component
 @ChannelHandler.Sharable
@@ -30,13 +30,13 @@ class CarbonServerHandler(
 
   private val logger = LogManager.getLogger(CarbonServerHandler::class.java)
 
-  private lateinit var rollup: Rollup
+  private var rollup: Int = 60
   private lateinit var graphiteConverter: GraphiteMetricConverter
   private lateinit var graphiteWriter: GraphiteWriter
 
   @PostConstruct
   fun init() {
-    this.rollup = inputGraphiteCarbonProperty.baseRollup!!
+    this.rollup = inputGraphiteCarbonProperty.rollup
     this.graphiteConverter = GraphiteMetricConverter()
     if (Objects.nonNull(inputGraphiteCarbonProperty.route)) {
       this.graphiteWriter = GraphiteWriter()
@@ -77,7 +77,7 @@ class CarbonServerHandler(
   }
 
   fun normalizeTimestamp(timestamp: Long): Long {
-    return timestamp / rollup.rollup * rollup.rollup
+    return timestamp / rollup * rollup
   }
 
   @PreDestroy

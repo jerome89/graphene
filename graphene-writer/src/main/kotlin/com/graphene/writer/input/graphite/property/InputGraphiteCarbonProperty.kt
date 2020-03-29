@@ -1,26 +1,19 @@
 package com.graphene.writer.input.graphite.property
 
-import com.graphene.writer.config.Rollup
-import java.util.ArrayList
 import javax.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
  * @author Andrei Ivanov
+ * @author jerome89
  */
 @ConfigurationProperties(prefix = "graphene.writer.input.graphite.carbon")
 class InputGraphiteCarbonProperty {
 
   var bind: String? = null
   var port: Int = 0
-  var retention: Int = 0
-  var rollups: List<Rollup> = ArrayList()
-    set(rollups) {
-      baseRollup = rollups[0]
-      field = rollups.subList(1, rollups.size)
-    }
-  var baseRollup: Rollup? = null
+  var rollup: Int = 60
   var route: Route? = null
 
   @PostConstruct
@@ -32,8 +25,7 @@ class InputGraphiteCarbonProperty {
     return "InputGraphiteCarbonProperty{" +
       "bind='" + bind + '\''.toString() +
       ", port=" + port +
-      ", rollups=" + this.rollups +
-      ", baseRollup=" + baseRollup +
+      ", rollups=" + this.rollup +
       '}'.toString()
   }
 

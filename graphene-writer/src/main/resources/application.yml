@@ -11,16 +11,16 @@ graphene:
       'test':
         - '^xxx_sum.*\.system\..*'
     input:
-      graphite.carbon:
-        bind: "0.0.0.0"
-        port: 2003
-        rollups:
-          - 60s:5356800s
-#        route:
-#          host: 127.0.0.1
-#          port: 2003
+      graphite:
+        carbon:
+          bind: "0.0.0.0"
+          port: 2003
+          rollup: 60
+  #        route:
+  #          host: 127.0.0.1
+  #          port: 2003
       kafka:
-        enabled: true
+        enabled: false
         bootstrapServer: "localhost:9092"
         consumerGroupId: "graphene-writer"
         pollIntervalMs: 5000
@@ -106,24 +106,49 @@ graphene:
                   actions: 10000
                   interval: 500
       data:
-        rollup: 60s
-        retention: 30d
         handlers:
-          cassandra:
-            cluster:
-              - "127.0.0.1"
-            port: 9042
-            userName: 'cassandra'
-            userPassword: 'cassandra'
-            keyspace: 'metric'
-            columnFamily: 'metric'
-            maxConnections: 2048
-            pool: 1
-            readTimeout: 10
-            connectTimeout: 10
-            maxRequests: 128
-            loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-            protocolVersion: "V3"
+          simple-data-store-handler:
+            type: "SimpleDataStoreHandler"
+            tenant: NONE
+            ttl: 604800
+            keyspace: "metric"
+            columnFamily: "metric"
+            bucketSize: 0
+            property:
+              cluster:
+                - "127.0.0.1"
+              port: 9042
+              userName: "cassandra"
+              userPassword: "cassandra"
+              maxConnections: 2048
+              readTimeout: 10
+              connectTimeout: 10
+              maxRequests: 128
+              maxQueueSize: 4194304 # 4 * 1024 * 1024
+              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+              consistencyLevel: "ONE"
+              protocolVersion: "V4"
+          offset-based-data-store-handler:
+            type: "OffsetBasedDataStoreHandler"
+            tenant: NONE
+            ttl: 604800
+            keyspace: "metric_offset"
+            columnFamily: "metric"
+            bucketSize: 604800
+            property:
+              cluster:
+                - "127.0.0.1"
+              port: 9042
+              userName: "cassandra"
+              userPassword: "cassandra"
+              maxConnections: 2048
+              readTimeout: 10
+              connectTimeout: 10
+              maxRequests: 128
+              maxQueueSize: 4194304 # 4 * 1024 * 1024
+              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+              consistencyLevel: "ONE"
+              protocolVersion: "V4"
     stats:
       interval: 60
       tenant: "graphene"

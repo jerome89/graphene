@@ -4,7 +4,7 @@ import com.graphene.writer.blacklist.BlacklistService
 import com.graphene.writer.event.GrapheneDataStoreEvent
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
-import com.graphene.writer.store.key.StoreHandlerFactory
+import com.graphene.writer.store.StoreHandlerFactory
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import org.springframework.context.ApplicationEventPublisher

@@ -8,8 +8,7 @@ logging:
 graphene:
   reader:
     render:
-      rollups:
-        - "{{getv "/render/rollups" "60s:5356800s"}}"
+      requestTimeout: 30
       humanReadableNumbers: true
     store:
       key:
@@ -30,19 +29,49 @@ graphene:
             timeout: 120000
             maxPaths: 50000
       data:
-        cluster:
-          - "{{getv "/data/cassandra/cluster" "cassandra"}}"
-        port: 9042
-        userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
-        userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
-        keyspace: "{{getv "/data/cassandra/keyspace" "metric"}}"
-        columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
-        maxConnections: 2048
-        readTimeout: 10
-        connectTimeout: 10
-        maxRequests: 128
-        loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-        protocolVersion: "V2"
+        handlers:
+          offset-based-data-fetch-handler:
+            enabled: true
+            tenant: NONE
+            maxPoints: 60000000
+            keyspace: "{{getv "/data/cassandra/keyspace" "metric_offset"}}"
+            columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
+            bucketSize: {{getv "/data/cassandra/offset/bucketsize" "604800"}}
+            rollup: 60
+            property:
+              cluster: "{{getv "/data/cassandra/cluster" "cassandra"}}"
+              port: 9042
+              userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
+              userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
+              maxConnections: 2048
+              readTimeout: 10
+              connectTimeout: 10
+              maxRequests: 128
+              maxQueueSize: 4194304
+              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+              consistencyLevel: "{{getv "/data/cassandra/consistencylevel" "ONE"}}"
+              protocolVersion: "V4"
+          simple-data-fetch-handler:
+            enabled: false
+            tenant: NONE
+            maxPoints: 60000000
+            keyspace: "{{getv "/data/cassandra/keyspace" "metric"}}"
+            columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
+            bucketSize: 0
+            rollup: 60
+            property:
+              cluster: "{{getv "/data/cassandra/cluster" "cassandra"}}"
+              port: 9042
+              userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
+              userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
+              maxConnections: 2048
+              readTimeout: 10
+              connectTimeout: 10
+              maxRequests: 128
+              maxQueueSize: 4194304
+              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+              consistencyLevel: "{{getv "/data/cassandra/consistencylevel" "ONE"}}"
+              protocolVersion: "V4"
     throttling:
       # enable throttling
       throttlingEnabled: true
