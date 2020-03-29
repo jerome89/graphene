@@ -3,6 +3,11 @@
 ## Feature
 - read and write metrics from Cassandra by following offset based scheme [#44](https://github.com/graphene-monitoring/graphene/issues/44)
 
+# 1.7.1
+
+## Feature
+- should deserialize converted metric if label value has whitespace [#54](https://github.com/graphene-monitoring/graphene/pull/54)
+
 # 1.7.0
 
 ## Feature
