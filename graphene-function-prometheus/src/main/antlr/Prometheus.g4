@@ -1,4 +1,11 @@
 grammar Prometheus;
+/*------------------------------------------------------------------
+ * LEXER Member
+ *------------------------------------------------------------------*/
+
+@lexer::members {
+  boolean isBraceOpen = false;
+}
 
 // Reference
 // Negative lookahead : https://stackoverflow.com/questions/24194110/antlr4-negative-lookahead-in-lexer
@@ -35,26 +42,39 @@ COUNT: 'count';
 STDVAR: 'stdvar';
 STDDEV: 'stddev';
 
+// Keywords
+OFFSET: 'offset';
+BY: 'by';
+WITHOUT: 'without';
+ON: 'on' { !isBraceOpen }?;
+IGNORING: 'ignoring';
+GROUP_LEFT: 'group_left';
+GROUP_RIGHT: 'group_right';
+BOOL: 'bool';
+
 IDENTIFIER: [a-zA-Z1-9]+;
 METRIC_IDENTIFIER: [a-zA-Z1-9]*':'[a-zA-Z1-9]+;
 
 LEFT_PAREN: '(';
 RIGHT_PAREN: ')';
-LEFT_BRACE: '{';
-RIGHT_BRACE: '}';
+LEFT_BRACE: '{' { isBraceOpen = true }?;
+RIGHT_BRACE: '}' { (isBraceOpen = false) == false  }?;
 LEFT_BRACKET: '[';
 RIGHT_BRACKET: ']';
 COMMA: ',';
-ASSIGN: '=';
+ASSIGN: '=' { !isBraceOpen }?;
 COLON: ':';
 SEMICOLON: ';';
 BLANK: '_';
 TIMES: 'x';
 SPACE: '<space>';
-NAN: [nN][aA][nN];
+NAN: [nN][aA][nN] { !isBraceOpen }?;
 INF: [iI][nN][fF];
 
-EQL: '==';
+EQL: '=='
+  | '=';
+EQL_REGEX: '=~';
+NEQ_REGEX: '!~';
 NEQ: '!=';
 LSS: '<';
 GTR: '>';

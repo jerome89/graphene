@@ -18,11 +18,13 @@ public class PrometheusParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		NUMBER=1, DURATION=2, LAND=3, LOR=4, LUNLESS=5, SUM=6, AVG=7, MAX=8, MIN=9, 
-		COUNT=10, STDVAR=11, STDDEV=12, IDENTIFIER=13, METRIC_IDENTIFIER=14, LEFT_PAREN=15, 
-		RIGHT_PAREN=16, LEFT_BRACE=17, RIGHT_BRACE=18, LEFT_BRACKET=19, RIGHT_BRACKET=20, 
-		COMMA=21, ASSIGN=22, COLON=23, SEMICOLON=24, BLANK=25, TIMES=26, SPACE=27, 
-		NAN=28, INF=29, EQL=30, NEQ=31, LSS=32, GTR=33, GTE=34, LTE=35, ADD=36, 
-		SUB=37, MUL=38, DIV=39, POW=40, MOD=41, STRING=42, COMMENT=43, PT=44;
+		COUNT=10, STDVAR=11, STDDEV=12, OFFSET=13, BY=14, WITHOUT=15, ON=16, IGNORING=17, 
+		GROUP_LEFT=18, GROUP_RIGHT=19, BOOL=20, IDENTIFIER=21, METRIC_IDENTIFIER=22, 
+		LEFT_PAREN=23, RIGHT_PAREN=24, LEFT_BRACE=25, RIGHT_BRACE=26, LEFT_BRACKET=27, 
+		RIGHT_BRACKET=28, COMMA=29, ASSIGN=30, COLON=31, SEMICOLON=32, BLANK=33, 
+		TIMES=34, SPACE=35, NAN=36, INF=37, EQL=38, EQL_REGEX=39, NEQ_REGEX=40, 
+		NEQ=41, LSS=42, GTR=43, GTE=44, LTE=45, ADD=46, SUB=47, MUL=48, DIV=49, 
+		POW=50, MOD=51, STRING=52, COMMENT=53, PT=54;
 	public static final int
 		RULE_start = 0, RULE_duration = 1;
 	private static String[] makeRuleNames() {
@@ -35,21 +37,25 @@ public class PrometheusParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, null, null, "'AND'", "'or'", "'unless'", "'sum'", "'AVG'", "'MAX'", 
-			"'min'", "'count'", "'stdvar'", "'stddev'", null, null, "'('", "')'", 
-			"'{'", "'}'", "'['", "']'", "','", "'='", "':'", "';'", "'_'", "'x'", 
-			"'<space>'", null, null, "'=='", "'!='", "'<'", "'>'", "'>='", "'<='", 
-			"'+'", "'-'", "'*'", "'/'", "'^'", "'%'", null, null, "'.'"
+			"'min'", "'count'", "'stdvar'", "'stddev'", "'offset'", "'by'", "'without'", 
+			"'on'", "'ignoring'", "'group_left'", "'group_right'", "'bool'", null, 
+			null, "'('", "')'", "'{'", "'}'", "'['", "']'", "','", "'='", "':'", 
+			"';'", "'_'", "'x'", "'<space>'", null, null, null, "'=~'", "'!~'", "'!='", 
+			"'<'", "'>'", "'>='", "'<='", "'+'", "'-'", "'*'", "'/'", "'^'", "'%'", 
+			null, null, "'.'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, "NUMBER", "DURATION", "LAND", "LOR", "LUNLESS", "SUM", "AVG", "MAX", 
-			"MIN", "COUNT", "STDVAR", "STDDEV", "IDENTIFIER", "METRIC_IDENTIFIER", 
+			"MIN", "COUNT", "STDVAR", "STDDEV", "OFFSET", "BY", "WITHOUT", "ON", 
+			"IGNORING", "GROUP_LEFT", "GROUP_RIGHT", "BOOL", "IDENTIFIER", "METRIC_IDENTIFIER", 
 			"LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_BRACKET", 
 			"RIGHT_BRACKET", "COMMA", "ASSIGN", "COLON", "SEMICOLON", "BLANK", "TIMES", 
-			"SPACE", "NAN", "INF", "EQL", "NEQ", "LSS", "GTR", "GTE", "LTE", "ADD", 
-			"SUB", "MUL", "DIV", "POW", "MOD", "STRING", "COMMENT", "PT"
+			"SPACE", "NAN", "INF", "EQL", "EQL_REGEX", "NEQ_REGEX", "NEQ", "LSS", 
+			"GTR", "GTE", "LTE", "ADD", "SUB", "MUL", "DIV", "POW", "MOD", "STRING", 
+			"COMMENT", "PT"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -196,9 +202,9 @@ public class PrometheusParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3.\r\4\2\t\2\4\3\t"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\38\r\4\2\t\2\4\3\t"+
 		"\3\3\2\3\2\3\3\3\3\3\3\3\3\3\3\2\2\4\2\4\2\2\2\n\2\6\3\2\2\2\4\b\3\2\2"+
-		"\2\6\7\5\4\3\2\7\3\3\2\2\2\b\t\7\23\2\2\t\n\7\4\2\2\n\13\7\24\2\2\13\5"+
+		"\2\6\7\5\4\3\2\7\3\3\2\2\2\b\t\7\33\2\2\t\n\7\4\2\2\n\13\7\34\2\2\13\5"+
 		"\3\2\2\2\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());

@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.antlr.v4.runtime.*
 import org.junit.jupiter.api.Test
+import java.util.Objects
 
 class PrometheusLexerTest {
 
@@ -341,14 +342,14 @@ class PrometheusLexerTest {
         listOf(expectedToken(PrometheusLexer.ASSIGN, 0, 0, "="))
       ),
       // Inside braces equality is a single '=' character.
-//      row(
-//        "{=}",
-//        listOf(
-//          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
-//          expectedToken(PrometheusLexer.EQL, 1, 1, "="),
-//          expectedToken(PrometheusLexer.RIGHT_BRACE, 2, 2, "}")
-//        )
-//      )
+      row(
+        "{=}",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+          expectedToken(PrometheusLexer.EQL, 1, 1, "="),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 2, 2, "}")
+        )
+      ),
       row(
         "==",
         listOf(expectedToken(PrometheusLexer.EQL, 0, 1, "=="))
@@ -459,19 +460,163 @@ class PrometheusLexerTest {
     }
   }
 
-  private fun assertToken(input: String, expectedTokens: List<Token>) {
+  @Test
+  internal fun `should tokenize keywords lex by prometheus rule for given input text`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens"),
+      row(
+        "offset",
+        listOf(expectedToken(PrometheusLexer.OFFSET, 0, 5, "offset"))
+      ),
+      row(
+        "by",
+        listOf(expectedToken(PrometheusLexer.BY, 0, 1, "by"))
+      ),
+      row(
+        "without",
+        listOf(expectedToken(PrometheusLexer.WITHOUT, 0, 6, "without"))
+      ),
+      row(
+        "on",
+        listOf(expectedToken(PrometheusLexer.ON, 0, 1, "on"))
+      ),
+      row(
+        "ignoring",
+        listOf(expectedToken(PrometheusLexer.IGNORING, 0, 7, "ignoring"))
+      ),
+      row(
+        "group_left",
+        listOf(expectedToken(PrometheusLexer.GROUP_LEFT, 0, 9, "group_left"))
+      ),
+      row(
+        "group_right",
+        listOf(expectedToken(PrometheusLexer.GROUP_RIGHT, 0, 10, "group_right"))
+      ),
+      row(
+        "bool",
+        listOf(expectedToken(PrometheusLexer.BOOL, 0, 3, "bool"))
+      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens ->
+      assertToken(input, expectedTokens)
+    }
+  }
+
+  @Test
+  internal fun `should tokenize selectors lex by prometheus rule for given input text`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens"),
+      row(
+        "台北",
+        fail()
+      ),
+//      row(
+//        "{台北='a'}",
+//        fail()
+//      ),
+//      row(
+//        "{0a='a'}",
+//        fail()
+//      ),
+      row(
+        "{foo='bar'}",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 1, 3, "foo"),
+          expectedToken(PrometheusLexer.EQL, 4, 4, "="),
+          expectedToken(PrometheusLexer.STRING, 5, 9, "'bar'"),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 10, 10, "}")
+        )
+      ),
+      row(
+        """{foo="bar\"bar"}""",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 1, 3, "foo"),
+          expectedToken(PrometheusLexer.EQL, 4, 4, "="),
+          expectedToken(PrometheusLexer.STRING, 5, 14, """"bar\"bar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 15, 15, "}")
+        )
+      ),
+      row(
+        """{NaN	!= "bar" }""",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 1, 3, "NaN"),
+          expectedToken(PrometheusLexer.NEQ, 5, 6, "!="),
+          expectedToken(PrometheusLexer.STRING, 8, 12, """"bar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 14, 14, "}")
+        )
+      ),
+      row(
+        """{NaN	!= "bar" }""",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 1, 3, "NaN"),
+          expectedToken(PrometheusLexer.NEQ, 5, 6, "!="),
+          expectedToken(PrometheusLexer.STRING, 8, 12, """"bar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 14, 14, "}")
+        )
+      ),
+      row(
+        """{alert=~"bar" }""",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 1, 5, "alert"),
+          expectedToken(PrometheusLexer.EQL_REGEX, 6, 7, "=~"),
+          expectedToken(PrometheusLexer.STRING, 8, 12, """"bar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 14, 14, "}")
+        )
+      ),
+      row(
+        """{on!~"bar"}""",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 1, 2, "on"),
+          expectedToken(PrometheusLexer.NEQ_REGEX, 3, 4, "!~"),
+          expectedToken(PrometheusLexer.STRING, 5, 9, """"bar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 10, 10, "}")
+        )
+      )
+//      ,
+//      row(
+//        """{alert!#"bar"}""",
+//        fail()
+//      ),
+//      row(
+//        """{foo:a="bar"}""",
+//        fail()
+//      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens ->
+      assertToken(input, expectedTokens)
+    }
+  }
+
+  private fun assertToken(input: String, expectedTokens: List<Token>?) {
     val prometheusLexer = PrometheusLexer(CharStreams.fromString(input))
     val actualTokens = makeActualTokens(prometheusLexer)
 
-    for ((index, actualToken) in actualTokens.iterator().withIndex()) {
-      actualToken.type shouldBe expectedTokens[index].type
-      actualToken.startIndex shouldBe expectedTokens[index].startIndex
-      actualToken.stopIndex shouldBe expectedTokens[index].stopIndex
-      actualToken.text shouldBe expectedTokens[index].text
-    }
+    return if (Objects.isNull(expectedTokens)) { actualTokens.size shouldBe 0 }
+    else {
+      for ((index, actualToken) in actualTokens.iterator().withIndex()) {
+        actualToken.type shouldBe expectedTokens!![index].type
+        actualToken.startIndex shouldBe expectedTokens[index].startIndex
+        actualToken.stopIndex shouldBe expectedTokens[index].stopIndex
+        actualToken.text shouldBe expectedTokens[index].text
+      }
 
-    actualTokens.size shouldBe expectedTokens.size
+      actualTokens.size shouldBe expectedTokens!!.size
+    }
   }
+
+  private fun fail(): List<Token>? = null
 
   private fun makeActualTokens(prometheusLexer: PrometheusLexer): MutableList<Token> {
     val actualTokens = mutableListOf<Token>()
