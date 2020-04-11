@@ -2,6 +2,16 @@ token literal names:
 null
 null
 null
+'AND'
+'or'
+'unless'
+'sum'
+'AVG'
+'MAX'
+'min'
+'count'
+'stdvar'
+'stddev'
 null
 null
 '('
@@ -19,8 +29,18 @@ null
 '<space>'
 null
 null
+'=='
+'!='
+'<'
+'>'
+'>='
+'<='
 '+'
 '-'
+'*'
+'/'
+'^'
+'%'
 null
 null
 '.'
@@ -29,6 +49,16 @@ token symbolic names:
 null
 NUMBER
 DURATION
+LAND
+LOR
+LUNLESS
+SUM
+AVG
+MAX
+MIN
+COUNT
+STDVAR
+STDDEV
 IDENTIFIER
 METRIC_IDENTIFIER
 LEFT_PAREN
@@ -46,8 +76,18 @@ TIMES
 SPACE
 NAN
 INF
+EQL
+NEQ
+LSS
+GTR
+GTE
+LTE
 ADD
 SUB
+MUL
+DIV
+POW
+MOD
 STRING
 COMMENT
 PT
@@ -58,4 +98,4 @@ duration
 
 
 atn:
-[3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 26, 13, 4, 2, 9, 2, 4, 3, 9, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 4, 2, 4, 2, 2, 2, 10, 2, 6, 3, 2, 2, 2, 4, 8, 3, 2, 2, 2, 6, 7, 5, 4, 3, 2, 7, 3, 3, 2, 2, 2, 8, 9, 7, 9, 2, 2, 9, 10, 7, 4, 2, 2, 10, 11, 7, 10, 2, 2, 11, 5, 3, 2, 2, 2, 2]
+[3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 46, 13, 4, 2, 9, 2, 4, 3, 9, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 4, 2, 4, 2, 2, 2, 10, 2, 6, 3, 2, 2, 2, 4, 8, 3, 2, 2, 2, 6, 7, 5, 4, 3, 2, 7, 3, 3, 2, 2, 2, 8, 9, 7, 19, 2, 2, 9, 10, 7, 4, 2, 2, 10, 11, 7, 20, 2, 2, 11, 5, 3, 2, 2, 2, 2]

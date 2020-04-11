@@ -331,6 +331,134 @@ class PrometheusLexerTest {
     }
   }
 
+  @Test
+  internal fun `should tokenize operators lex by prometheus rule for given input text`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens"),
+      row(
+        "=",
+        listOf(expectedToken(PrometheusLexer.ASSIGN, 0, 0, "="))
+      ),
+      // Inside braces equality is a single '=' character.
+//      row(
+//        "{=}",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+//          expectedToken(PrometheusLexer.EQL, 1, 1, "="),
+//          expectedToken(PrometheusLexer.RIGHT_BRACE, 2, 2, "}")
+//        )
+//      )
+      row(
+        "==",
+        listOf(expectedToken(PrometheusLexer.EQL, 0, 1, "=="))
+      ),
+      row(
+        "!=",
+        listOf(expectedToken(PrometheusLexer.NEQ, 0, 1, "!="))
+      ),
+      row(
+        "<",
+        listOf(expectedToken(PrometheusLexer.LSS, 0, 0, "<"))
+      ),
+      row(
+        ">",
+        listOf(expectedToken(PrometheusLexer.GTR, 0, 0, ">"))
+      ),
+      row(
+        ">=",
+        listOf(expectedToken(PrometheusLexer.GTE, 0, 1, ">="))
+      ),
+      row(
+        "<=",
+        listOf(expectedToken(PrometheusLexer.LTE, 0, 1, "<="))
+      ),
+      row(
+        "+",
+        listOf(expectedToken(PrometheusLexer.ADD, 0, 0, "+"))
+      ),
+      row(
+        "-",
+        listOf(expectedToken(PrometheusLexer.SUB, 0, 0, "-"))
+      ),
+      row(
+        "*",
+        listOf(expectedToken(PrometheusLexer.MUL, 0, 0, "*"))
+      ),
+      row(
+        "/",
+        listOf(expectedToken(PrometheusLexer.DIV, 0, 0, "/"))
+      ),
+      row(
+        "^",
+        listOf(expectedToken(PrometheusLexer.POW, 0, 0, "^"))
+      ),
+      row(
+        "%",
+        listOf(expectedToken(PrometheusLexer.MOD, 0, 0, "%"))
+      ),
+      row(
+        "AND",
+        listOf(expectedToken(PrometheusLexer.LAND, 0, 2, "AND"))
+      ),
+      row(
+        "or",
+        listOf(expectedToken(PrometheusLexer.LOR, 0, 1, "or"))
+      ),
+      row(
+        "unless",
+        listOf(expectedToken(PrometheusLexer.LUNLESS, 0, 5, "unless"))
+      )
+
+    )
+
+    // then
+    table.forAll { input, expectedTokens ->
+      assertToken(input, expectedTokens)
+    }
+  }
+
+  @Test
+  internal fun `should tokenize aggregators lex by prometheus rule for given input text`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens"),
+      row(
+        "sum",
+        listOf(expectedToken(PrometheusLexer.SUM, 0, 2, "sum"))
+      ),
+      row(
+        "AVG",
+        listOf(expectedToken(PrometheusLexer.AVG, 0, 2, "AVG"))
+      ),
+      row(
+        "MAX",
+        listOf(expectedToken(PrometheusLexer.MAX, 0, 2, "MAX"))
+      ),
+      row(
+        "min",
+        listOf(expectedToken(PrometheusLexer.MIN, 0, 2, "min"))
+      ),
+      row(
+        "count",
+        listOf(expectedToken(PrometheusLexer.COUNT, 0, 4, "count"))
+      ),
+      row(
+        "stdvar",
+        listOf(expectedToken(PrometheusLexer.STDVAR, 0, 5, "stdvar"))
+      ),
+      row(
+        "stddev",
+        listOf(expectedToken(PrometheusLexer.STDDEV, 0, 5, "stddev"))
+      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens ->
+      assertToken(input, expectedTokens)
+    }
+  }
+
   private fun assertToken(input: String, expectedTokens: List<Token>) {
     val prometheusLexer = PrometheusLexer(CharStreams.fromString(input))
     val actualTokens = makeActualTokens(prometheusLexer)
