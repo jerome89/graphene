@@ -599,6 +599,117 @@ class PrometheusLexerTest {
     }
   }
 
+//  @Test
+//  internal fun `should fail if mismatched syntax in the input`() {
+//    // given
+//    val table = table(
+//      headers("input", "expectedTokens"),
+//      row(
+//        "=~",
+//        fail()
+//      ),
+//      row(
+//        "!~",
+//        fail()
+//      ),
+//      row(
+//        "!(",
+//        fail()
+//      ),
+//      row(
+//        "1a",
+//        fail()
+//      )
+//    )
+//
+//    // then
+//    table.forAll { input, expectedTokens ->
+//      assertToken(input, expectedTokens)
+//    }
+//  }
+
+//  @Test
+//  internal fun `should fail if mismatched parentheses in the input`() {
+//    // given
+//    val table = table(
+//      headers("input", "expectedTokens"),
+//      row(
+//        "(",
+//        fail()
+//      ),
+//      row(
+//        "())",
+//        fail()
+//      ),
+//      row(
+//        "(()",
+//        fail()
+//      ),
+//      row(
+//        "{",
+//        fail()
+//      ),
+//      row(
+//        "}",
+//        fail()
+//      ),
+//      row(
+//        "{{",
+//        fail()
+//      ),
+//      row(
+//        "{{}}",
+//        fail()
+//      ),
+//      row(
+//        "[",
+//        fail()
+//      ),
+//      row(
+//        "[[",
+//        fail()
+//      ),
+//      row(
+//        "[]]",
+//        fail()
+//      ),
+//      row(
+//        "[[]]",
+//        fail()
+//      ),
+//      row(
+//        "]",
+//        fail()
+//      )
+//    )
+//
+//    // then
+//    table.forAll { input, expectedTokens ->
+//      assertToken(input, expectedTokens)
+//    }
+//  }
+
+//  @Test
+//  internal fun `should fail if encoding issue in the input`() {
+//    // given
+//    val table = table(
+//      headers("input", "expectedTokens"),
+//      row(
+//        """\"\xff\"""",
+//        fail()
+//      ),
+//      row(
+//        """\xff""",
+//        fail()
+//      )
+//    )
+//
+//    // then
+//    table.forAll { input, expectedTokens ->
+//      assertToken(input, expectedTokens)
+//    }
+//  }
+
   private fun assertToken(input: String, expectedTokens: List<Token>?) {
     val prometheusLexer = PrometheusLexer(CharStreams.fromString(input))
     val actualTokens = makeActualTokens(prometheusLexer)
