@@ -17,9 +17,10 @@ public class PrometheusParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		NUMBER=1, IDENTIFIER=2, LEFT_PAREN=3, RIGHT_PAREN=4, LEFT_BRACE=5, RIGHT_BRACE=6, 
-		LEFT_BRACKET=7, RIGHT_BRACKET=8, COMMA=9, ASSIGN=10, COLON=11, SEMICOLON=12, 
-		BLANK=13, TIMES=14, SPACE=15, DURATION=16;
+		NUMBER=1, DURATION=2, IDENTIFIER=3, LEFT_PAREN=4, RIGHT_PAREN=5, LEFT_BRACE=6, 
+		RIGHT_BRACE=7, LEFT_BRACKET=8, RIGHT_BRACKET=9, COMMA=10, ASSIGN=11, COLON=12, 
+		SEMICOLON=13, BLANK=14, TIMES=15, SPACE=16, NAN=17, INF=18, ADD=19, SUB=20, 
+		PT=21;
 	public static final int
 		RULE_start = 0, RULE_duration = 1;
 	private static String[] makeRuleNames() {
@@ -31,16 +32,18 @@ public class PrometheusParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, "'('", "')'", "'{'", "'}'", "'['", "']'", "','", "'='", 
-			"':'", "';'", "'_'", "'x'", "'<space>'"
+			null, null, null, null, "'('", "')'", "'{'", "'}'", "'['", "']'", "','", 
+			"'='", "':'", "';'", "'_'", "'x'", "'<space>'", null, null, "'+'", "'-'", 
+			"'.'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "NUMBER", "IDENTIFIER", "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", 
-			"RIGHT_BRACE", "LEFT_BRACKET", "RIGHT_BRACKET", "COMMA", "ASSIGN", "COLON", 
-			"SEMICOLON", "BLANK", "TIMES", "SPACE", "DURATION"
+			null, "NUMBER", "DURATION", "IDENTIFIER", "LEFT_PAREN", "RIGHT_PAREN", 
+			"LEFT_BRACE", "RIGHT_BRACE", "LEFT_BRACKET", "RIGHT_BRACKET", "COMMA", 
+			"ASSIGN", "COLON", "SEMICOLON", "BLANK", "TIMES", "SPACE", "NAN", "INF", 
+			"ADD", "SUB", "PT"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -95,7 +98,9 @@ public class PrometheusParser extends Parser {
 	}
 
 	public static class StartContext extends ParserRuleContext {
-		public TerminalNode LEFT_BRACE() { return getToken(PrometheusParser.LEFT_BRACE, 0); }
+		public DurationContext duration() {
+			return getRuleContext(DurationContext.class,0);
+		}
 		public StartContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -122,7 +127,7 @@ public class PrometheusParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(4);
-			match(LEFT_BRACE);
+			duration();
 			}
 		}
 		catch (RecognitionException re) {
@@ -137,7 +142,9 @@ public class PrometheusParser extends Parser {
 	}
 
 	public static class DurationContext extends ParserRuleContext {
+		public TerminalNode LEFT_BRACE() { return getToken(PrometheusParser.LEFT_BRACE, 0); }
 		public TerminalNode DURATION() { return getToken(PrometheusParser.DURATION, 0); }
+		public TerminalNode RIGHT_BRACE() { return getToken(PrometheusParser.RIGHT_BRACE, 0); }
 		public DurationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -164,7 +171,11 @@ public class PrometheusParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(6);
+			match(LEFT_BRACE);
+			setState(7);
 			match(DURATION);
+			setState(8);
+			match(RIGHT_BRACE);
 			}
 		}
 		catch (RecognitionException re) {
@@ -179,9 +190,10 @@ public class PrometheusParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\22\13\4\2\t\2\4\3"+
-		"\t\3\3\2\3\2\3\3\3\3\3\3\2\2\4\2\4\2\2\2\b\2\6\3\2\2\2\4\b\3\2\2\2\6\7"+
-		"\7\7\2\2\7\3\3\2\2\2\b\t\7\22\2\2\t\5\3\2\2\2\2";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\27\r\4\2\t\2\4\3"+
+		"\t\3\3\2\3\2\3\3\3\3\3\3\3\3\3\3\2\2\4\2\4\2\2\2\n\2\6\3\2\2\2\4\b\3\2"+
+		"\2\2\6\7\5\4\3\2\7\3\3\2\2\2\b\t\7\b\2\2\t\n\7\4\2\2\n\13\7\t\2\2\13\5"+
+		"\3\2\2\2\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
