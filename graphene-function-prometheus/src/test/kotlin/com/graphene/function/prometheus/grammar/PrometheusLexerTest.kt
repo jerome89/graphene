@@ -15,7 +15,7 @@ class PrometheusLexerTest {
   @Test
   internal fun `should tokenize common lex by prometheus rule for given input text`() {
     // given
-    val commonTable = table(
+    val table = table(
       headers("input", "expectedTokens"),
       row(
         ",",
@@ -74,7 +74,7 @@ class PrometheusLexerTest {
     )
 
     // then
-    commonTable.forAll { input, expectedTokens ->
+    table.forAll { input, expectedTokens ->
       assertToken(input, expectedTokens)
     }
   }
@@ -82,7 +82,7 @@ class PrometheusLexerTest {
   @Test
   internal fun `should tokenize number lex by prometheus rule for given input text`() {
     // given
-    val numberTable = table(
+    val table = table(
       headers("input", "expectedTokens"),
       row(
         "1",
@@ -195,7 +195,138 @@ class PrometheusLexerTest {
     )
 
     // then
-    numberTable.forAll { input, expectedTokens ->
+    table.forAll { input, expectedTokens ->
+      assertToken(input, expectedTokens)
+    }
+  }
+
+  @Test
+  internal fun `should tokenize strings lex by prometheus rule for given input text`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens"),
+      row(
+        "\"test\\tsequence\"",
+        listOf(expectedToken(PrometheusLexer.STRING, 0, 15, """"test\tsequence""""))
+      ),
+      row(
+        "\"test\\\\.expression\"",
+        listOf(expectedToken(PrometheusLexer.STRING, 0, 18, """"test\\.expression""""))
+      ),
+      row(
+        "\"test\\.expression\"",
+        listOf(expectedToken(PrometheusLexer.STRING, 0, 17, """"test\.expression""""))
+      ),
+      row(
+        "`test\\.expression`",
+        listOf(expectedToken(PrometheusLexer.STRING, 0, 17, """`test\.expression`"""))
+      )
+//      ,
+//      row(
+//        ".٩",
+//        listOf(expectedToken(PrometheusLexer.STRING, 0, 17, """`test\.expression`"""))
+//      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens ->
+      assertToken(input, expectedTokens)
+    }
+  }
+
+  @Test
+  internal fun `should tokenize durations lex by prometheus rule for given input text`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens"),
+      row(
+        "5s",
+        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "5s"))
+      ),
+      row(
+        "123m",
+        listOf(expectedToken(PrometheusLexer.DURATION, 0, 3, "123m"))
+      ),
+      row(
+        "1h",
+        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "1h"))
+      ),
+      row(
+        "3w",
+        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "3w"))
+      ),
+      row(
+        "1y",
+        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "1y"))
+      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens ->
+      assertToken(input, expectedTokens)
+    }
+  }
+
+  @Test
+  internal fun `should tokenize identifiers lex by prometheus rule for given input text`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens"),
+      row(
+        "abc",
+        listOf(expectedToken(PrometheusLexer.IDENTIFIER, 0, 2, "abc"))
+      ),
+      row(
+        "a:bc",
+        listOf(expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 3, "a:bc"))
+      ),
+      row(
+        "abc d",
+        listOf(
+          expectedToken(PrometheusLexer.IDENTIFIER, 0, 2, "abc"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 4, 4, "d")
+        )
+      ),
+      row(
+        ":bc",
+        listOf(expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 2, ":bc"))
+      )
+//      ,
+//      row(
+//        "0a:bc",
+//        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "1y"))
+//      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens ->
+      assertToken(input, expectedTokens)
+    }
+  }
+
+  @Test
+  internal fun `should tokenize comments lex by prometheus rule for given input text`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens"),
+      row(
+        "# some comment",
+        listOf(expectedToken(PrometheusLexer.COMMENT, 0, 13, "# some comment"))
+      ),
+      row(
+        "5 # 1+1\\n5",
+        listOf(
+          expectedToken(PrometheusLexer.NUMBER, 0, 0, "5"),
+          expectedToken(PrometheusLexer.COMMENT, 2, 6, "# 1+1"),
+          // Please fix me below string type
+          expectedToken(PrometheusLexer.STRING, 7, 8, "\\n"),
+          expectedToken(PrometheusLexer.NUMBER, 9, 9, "5")
+        )
+      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens ->
       assertToken(input, expectedTokens)
     }
   }

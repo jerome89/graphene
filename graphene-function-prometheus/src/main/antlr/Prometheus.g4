@@ -1,7 +1,5 @@
 grammar Prometheus;
 
-tokens { DURATION }
-
 start: duration;
 
 duration: LEFT_BRACE DURATION RIGHT_BRACE;
@@ -14,9 +12,10 @@ NUMBER: DEGIT+ PT DEGIT+
       | INF
       ;
 
-DURATION: [1-9]+[m];
+DURATION: [1-9]+[msywh];
 
 IDENTIFIER: [a-zA-Z1-9]+;
+METRIC_IDENTIFIER: [a-zA-Z1-9]*':'[a-zA-Z1-9]+;
 
 LEFT_PAREN: '(';
 RIGHT_PAREN: ')';
@@ -36,7 +35,10 @@ INF: [iI][nN][fF];
 
 ADD: '+';
 SUB: '-';
+//=!#$%&:;<>?@[\]^_`|~
+STRING: [A-Za-z\\"'.`]+;
+COMMENT: '#'[ A-Za-z1-9+]+;
 
 fragment
-  DEGIT : [0-9] ;
-  PT : '.';
+  DEGIT: [0-9];
+  PT: '.';
