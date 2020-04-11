@@ -17,9 +17,9 @@ public class PrometheusLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		LEFT_PAREN=1, RIGHT_PAREN=2, LEFT_BRACE=3, RIGHT_BRACE=4, LEFT_BRACKET=5, 
-		RIGHT_BRACKET=6, COMMA=7, ASSIGN=8, COLON=9, SEMICOLON=10, BLANK=11, TIMES=12, 
-		SPACE=13;
+		NUMBER=1, IDENTIFIER=2, LEFT_PAREN=3, RIGHT_PAREN=4, LEFT_BRACE=5, RIGHT_BRACE=6, 
+		LEFT_BRACKET=7, RIGHT_BRACKET=8, COMMA=9, ASSIGN=10, COLON=11, SEMICOLON=12, 
+		BLANK=13, TIMES=14, SPACE=15;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 	};
@@ -30,25 +30,25 @@ public class PrometheusLexer extends Lexer {
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_BRACKET", 
-			"RIGHT_BRACKET", "COMMA", "ASSIGN", "COLON", "SEMICOLON", "BLANK", "TIMES", 
-			"SPACE"
+			"NUMBER", "IDENTIFIER", "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE", 
+			"LEFT_BRACKET", "RIGHT_BRACKET", "COMMA", "ASSIGN", "COLON", "SEMICOLON", 
+			"BLANK", "TIMES", "SPACE"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'('", "')'", "'{'", "'}'", "'['", "']'", "','", "'='", "':'", 
-			"';'", "'_'", "'x'", "'<space>'"
+			null, null, null, "'('", "')'", "'{'", "'}'", "'['", "']'", "','", "'='", 
+			"':'", "';'", "'_'", "'x'", "'<space>'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_BRACKET", 
-			"RIGHT_BRACKET", "COMMA", "ASSIGN", "COLON", "SEMICOLON", "BLANK", "TIMES", 
-			"SPACE"
+			null, "NUMBER", "IDENTIFIER", "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", 
+			"RIGHT_BRACE", "LEFT_BRACKET", "RIGHT_BRACKET", "COMMA", "ASSIGN", "COLON", 
+			"SEMICOLON", "BLANK", "TIMES", "SPACE"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -86,6 +86,9 @@ public class PrometheusLexer extends Lexer {
 	}
 
 
+	  boolean isBracketOpen = false;
+
+
 	public PrometheusLexer(CharStream input) {
 		super(input);
 		_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
@@ -110,22 +113,26 @@ public class PrometheusLexer extends Lexer {
 	public ATN getATN() { return _ATN; }
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2\17=\b\1\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2\21K\b\1\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
-		"\13\4\f\t\f\4\r\t\r\4\16\t\16\3\2\3\2\3\3\3\3\3\4\3\4\3\5\3\5\3\6\3\6"+
-		"\3\7\3\7\3\b\3\b\3\t\3\t\3\n\3\n\3\13\3\13\3\f\3\f\3\r\3\r\3\16\3\16\3"+
-		"\16\3\16\3\16\3\16\3\16\3\16\2\2\17\3\3\5\4\7\5\t\6\13\7\r\b\17\t\21\n"+
-		"\23\13\25\f\27\r\31\16\33\17\3\2\2\2<\2\3\3\2\2\2\2\5\3\2\2\2\2\7\3\2"+
-		"\2\2\2\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\2\17\3\2\2\2\2\21\3\2\2\2\2"+
-		"\23\3\2\2\2\2\25\3\2\2\2\2\27\3\2\2\2\2\31\3\2\2\2\2\33\3\2\2\2\3\35\3"+
-		"\2\2\2\5\37\3\2\2\2\7!\3\2\2\2\t#\3\2\2\2\13%\3\2\2\2\r\'\3\2\2\2\17)"+
-		"\3\2\2\2\21+\3\2\2\2\23-\3\2\2\2\25/\3\2\2\2\27\61\3\2\2\2\31\63\3\2\2"+
-		"\2\33\65\3\2\2\2\35\36\7*\2\2\36\4\3\2\2\2\37 \7+\2\2 \6\3\2\2\2!\"\7"+
-		"}\2\2\"\b\3\2\2\2#$\7\177\2\2$\n\3\2\2\2%&\7]\2\2&\f\3\2\2\2\'(\7_\2\2"+
-		"(\16\3\2\2\2)*\7.\2\2*\20\3\2\2\2+,\7?\2\2,\22\3\2\2\2-.\7<\2\2.\24\3"+
-		"\2\2\2/\60\7=\2\2\60\26\3\2\2\2\61\62\7a\2\2\62\30\3\2\2\2\63\64\7z\2"+
-		"\2\64\32\3\2\2\2\65\66\7>\2\2\66\67\7u\2\2\678\7r\2\289\7c\2\29:\7e\2"+
-		"\2:;\7g\2\2;<\7@\2\2<\34\3\2\2\2\3\2\2";
+		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\3\2\6\2#\n\2\r\2\16"+
+		"\2$\3\3\6\3(\n\3\r\3\16\3)\3\4\3\4\3\5\3\5\3\6\3\6\3\7\3\7\3\b\3\b\3\t"+
+		"\3\t\3\n\3\n\3\13\3\13\3\f\3\f\3\r\3\r\3\16\3\16\3\17\3\17\3\20\3\20\3"+
+		"\20\3\20\3\20\3\20\3\20\3\20\2\2\21\3\3\5\4\7\5\t\6\13\7\r\b\17\t\21\n"+
+		"\23\13\25\f\27\r\31\16\33\17\35\20\37\21\3\2\4\3\2\62;\3\2c|\2L\2\3\3"+
+		"\2\2\2\2\5\3\2\2\2\2\7\3\2\2\2\2\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\2"+
+		"\17\3\2\2\2\2\21\3\2\2\2\2\23\3\2\2\2\2\25\3\2\2\2\2\27\3\2\2\2\2\31\3"+
+		"\2\2\2\2\33\3\2\2\2\2\35\3\2\2\2\2\37\3\2\2\2\3\"\3\2\2\2\5\'\3\2\2\2"+
+		"\7+\3\2\2\2\t-\3\2\2\2\13/\3\2\2\2\r\61\3\2\2\2\17\63\3\2\2\2\21\65\3"+
+		"\2\2\2\23\67\3\2\2\2\259\3\2\2\2\27;\3\2\2\2\31=\3\2\2\2\33?\3\2\2\2\35"+
+		"A\3\2\2\2\37C\3\2\2\2!#\t\2\2\2\"!\3\2\2\2#$\3\2\2\2$\"\3\2\2\2$%\3\2"+
+		"\2\2%\4\3\2\2\2&(\t\3\2\2\'&\3\2\2\2()\3\2\2\2)\'\3\2\2\2)*\3\2\2\2*\6"+
+		"\3\2\2\2+,\7*\2\2,\b\3\2\2\2-.\7+\2\2.\n\3\2\2\2/\60\7}\2\2\60\f\3\2\2"+
+		"\2\61\62\7\177\2\2\62\16\3\2\2\2\63\64\7]\2\2\64\20\3\2\2\2\65\66\7_\2"+
+		"\2\66\22\3\2\2\2\678\7.\2\28\24\3\2\2\29:\7?\2\2:\26\3\2\2\2;<\7<\2\2"+
+		"<\30\3\2\2\2=>\7=\2\2>\32\3\2\2\2?@\7a\2\2@\34\3\2\2\2AB\7z\2\2B\36\3"+
+		"\2\2\2CD\7>\2\2DE\7u\2\2EF\7r\2\2FG\7c\2\2GH\7e\2\2HI\7g\2\2IJ\7@\2\2"+
+		"J \3\2\2\2\5\2$)\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

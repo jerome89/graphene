@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 class PrometheusLexerTest {
 
   @Test
-  internal fun `should tokenize by prometheus lex rule given input text`() {
+  internal fun `should tokenize common lex by prometheus rule for given input text`() {
     // given
     val table = table(
       headers("input", "expectedTokens"),
@@ -22,12 +22,57 @@ class PrometheusLexerTest {
         listOf(expectedToken(PrometheusLexer.COMMA, 0, 0, ","))
       ),
       row(
+        "()",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_PAREN, 0, 0, "("),
+          expectedToken(PrometheusLexer.RIGHT_PAREN, 1, 1, ")")
+        )
+      ),
+      row(
         "{}",
         listOf(
           expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 1, 1, "}")
         )
+      ),
+      row(
+        "[5m]",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
+          expectedToken(PrometheusLexer.DURATION, 1, 2, "5m"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 3, 3, "]")
+        )
       )
+
+//      ,
+//      row(
+//        "[ 5m]",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
+//          expectedToken(PrometheusLexer.DURATION, 1, 2, "5m"),
+//          expectedToken(PrometheusLexer.RIGHT_BRACKET, 3, 3, "]")
+//        )
+//      ),
+//      row(
+//        "[  5m]",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
+//          expectedToken(PrometheusLexer.DURATION, 1, 2, "5m"),
+//          expectedToken(PrometheusLexer.RIGHT_BRACKET, 3, 3, "]")
+//        )
+//      ),
+//      row(
+//        "[  5m ]",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
+//          expectedToken(PrometheusLexer.DURATION, 1, 2, "5m"),
+//          expectedToken(PrometheusLexer.RIGHT_BRACKET, 3, 3, "]")
+//        )
+//      ),
+//      row(
+//        "\r\n\r",
+//        listOf()
+//      )
     )
 
     // then
@@ -41,6 +86,8 @@ class PrometheusLexerTest {
         actualToken.stopIndex shouldBe expectedTokens[index].stopIndex
         actualToken.text shouldBe expectedTokens[index].text
       }
+
+      actualTokens.size shouldBe expectedTokens.size
     }
   }
 

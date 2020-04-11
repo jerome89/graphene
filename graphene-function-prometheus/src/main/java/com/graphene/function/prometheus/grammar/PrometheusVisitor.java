@@ -16,4 +16,10 @@ public interface PrometheusVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStart(PrometheusParser.StartContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PrometheusParser#duration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDuration(PrometheusParser.DurationContext ctx);
 }

@@ -17,4 +17,14 @@ public interface PrometheusListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStart(PrometheusParser.StartContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PrometheusParser#duration}.
+	 * @param ctx the parse tree
+	 */
+	void enterDuration(PrometheusParser.DurationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PrometheusParser#duration}.
+	 * @param ctx the parse tree
+	 */
+	void exitDuration(PrometheusParser.DurationContext ctx);
 }

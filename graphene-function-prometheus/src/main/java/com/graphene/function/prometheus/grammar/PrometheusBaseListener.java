@@ -23,6 +23,18 @@ public class PrometheusBaseListener implements PrometheusListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStart(PrometheusParser.StartContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDuration(PrometheusParser.DurationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDuration(PrometheusParser.DurationContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

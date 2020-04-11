@@ -1,6 +1,14 @@
 grammar Prometheus;
 
+tokens { DURATION }
+
+@lexer::members {
+  boolean isBracketOpen = false;
+}
+
 start: LEFT_BRACE;
+
+duration: DURATION;
 
 //start: mathFormulaExpr               # MathematicalFormula
 //     | assignmentMathFormulaExpr     # AssignmentMathematicalFormula
@@ -16,9 +24,9 @@ start: LEFT_BRACE;
 //
 //assignmentMathFormulaExpr: IDENTIFIER '=' mathFormulaExpr
 //;
-//
-//NUMBER: [0-9]+;
-//IDENTIFIER: [a-z]+;
+
+NUMBER: [0-9]+;
+IDENTIFIER: [a-z]+;
 
 LEFT_PAREN: '(';
 RIGHT_PAREN: ')';
