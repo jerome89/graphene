@@ -31,6 +31,7 @@ duration: LEFT_BRACE DURATION RIGHT_BRACE;
  *------------------------------------------------------------------*/
 
 NUMBER: DEGIT+ PT DEGIT+
+      | '0x'DEGIT+        // hexadecimal
       | DEGIT+ PT
       | PT DEGIT+
       | DEGIT+

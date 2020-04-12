@@ -215,13 +215,14 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.NUMBER, 5, 7, "123")
         ),
         nonException()
+      ),
+      row(
+        "0x123",
+        listOf(
+          expectedToken(PrometheusLexer.NUMBER, 0, 4, "0x123")
+        ),
+        nonException()
       )
-//      row(
-//        "0x123",
-//        listOf(
-//          expectedToken(PrometheusLexer.NUMBER, 0, 5, "0x123")
-//        )
-//      )
     )
 
     // then
