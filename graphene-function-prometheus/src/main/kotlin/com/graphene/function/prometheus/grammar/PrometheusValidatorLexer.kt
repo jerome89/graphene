@@ -6,14 +6,51 @@ import org.antlr.v4.runtime.Token
 
 class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
 
+  var eqlCount: Int = 0
+  var eqlRegexCount: Int = 0
+  var neqCount: Int = 0
+  var neqRegexCount: Int = 0
+
   override fun nextToken(): Token {
     val nextToken = super.nextToken()
 
-    if (nextToken.type == Recognizer.EOF) {
-      validate()
-    }
+    return when (nextToken.type) {
+      Recognizer.EOF -> {
+        validate()
+        nextToken
+      }
+      STRING -> {
+        val la = _input.LA(1).toString()
 
-    return nextToken
+        if (isBraceOpen && la == "}") {
+          if (0 == eqlCount + eqlRegexCount + neqCount + neqRegexCount) {
+            throw NotIncludeQueryOperatorInVectorMatchingException("Please check the query operator whether omit or not.")
+          }
+
+          if (_token.text.indexOf(':') != -1) {
+            throw IllegalColonInBraceExpressionException("Does not allow the colon usage inside brace syntax.")
+          }
+        }
+        nextToken
+      }
+      EQL -> {
+        eqlCount++
+        nextToken
+      }
+      EQL_REGEX -> {
+        eqlRegexCount++
+        nextToken
+      }
+      NEQ -> {
+        neqCount++
+        nextToken
+      }
+      NEQ_REGEX -> {
+        neqRegexCount++
+        nextToken
+      }
+      else -> nextToken
+    }
   }
 
   private fun validate() {
@@ -40,5 +77,12 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
     if (1 < isBracketOpenCount) {
       throw IllegalBracketException("left-bracket open only once.")
     }
+
+    // https://prometheus.io/docs/prometheus/latest/querying/operators/#vector-matching
+//    if (1 <= isBraceOpenCount) {
+//      if (0 == eqlCount + eqlRegexCount + neqCount + neqRegexCount) {
+//        throw NotIncludeQueryOperatorInVectorMatchingException("Please check the query operator whether omit or not.")
+//      }
+//    }
   }
 }

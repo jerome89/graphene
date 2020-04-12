@@ -122,11 +122,13 @@ SPACE: '<space>';
 NAN: [nN][aA][nN] { !isBraceOpen }?;
 INF: [iI][nN][fF];
 
+// Query Operator
 EQL: '=='
   | '=';
 EQL_REGEX: '=~';
 NEQ_REGEX: '!~';
 NEQ: '!=';
+
 LSS: '<';
 GTR: '>';
 GTE: '>=';

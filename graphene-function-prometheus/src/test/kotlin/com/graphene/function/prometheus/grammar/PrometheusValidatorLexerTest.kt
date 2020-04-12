@@ -632,11 +632,11 @@ class PrometheusValidatorLexerTest {
     // given
     val table = table(
       headers("input", "expectedTokens", "expectedException"),
-      row(
-        "台北",
-        emptyToken(),
-        nonException()
-      ),
+//      row(
+//        "台北",
+//        emptyToken(),
+//        nonException()
+//      ),
 //      row(
 //        "{台北='a'}",
 //        fail()
@@ -710,16 +710,17 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.RIGHT_BRACE, 10, 10, "}")
         ),
         nonException()
+      ),
+      row(
+        """{alert!#"bar"}""",
+        emptyToken(),
+        NotIncludeQueryOperatorInVectorMatchingException::class
+      ),
+      row(
+        """{foo:a="bar"}""",
+        emptyToken(),
+        IllegalColonInBraceExpressionException::class
       )
-//      ,
-//      row(
-//        """{alert!#"bar"}""",
-//        fail()
-//      ),
-//      row(
-//        """{foo:a="bar"}""",
-//        fail()
-//      )
     )
 
     // then
@@ -729,33 +730,37 @@ class PrometheusValidatorLexerTest {
   }
 
 //  @Test
-//  internal fun `should fail if mismatched syntax in the input`() {
-//    // given
-//    val table = table(
-//      headers("input", "expectedTokens"),
-//      row(
-//        "=~",
-//        fail()
-//      ),
-//      row(
-//        "!~",
-//        fail()
-//      ),
-//      row(
-//        "!(",
-//        fail()
-//      ),
-//      row(
-//        "1a",
-//        fail()
-//      )
-//    )
-//
-//    // then
-//    table.forAll { input, expectedTokens ->
-//      assertToken(input, expectedTokens)
-//    }
-//  }
+  internal fun `should fail if mismatched syntax in the input`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens", "expectedException"),
+      row(
+        "=~",
+        emptyToken(),
+        nonException()
+      ),
+      row(
+        "!~",
+        emptyToken(),
+        nonException()
+      ),
+      row(
+        "!(",
+        emptyToken(),
+        nonException()
+      ),
+      row(
+        "1a",
+        emptyToken(),
+        nonException()
+      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
+    }
+  }
 
   @Test
   internal fun `should fail if mismatched parentheses in the input`() {
@@ -830,28 +835,30 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  private fun emptyToken() = emptyList<Token>()
-
 //  @Test
-//  internal fun `should fail if encoding issue in the input`() {
-//    // given
-//    val table = table(
-//      headers("input", "expectedTokens"),
-//      row(
-//        """\"\xff\"""",
-//        fail()
-//      ),
-//      row(
-//        """\xff""",
-//        fail()
-//      )
-//    )
-//
-//    // then
-//    table.forAll { input, expectedTokens ->
-//      assertToken(input, expectedTokens)
-//    }
-//  }
+  internal fun `should fail if encoding issue in the input`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens", "expectedException"),
+      row(
+        """\"\xff\"""",
+        emptyToken(),
+        nonException()
+      ),
+      row(
+        """\xff""",
+        emptyToken(),
+        nonException()
+      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
+    }
+  }
+
+  private fun emptyToken() = emptyList<Token>()
 
   private fun assertToken(input: String, expectedTokens: List<Token>?, expectedException: KClass<out Exception>?) {
     val prometheusLexer = PrometheusValidatorLexer(CharStreams.fromString(input))
