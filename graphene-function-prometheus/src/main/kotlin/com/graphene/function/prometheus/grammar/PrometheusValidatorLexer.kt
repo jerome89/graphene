@@ -1,14 +1,11 @@
 package com.graphene.function.prometheus.grammar
 
-import org.antlr.v4.runtime.ANTLRErrorListener
+import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CharStream
-import org.antlr.v4.runtime.Parser
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.Token
-import org.antlr.v4.runtime.atn.ATNConfigSet
-import org.antlr.v4.runtime.dfa.DFA
-import java.util.BitSet
+import org.slf4j.LoggerFactory
 
 class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
 
@@ -19,27 +16,11 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
 
   var tmpTokens: MutableList<Token> = mutableListOf()
 
-  var errorCount: Int = 0
+  private val antlrErrorListener = ErrorCountableANTLRErrorListener()
 
-  override fun addErrorListener(listener: ANTLRErrorListener?) {
-    super.addErrorListener(object: ANTLRErrorListener {
-      override fun reportAttemptingFullContext(recognizer: Parser?, dfa: DFA?, startIndex: Int, stopIndex: Int, conflictingAlts: BitSet?, configs: ATNConfigSet?) {
-        println("reportAttemptingFullContext")
-      }
-
-      override fun syntaxError(recognizer: Recognizer<*, *>?, offendingSymbol: Any?, line: Int, charPositionInLine: Int, msg: String?, e: RecognitionException?) {
-        println("syntaxError")
-        errorCount++
-      }
-
-      override fun reportAmbiguity(recognizer: Parser?, dfa: DFA?, startIndex: Int, stopIndex: Int, exact: Boolean, ambigAlts: BitSet?, configs: ATNConfigSet?) {
-        println("reportAmbiguity")
-      }
-
-      override fun reportContextSensitivity(recognizer: Parser?, dfa: DFA?, startIndex: Int, stopIndex: Int, prediction: Int, configs: ATNConfigSet?) {
-        println("reportContextSensitivity")
-      }
-    })
+  init {
+    removeErrorListeners()
+    addErrorListener(antlrErrorListener)
   }
 
   override fun nextToken(): Token {
@@ -150,8 +131,20 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
       }
     }
 
-    if (0 < errorCount) {
+    if (0 < antlrErrorListener.errorCount) {
       throw UnknownTokenException("")
+    }
+  }
+
+  class ErrorCountableANTLRErrorListener : BaseErrorListener() {
+
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    var errorCount = 0
+
+    override fun syntaxError(recognizer: Recognizer<*, *>?, offendingSymbol: Any?, line: Int, charPositionInLine: Int, msg: String?, e: RecognitionException?) {
+      log.error("line $line:$charPositionInLine $msg")
+      errorCount++
     }
   }
 }

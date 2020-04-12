@@ -149,6 +149,7 @@ COMMENT: '#'[ A-Za-z1-9+]+;
 
 CR: '\r' -> skip;
 NL: '\n' -> skip;
+TAB: (' ' | '\t')+ -> skip;
 
 fragment
   DEGIT: [0-9];
