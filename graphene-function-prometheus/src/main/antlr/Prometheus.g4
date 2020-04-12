@@ -1,4 +1,8 @@
 grammar Prometheus;
+
+// Reference
+// Negative lookahead : https://stackoverflow.com/questions/24194110/antlr4-negative-lookahead-in-lexer
+
 /*------------------------------------------------------------------
  * LEXER Member
  *------------------------------------------------------------------*/
@@ -7,8 +11,9 @@ grammar Prometheus;
   boolean isBraceOpen = false;
 }
 
-// Reference
-// Negative lookahead : https://stackoverflow.com/questions/24194110/antlr4-negative-lookahead-in-lexer
+/*------------------------------------------------------------------
+* PARSER RULES
+*------------------------------------------------------------------*/
 
 start: duration;
 
@@ -56,9 +61,20 @@ IDENTIFIER: [a-zA-Z1-9]+;
 METRIC_IDENTIFIER: [a-zA-Z1-9]*':'[a-zA-Z1-9]+;
 
 LEFT_PAREN: '(';
-RIGHT_PAREN: ')';
-LEFT_BRACE: '{' { isBraceOpen = true }?;
-RIGHT_BRACE: '}' { (isBraceOpen = false) == false  }?;
+RIGHT_PAREN: ')' {};
+LEFT_BRACE: '{' {
+  if (isBraceOpen) {
+    throw new IllegalBraceException("This is not allowed action. Please check the duplicated left brace.");
+  }
+  isBraceOpen = true;
+};
+RIGHT_BRACE: '}' {
+  if (!isBraceOpen) {
+    throw new IllegalBraceException("This is not allowed action. Please check the left brace omitted.");
+  }
+
+  isBraceOpen = false;
+};
 LEFT_BRACKET: '[';
 RIGHT_BRACKET: ']';
 COMMA: ',';

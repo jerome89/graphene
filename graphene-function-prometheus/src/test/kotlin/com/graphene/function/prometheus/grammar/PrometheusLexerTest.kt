@@ -9,7 +9,10 @@ import io.mockk.every
 import io.mockk.mockk
 import org.antlr.v4.runtime.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.lang.Exception
 import java.util.Objects
+import kotlin.reflect.KClass
 
 class PrometheusLexerTest {
 
@@ -17,24 +20,27 @@ class PrometheusLexerTest {
   internal fun `should tokenize common lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         ",",
-        listOf(expectedToken(PrometheusLexer.COMMA, 0, 0, ","))
+        listOf(expectedToken(PrometheusLexer.COMMA, 0, 0, ",")),
+        nonException()
       ),
       row(
         "()",
         listOf(
           expectedToken(PrometheusLexer.LEFT_PAREN, 0, 0, "("),
           expectedToken(PrometheusLexer.RIGHT_PAREN, 1, 1, ")")
-        )
+        ),
+        nonException()
       ),
       row(
         "{}",
         listOf(
           expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 1, 1, "}")
-        )
+        ),
+        nonException()
       ),
       row(
         "[5m]",
@@ -42,7 +48,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
           expectedToken(PrometheusLexer.DURATION, 1, 2, "5m"),
           expectedToken(PrometheusLexer.RIGHT_BRACKET, 3, 3, "]")
-        )
+        ),
+        nonException()
       ),
       row(
         "[ 5m]",
@@ -50,7 +57,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
           expectedToken(PrometheusLexer.DURATION, 2, 3, "5m"),
           expectedToken(PrometheusLexer.RIGHT_BRACKET, 4, 4, "]")
-        )
+        ),
+        nonException()
       ),
       row(
         "[  5m]",
@@ -58,7 +66,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
           expectedToken(PrometheusLexer.DURATION, 3, 4, "5m"),
           expectedToken(PrometheusLexer.RIGHT_BRACKET, 5, 5, "]")
-        )
+        ),
+        nonException()
       ),
       row(
         "[  5m ]",
@@ -66,17 +75,19 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
           expectedToken(PrometheusLexer.DURATION, 3, 4, "5m"),
           expectedToken(PrometheusLexer.RIGHT_BRACKET, 6, 6, "]")
-        )
+        ),
+        nonException()
       ),
       row(
         "\r\n\r",
-        listOf()
+        emptyToken(),
+        nonException()
       )
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -84,72 +95,85 @@ class PrometheusLexerTest {
   internal fun `should tokenize number lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "1",
-        listOf(expectedToken(PrometheusLexer.NUMBER, 0, 0, "1"))
+        listOf(
+          expectedToken(PrometheusLexer.NUMBER, 0, 0, "1")
+        ),
+        nonException()
       ),
       row(
         "4.23",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 3, "4.23")
-        )
+        ),
+        nonException()
       ),
       row(
         ".3",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 1, ".3")
-        )
+        ),
+        nonException()
       ),
       row(
         "5.",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 1, "5.")
-        )
+        ),
+        nonException()
       ),
       row(
         "NaN",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 2, "NaN")
-        )
+        ),
+        nonException()
       ),
       row(
         "nAN",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 2, "nAN")
-        )
+        ),
+        nonException()
       ),
       row(
         "NaN 123",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 2, "NaN"),
           expectedToken(PrometheusLexer.NUMBER, 4, 6, "123")
-        )
+        ),
+        nonException()
       ),
       row(
         "NaN123",
         listOf(
           expectedToken(PrometheusLexer.IDENTIFIER, 0, 5, "NaN123")
-        )
+        ),
+        nonException()
       ),
       row(
         "iNf",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 2, "iNf")
-        )
+        ),
+        nonException()
       ),
       row(
         "Inf",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 2, "Inf")
-        )
+        ),
+        nonException()
       ),
       row(
         "+Inf",
         listOf(
           expectedToken(PrometheusLexer.ADD, 0, 0, "+"),
           expectedToken(PrometheusLexer.NUMBER, 1, 3, "Inf")
-        )
+        ),
+        nonException()
       ),
       row(
         "+Inf 123",
@@ -157,27 +181,31 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.ADD, 0, 0, "+"),
           expectedToken(PrometheusLexer.NUMBER, 1, 3, "Inf"),
           expectedToken(PrometheusLexer.NUMBER, 5, 7, "123")
-        )
+        ),
+        nonException()
       ),
       row(
         "-Inf",
         listOf(
           expectedToken(PrometheusLexer.SUB, 0, 0, "-"),
           expectedToken(PrometheusLexer.NUMBER, 1, 3, "Inf")
-        )
+        ),
+        nonException()
       ),
       row(
         "Infoo",
         listOf(
           expectedToken(PrometheusLexer.IDENTIFIER, 0, 4, "Infoo")
-        )
+        ),
+        nonException()
       ),
       row(
         "-Infoo",
         listOf(
           expectedToken(PrometheusLexer.SUB, 0, 0, "-"),
           expectedToken(PrometheusLexer.IDENTIFIER, 1, 5, "Infoo")
-        )
+        ),
+        nonException()
       ),
       row(
         "-Inf 123",
@@ -185,7 +213,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.SUB, 0, 0, "-"),
           expectedToken(PrometheusLexer.NUMBER, 1, 3, "Inf"),
           expectedToken(PrometheusLexer.NUMBER, 5, 7, "123")
-        )
+        ),
+        nonException()
       )
 //      row(
 //        "0x123",
@@ -196,8 +225,8 @@ class PrometheusLexerTest {
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -205,22 +234,34 @@ class PrometheusLexerTest {
   internal fun `should tokenize strings lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "\"test\\tsequence\"",
-        listOf(expectedToken(PrometheusLexer.STRING, 0, 15, """"test\tsequence""""))
+        listOf(
+          expectedToken(PrometheusLexer.STRING, 0, 15, """"test\tsequence"""")
+        ),
+        nonException()
       ),
       row(
         "\"test\\\\.expression\"",
-        listOf(expectedToken(PrometheusLexer.STRING, 0, 18, """"test\\.expression""""))
+        listOf(
+          expectedToken(PrometheusLexer.STRING, 0, 18, """"test\\.expression"""")
+        ),
+        nonException()
       ),
       row(
         "\"test\\.expression\"",
-        listOf(expectedToken(PrometheusLexer.STRING, 0, 17, """"test\.expression""""))
+        listOf(
+          expectedToken(PrometheusLexer.STRING, 0, 17, """"test\.expression"""")
+        ),
+        nonException()
       ),
       row(
         "`test\\.expression`",
-        listOf(expectedToken(PrometheusLexer.STRING, 0, 17, """`test\.expression`"""))
+        listOf(
+          expectedToken(PrometheusLexer.STRING, 0, 17, """`test\.expression`""")
+        ),
+        nonException()
       )
 //      ,
 //      row(
@@ -230,8 +271,8 @@ class PrometheusLexerTest {
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -239,32 +280,47 @@ class PrometheusLexerTest {
   internal fun `should tokenize durations lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "5s",
-        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "5s"))
+        listOf(
+          expectedToken(PrometheusLexer.DURATION, 0, 1, "5s")
+        ),
+        nonException()
       ),
       row(
         "123m",
-        listOf(expectedToken(PrometheusLexer.DURATION, 0, 3, "123m"))
+        listOf(
+          expectedToken(PrometheusLexer.DURATION, 0, 3, "123m")
+        ),
+        nonException()
       ),
       row(
         "1h",
-        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "1h"))
+        listOf(
+          expectedToken(PrometheusLexer.DURATION, 0, 1, "1h")
+        ),
+        nonException()
       ),
       row(
         "3w",
-        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "3w"))
+        listOf(
+          expectedToken(PrometheusLexer.DURATION, 0, 1, "3w")
+        ),
+        nonException()
       ),
       row(
         "1y",
-        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "1y"))
+        listOf(
+          expectedToken(PrometheusLexer.DURATION, 0, 1, "1y")
+        ),
+        nonException()
       )
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -272,25 +328,35 @@ class PrometheusLexerTest {
   internal fun `should tokenize identifiers lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "abc",
-        listOf(expectedToken(PrometheusLexer.IDENTIFIER, 0, 2, "abc"))
+        listOf(
+          expectedToken(PrometheusLexer.IDENTIFIER, 0, 2, "abc")
+        ),
+        nonException()
       ),
       row(
         "a:bc",
-        listOf(expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 3, "a:bc"))
+        listOf(
+          expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 3, "a:bc")
+        ),
+        nonException()
       ),
       row(
         "abc d",
         listOf(
           expectedToken(PrometheusLexer.IDENTIFIER, 0, 2, "abc"),
           expectedToken(PrometheusLexer.IDENTIFIER, 4, 4, "d")
-        )
+        ),
+        nonException()
       ),
       row(
         ":bc",
-        listOf(expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 2, ":bc"))
+        listOf(
+          expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 2, ":bc")
+        ),
+        nonException()
       )
 //      ,
 //      row(
@@ -300,8 +366,8 @@ class PrometheusLexerTest {
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -309,10 +375,13 @@ class PrometheusLexerTest {
   internal fun `should tokenize comments lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "# some comment",
-        listOf(expectedToken(PrometheusLexer.COMMENT, 0, 13, "# some comment"))
+        listOf(
+          expectedToken(PrometheusLexer.COMMENT, 0, 13, "# some comment")
+        ),
+        nonException()
       ),
       row(
         "5 # 1+1\\n5",
@@ -322,13 +391,14 @@ class PrometheusLexerTest {
           // Please fix me below string type
           expectedToken(PrometheusLexer.STRING, 7, 8, "\\n"),
           expectedToken(PrometheusLexer.NUMBER, 9, 9, "5")
-        )
+        ),
+        nonException()
       )
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -336,10 +406,13 @@ class PrometheusLexerTest {
   internal fun `should tokenize operators lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens","expectedException"),
       row(
         "=",
-        listOf(expectedToken(PrometheusLexer.ASSIGN, 0, 0, "="))
+        listOf(
+          expectedToken(PrometheusLexer.ASSIGN, 0, 0, "=")
+        ),
+        nonException()
       ),
       // Inside braces equality is a single '=' character.
       row(
@@ -348,74 +421,108 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
           expectedToken(PrometheusLexer.EQL, 1, 1, "="),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 2, 2, "}")
-        )
+        ),
+        nonException()
       ),
       row(
         "==",
-        listOf(expectedToken(PrometheusLexer.EQL, 0, 1, "=="))
+        listOf(
+          expectedToken(PrometheusLexer.EQL, 0, 1, "==")
+        ),
+        nonException()
       ),
       row(
         "!=",
-        listOf(expectedToken(PrometheusLexer.NEQ, 0, 1, "!="))
+        listOf(
+          expectedToken(PrometheusLexer.NEQ, 0, 1, "!=")
+        ),
+        nonException()
       ),
       row(
         "<",
-        listOf(expectedToken(PrometheusLexer.LSS, 0, 0, "<"))
+        listOf(
+          expectedToken(PrometheusLexer.LSS, 0, 0, "<")
+        ),
+        nonException()
       ),
       row(
         ">",
-        listOf(expectedToken(PrometheusLexer.GTR, 0, 0, ">"))
+        listOf(
+          expectedToken(PrometheusLexer.GTR, 0, 0, ">")
+        ),
+        nonException()
       ),
       row(
         ">=",
-        listOf(expectedToken(PrometheusLexer.GTE, 0, 1, ">="))
+        listOf(
+          expectedToken(PrometheusLexer.GTE, 0, 1, ">=")
+        ),
+        nonException()
       ),
       row(
         "<=",
-        listOf(expectedToken(PrometheusLexer.LTE, 0, 1, "<="))
+        listOf(
+          expectedToken(PrometheusLexer.LTE, 0, 1, "<=")
+        ),
+        nonException()
       ),
       row(
         "+",
-        listOf(expectedToken(PrometheusLexer.ADD, 0, 0, "+"))
+        listOf(
+          expectedToken(PrometheusLexer.ADD, 0, 0, "+")
+        ),
+        nonException()
       ),
       row(
         "-",
-        listOf(expectedToken(PrometheusLexer.SUB, 0, 0, "-"))
+        listOf(
+          expectedToken(PrometheusLexer.SUB, 0, 0, "-")
+        ),
+        nonException()
       ),
       row(
         "*",
-        listOf(expectedToken(PrometheusLexer.MUL, 0, 0, "*"))
+        listOf(
+          expectedToken(PrometheusLexer.MUL, 0, 0, "*")
+        ),
+        nonException()
       ),
       row(
         "/",
-        listOf(expectedToken(PrometheusLexer.DIV, 0, 0, "/"))
+        listOf(expectedToken(PrometheusLexer.DIV, 0, 0, "/")),
+        nonException()
       ),
       row(
         "^",
-        listOf(expectedToken(PrometheusLexer.POW, 0, 0, "^"))
+        listOf(expectedToken(PrometheusLexer.POW, 0, 0, "^")),
+        nonException()
       ),
       row(
         "%",
-        listOf(expectedToken(PrometheusLexer.MOD, 0, 0, "%"))
+        listOf(expectedToken(PrometheusLexer.MOD, 0, 0, "%")),
+        nonException()
       ),
       row(
         "AND",
-        listOf(expectedToken(PrometheusLexer.LAND, 0, 2, "AND"))
+        listOf(expectedToken(PrometheusLexer.LAND, 0, 2, "AND")),
+        nonException()
       ),
       row(
         "or",
-        listOf(expectedToken(PrometheusLexer.LOR, 0, 1, "or"))
+        listOf(expectedToken(PrometheusLexer.LOR, 0, 1, "or")),
+        nonException()
       ),
       row(
         "unless",
-        listOf(expectedToken(PrometheusLexer.LUNLESS, 0, 5, "unless"))
+        listOf(expectedToken(PrometheusLexer.LUNLESS, 0, 5, "unless")),
+        nonException()
       )
 
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -423,40 +530,47 @@ class PrometheusLexerTest {
   internal fun `should tokenize aggregators lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "sum",
-        listOf(expectedToken(PrometheusLexer.SUM, 0, 2, "sum"))
+        listOf(expectedToken(PrometheusLexer.SUM, 0, 2, "sum")),
+        nonException()
       ),
       row(
         "AVG",
-        listOf(expectedToken(PrometheusLexer.AVG, 0, 2, "AVG"))
+        listOf(expectedToken(PrometheusLexer.AVG, 0, 2, "AVG")),
+        nonException()
       ),
       row(
         "MAX",
-        listOf(expectedToken(PrometheusLexer.MAX, 0, 2, "MAX"))
+        listOf(expectedToken(PrometheusLexer.MAX, 0, 2, "MAX")),
+        nonException()
       ),
       row(
         "min",
-        listOf(expectedToken(PrometheusLexer.MIN, 0, 2, "min"))
+        listOf(expectedToken(PrometheusLexer.MIN, 0, 2, "min")),
+        nonException()
       ),
       row(
         "count",
-        listOf(expectedToken(PrometheusLexer.COUNT, 0, 4, "count"))
+        listOf(expectedToken(PrometheusLexer.COUNT, 0, 4, "count")),
+        nonException()
       ),
       row(
         "stdvar",
-        listOf(expectedToken(PrometheusLexer.STDVAR, 0, 5, "stdvar"))
+        listOf(expectedToken(PrometheusLexer.STDVAR, 0, 5, "stdvar")),
+        nonException()
       ),
       row(
         "stddev",
-        listOf(expectedToken(PrometheusLexer.STDDEV, 0, 5, "stddev"))
+        listOf(expectedToken(PrometheusLexer.STDDEV, 0, 5, "stddev")),
+        nonException()
       )
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -464,44 +578,52 @@ class PrometheusLexerTest {
   internal fun `should tokenize keywords lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "offset",
-        listOf(expectedToken(PrometheusLexer.OFFSET, 0, 5, "offset"))
+        listOf(expectedToken(PrometheusLexer.OFFSET, 0, 5, "offset")),
+        nonException()
       ),
       row(
         "by",
-        listOf(expectedToken(PrometheusLexer.BY, 0, 1, "by"))
+        listOf(expectedToken(PrometheusLexer.BY, 0, 1, "by")),
+        nonException()
       ),
       row(
         "without",
-        listOf(expectedToken(PrometheusLexer.WITHOUT, 0, 6, "without"))
+        listOf(expectedToken(PrometheusLexer.WITHOUT, 0, 6, "without")),
+        nonException()
       ),
       row(
         "on",
-        listOf(expectedToken(PrometheusLexer.ON, 0, 1, "on"))
+        listOf(expectedToken(PrometheusLexer.ON, 0, 1, "on")),
+        nonException()
       ),
       row(
         "ignoring",
-        listOf(expectedToken(PrometheusLexer.IGNORING, 0, 7, "ignoring"))
+        listOf(expectedToken(PrometheusLexer.IGNORING, 0, 7, "ignoring")),
+        nonException()
       ),
       row(
         "group_left",
-        listOf(expectedToken(PrometheusLexer.GROUP_LEFT, 0, 9, "group_left"))
+        listOf(expectedToken(PrometheusLexer.GROUP_LEFT, 0, 9, "group_left")),
+        nonException()
       ),
       row(
         "group_right",
-        listOf(expectedToken(PrometheusLexer.GROUP_RIGHT, 0, 10, "group_right"))
+        listOf(expectedToken(PrometheusLexer.GROUP_RIGHT, 0, 10, "group_right")),
+        nonException()
       ),
       row(
         "bool",
-        listOf(expectedToken(PrometheusLexer.BOOL, 0, 3, "bool"))
+        listOf(expectedToken(PrometheusLexer.BOOL, 0, 3, "bool")),
+        nonException()
       )
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -509,10 +631,11 @@ class PrometheusLexerTest {
   internal fun `should tokenize selectors lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "台北",
-        fail()
+        emptyToken(),
+        nonException()
       ),
 //      row(
 //        "{台北='a'}",
@@ -530,7 +653,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.EQL, 4, 4, "="),
           expectedToken(PrometheusLexer.STRING, 5, 9, "'bar'"),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 10, 10, "}")
-        )
+        ),
+        nonException()
       ),
       row(
         """{foo="bar\"bar"}""",
@@ -540,7 +664,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.EQL, 4, 4, "="),
           expectedToken(PrometheusLexer.STRING, 5, 14, """"bar\"bar""""),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 15, 15, "}")
-        )
+        ),
+        nonException()
       ),
       row(
         """{NaN	!= "bar" }""",
@@ -550,7 +675,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.NEQ, 5, 6, "!="),
           expectedToken(PrometheusLexer.STRING, 8, 12, """"bar""""),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 14, 14, "}")
-        )
+        ),
+        nonException()
       ),
       row(
         """{NaN	!= "bar" }""",
@@ -560,7 +686,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.NEQ, 5, 6, "!="),
           expectedToken(PrometheusLexer.STRING, 8, 12, """"bar""""),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 14, 14, "}")
-        )
+        ),
+        nonException()
       ),
       row(
         """{alert=~"bar" }""",
@@ -570,7 +697,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.EQL_REGEX, 6, 7, "=~"),
           expectedToken(PrometheusLexer.STRING, 8, 12, """"bar""""),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 14, 14, "}")
-        )
+        ),
+        nonException()
       ),
       row(
         """{on!~"bar"}""",
@@ -580,7 +708,8 @@ class PrometheusLexerTest {
           expectedToken(PrometheusLexer.NEQ_REGEX, 3, 4, "!~"),
           expectedToken(PrometheusLexer.STRING, 5, 9, """"bar""""),
           expectedToken(PrometheusLexer.RIGHT_BRACE, 10, 10, "}")
-        )
+        ),
+        nonException()
       )
 //      ,
 //      row(
@@ -594,8 +723,8 @@ class PrometheusLexerTest {
     )
 
     // then
-    table.forAll { input, expectedTokens ->
-      assertToken(input, expectedTokens)
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
     }
   }
 
@@ -628,11 +757,11 @@ class PrometheusLexerTest {
 //    }
 //  }
 
-//  @Test
-//  internal fun `should fail if mismatched parentheses in the input`() {
-//    // given
-//    val table = table(
-//      headers("input", "expectedTokens"),
+  @Test
+  internal fun `should fail if mismatched parentheses in the input`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens", "expectedException"),
 //      row(
 //        "(",
 //        fail()
@@ -649,10 +778,11 @@ class PrometheusLexerTest {
 //        "{",
 //        fail()
 //      ),
-//      row(
-//        "}",
-//        fail()
-//      ),
+      row(
+        "}",
+        emptyToken(),
+        IllegalBraceException::class
+      )
 //      row(
 //        "{{",
 //        fail()
@@ -681,13 +811,15 @@ class PrometheusLexerTest {
 //        "]",
 //        fail()
 //      )
-//    )
-//
-//    // then
-//    table.forAll { input, expectedTokens ->
-//      assertToken(input, expectedTokens)
-//    }
-//  }
+    )
+
+    // then
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
+    }
+  }
+
+  private fun emptyToken() = emptyList<Token>()
 
 //  @Test
 //  internal fun `should fail if encoding issue in the input`() {
@@ -710,22 +842,31 @@ class PrometheusLexerTest {
 //    }
 //  }
 
-  private fun assertToken(input: String, expectedTokens: List<Token>?) {
+  private fun assertToken(input: String, expectedTokens: List<Token>?, expectedException: KClass<out Exception>?) {
     val prometheusLexer = PrometheusLexer(CharStreams.fromString(input))
-    val actualTokens = makeActualTokens(prometheusLexer)
 
-    return if (Objects.isNull(expectedTokens)) { actualTokens.size shouldBe 0 }
-    else {
-      for ((index, actualToken) in actualTokens.iterator().withIndex()) {
-        actualToken.type shouldBe expectedTokens!![index].type
-        actualToken.startIndex shouldBe expectedTokens[index].startIndex
-        actualToken.stopIndex shouldBe expectedTokens[index].stopIndex
-        actualToken.text shouldBe expectedTokens[index].text
+    return if (Objects.nonNull(expectedException)) {
+      val assertThrows = assertThrows<Throwable> {
+        makeActualTokens(prometheusLexer)
       }
 
-      actualTokens.size shouldBe expectedTokens!!.size
+      expectedException!!.isInstance(assertThrows) shouldBe true
+    } else {
+      val actualTokens = makeActualTokens(prometheusLexer).also {
+        it.size shouldBe expectedTokens!!.size
+      }
+
+      for ((index, actualToken) in actualTokens.iterator().withIndex()) {
+        actualToken.run {
+          type shouldBe expectedTokens!![index].type
+          startIndex shouldBe expectedTokens[index].startIndex
+          stopIndex shouldBe expectedTokens[index].stopIndex
+          text shouldBe expectedTokens[index].text
+        }
+      }
     }
   }
+  private fun nonException(): KClass<out Exception>? = null
 
   private fun fail(): List<Token>? = null
 
