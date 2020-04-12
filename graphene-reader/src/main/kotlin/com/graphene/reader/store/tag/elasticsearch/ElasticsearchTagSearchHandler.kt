@@ -60,6 +60,9 @@ class ElasticsearchTagSearchHandler(
     } catch (e: Exception) {
       logger.warn("Failed to find Tag Values: {tag: $tag}, {valuePrefix: $valuePrefix}, {tagExpressions: $tagExpressions}")
     }
+    if (tagValues.size > 0) {
+      tagValues.add("*")
+    }
     return tagValues.sorted()
   }
 
