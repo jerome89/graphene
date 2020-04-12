@@ -14,7 +14,7 @@ import java.lang.Exception
 import java.util.Objects
 import kotlin.reflect.KClass
 
-class PrometheusLexerTest {
+class PrometheusValidatorLexerTest {
 
   @Test
   internal fun `should tokenize common lex by prometheus rule for given input text`() {
@@ -406,7 +406,7 @@ class PrometheusLexerTest {
   internal fun `should tokenize operators lex by prometheus rule for given input text`() {
     // given
     val table = table(
-      headers("input", "expectedTokens","expectedException"),
+      headers("input", "expectedTokens", "expectedException"),
       row(
         "=",
         listOf(
@@ -762,55 +762,66 @@ class PrometheusLexerTest {
     // given
     val table = table(
       headers("input", "expectedTokens", "expectedException"),
-//      row(
-//        "(",
-//        fail()
-//      ),
-//      row(
-//        "())",
-//        fail()
-//      ),
-//      row(
-//        "(()",
-//        fail()
-//      ),
-//      row(
-//        "{",
-//        fail()
-//      ),
+      row(
+        "(",
+        emptyToken(),
+        IllegalParenException::class
+      ),
+      row(
+        "())",
+        emptyToken(),
+        IllegalParenException::class
+      ),
+      row(
+        "(()",
+        emptyToken(),
+        IllegalParenException::class
+      ),
+      row(
+        "{",
+        emptyToken(),
+        IllegalBraceException::class
+      ),
       row(
         "}",
         emptyToken(),
         IllegalBraceException::class
+      ),
+      row(
+        "{{",
+        emptyToken(),
+        IllegalBraceException::class
+      ),
+      row(
+        "{{}}",
+        emptyToken(),
+        IllegalBraceException::class
+      ),
+      row(
+        "[",
+        emptyToken(),
+        IllegalBracketException::class
+      ),
+      row(
+        "[[",
+        emptyToken(),
+        IllegalBracketException::class
+      ),
+      row(
+        "[]]",
+        emptyToken(),
+        IllegalBracketException::class
+      ),
+      row(
+        "[[]]",
+        emptyToken(),
+        IllegalBracketException::class
+      ),
+      row(
+        "]",
+        emptyToken(),
+        IllegalBracketException::class
       )
-//      row(
-//        "{{",
-//        fail()
-//      ),
-//      row(
-//        "{{}}",
-//        fail()
-//      ),
-//      row(
-//        "[",
-//        fail()
-//      ),
-//      row(
-//        "[[",
-//        fail()
-//      ),
-//      row(
-//        "[]]",
-//        fail()
-//      ),
-//      row(
-//        "[[]]",
-//        fail()
-//      ),
-//      row(
-//        "]",
-//        fail()
-//      )
     )
 
     // then
@@ -843,16 +854,16 @@ class PrometheusLexerTest {
 //  }
 
   private fun assertToken(input: String, expectedTokens: List<Token>?, expectedException: KClass<out Exception>?) {
-    val prometheusLexer = PrometheusLexer(CharStreams.fromString(input))
+    val prometheusLexer = PrometheusValidatorLexer(CharStreams.fromString(input))
 
     return if (Objects.nonNull(expectedException)) {
       val assertThrows = assertThrows<Throwable> {
-        makeActualTokens(prometheusLexer)
+        getActualTokens(prometheusLexer)
       }
 
       expectedException!!.isInstance(assertThrows) shouldBe true
     } else {
-      val actualTokens = makeActualTokens(prometheusLexer).also {
+      val actualTokens = getActualTokens(prometheusLexer).also {
         it.size shouldBe expectedTokens!!.size
       }
 
@@ -866,11 +877,10 @@ class PrometheusLexerTest {
       }
     }
   }
+
   private fun nonException(): KClass<out Exception>? = null
 
-  private fun fail(): List<Token>? = null
-
-  private fun makeActualTokens(prometheusLexer: PrometheusLexer): MutableList<Token> {
+  private fun getActualTokens(prometheusLexer: PrometheusLexer): MutableList<Token> {
     val actualTokens = mutableListOf<Token>()
 
     while (true) {

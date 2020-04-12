@@ -8,7 +8,14 @@ grammar Prometheus;
  *------------------------------------------------------------------*/
 
 @lexer::members {
+  boolean isParenOpen = false;
+  int isParenOpenCount = 0;
+
   boolean isBraceOpen = false;
+  int isBraceOpenCount = 0;
+
+  boolean isBracketOpen = false;
+  int isBracketOpenCount = 0;
 }
 
 /*------------------------------------------------------------------
@@ -60,13 +67,28 @@ BOOL: 'bool';
 IDENTIFIER: [a-zA-Z1-9]+;
 METRIC_IDENTIFIER: [a-zA-Z1-9]*':'[a-zA-Z1-9]+;
 
-LEFT_PAREN: '(';
-RIGHT_PAREN: ')' {};
+LEFT_PAREN: '(' {
+  if (isParenOpen) {
+    throw new IllegalParenException("This is not allowed action. Please check the duplicated left paren.");
+  }
+
+  isParenOpen = true;
+  isParenOpenCount++;
+};
+RIGHT_PAREN: ')' {
+  if (!isParenOpen) {
+    throw new IllegalParenException("This is not allowed action. Please check the left paren omitted.");
+  }
+
+  isParenOpen = false;
+};
 LEFT_BRACE: '{' {
   if (isBraceOpen) {
     throw new IllegalBraceException("This is not allowed action. Please check the duplicated left brace.");
   }
+
   isBraceOpen = true;
+  isBraceOpenCount++;
 };
 RIGHT_BRACE: '}' {
   if (!isBraceOpen) {
@@ -75,8 +97,21 @@ RIGHT_BRACE: '}' {
 
   isBraceOpen = false;
 };
-LEFT_BRACKET: '[';
-RIGHT_BRACKET: ']';
+LEFT_BRACKET: '[' {
+  if (isBracketOpen) {
+    throw new IllegalBracketException("This is not allowed action. Please check the duplicated left bracket.");
+  }
+
+  isBracketOpen = true;
+  isBracketOpenCount++;
+};
+RIGHT_BRACKET: ']' {
+  if (!isBracketOpen) {
+    throw new IllegalBracketException("This is not allowed action. Please check the left bracket omitted.");
+  }
+
+  isBracketOpen = false;
+};
 COMMA: ',';
 ASSIGN: '=' { !isBraceOpen }?;
 COLON: ':';
