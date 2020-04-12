@@ -21,63 +21,63 @@ class PrometheusValidatorLexerTest {
     // given
     val table = table(
       headers("input", "expectedTokens", "expectedException"),
-      row(
-        ",",
-        listOf(expectedToken(PrometheusLexer.COMMA, 0, 0, ",")),
-        nonException()
-      ),
-      row(
-        "()",
-        listOf(
-          expectedToken(PrometheusLexer.LEFT_PAREN, 0, 0, "("),
-          expectedToken(PrometheusLexer.RIGHT_PAREN, 1, 1, ")")
-        ),
-        nonException()
-      ),
-      row(
-        "{}",
-        listOf(
-          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
-          expectedToken(PrometheusLexer.RIGHT_BRACE, 1, 1, "}")
-        ),
-        nonException()
-      ),
-      row(
-        "[5m]",
-        listOf(
-          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
-          expectedToken(PrometheusLexer.DURATION, 1, 2, "5m"),
-          expectedToken(PrometheusLexer.RIGHT_BRACKET, 3, 3, "]")
-        ),
-        nonException()
-      ),
-      row(
-        "[ 5m]",
-        listOf(
-          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
-          expectedToken(PrometheusLexer.DURATION, 2, 3, "5m"),
-          expectedToken(PrometheusLexer.RIGHT_BRACKET, 4, 4, "]")
-        ),
-        nonException()
-      ),
-      row(
-        "[  5m]",
-        listOf(
-          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
-          expectedToken(PrometheusLexer.DURATION, 3, 4, "5m"),
-          expectedToken(PrometheusLexer.RIGHT_BRACKET, 5, 5, "]")
-        ),
-        nonException()
-      ),
-      row(
-        "[  5m ]",
-        listOf(
-          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
-          expectedToken(PrometheusLexer.DURATION, 3, 4, "5m"),
-          expectedToken(PrometheusLexer.RIGHT_BRACKET, 6, 6, "]")
-        ),
-        nonException()
-      ),
+//      row(
+//        ",",
+//        listOf(expectedToken(PrometheusLexer.COMMA, 0, 0, ",")),
+//        nonException()
+//      ),
+//      row(
+//        "()",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_PAREN, 0, 0, "("),
+//          expectedToken(PrometheusLexer.RIGHT_PAREN, 1, 1, ")")
+//        ),
+//        nonException()
+//      ),
+//      row(
+//        "{}",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+//          expectedToken(PrometheusLexer.RIGHT_BRACE, 1, 1, "}")
+//        ),
+//        nonException()
+//      ),
+//      row(
+//        "[5m]",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
+//          expectedToken(PrometheusLexer.DURATION, 1, 2, "5m"),
+//          expectedToken(PrometheusLexer.RIGHT_BRACKET, 3, 3, "]")
+//        ),
+//        nonException()
+//      ),
+//      row(
+//        "[ 5m]",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
+//          expectedToken(PrometheusLexer.DURATION, 2, 3, "5m"),
+//          expectedToken(PrometheusLexer.RIGHT_BRACKET, 4, 4, "]")
+//        ),
+//        nonException()
+//      ),
+//      row(
+//        "[  5m]",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
+//          expectedToken(PrometheusLexer.DURATION, 3, 4, "5m"),
+//          expectedToken(PrometheusLexer.RIGHT_BRACKET, 5, 5, "]")
+//        ),
+//        nonException()
+//      ),
+//      row(
+//        "[  5m ]",
+//        listOf(
+//          expectedToken(PrometheusLexer.LEFT_BRACKET, 0, 0, "["),
+//          expectedToken(PrometheusLexer.DURATION, 3, 4, "5m"),
+//          expectedToken(PrometheusLexer.RIGHT_BRACKET, 6, 6, "]")
+//        ),
+//        nonException()
+//      ),
       row(
         "\r\n\r",
         emptyToken(),
@@ -263,12 +263,12 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.STRING, 0, 17, """`test\.expression`""")
         ),
         nonException()
+      ),
+      row(
+        ".٩",
+        listOf(expectedToken(PrometheusLexer.STRING, 0, 0, ".")),
+        nonException()
       )
-//      ,
-//      row(
-//        ".٩",
-//        listOf(expectedToken(PrometheusLexer.STRING, 0, 17, """`test\.expression`"""))
-//      )
     )
 
     // then
@@ -737,7 +737,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-//  @Test
+  @Test
   internal fun `should fail if mismatched syntax in the input`() {
     // given
     val table = table(
@@ -745,22 +745,22 @@ class PrometheusValidatorLexerTest {
       row(
         "=~",
         emptyToken(),
-        nonException()
+        NotAllowedSingleNonMetricIdentifierException::class
       ),
       row(
         "!~",
         emptyToken(),
-        nonException()
+        NotAllowedSingleNonMetricIdentifierException::class
       ),
       row(
         "!(",
         emptyToken(),
-        nonException()
+        UnknownTokenException::class
       ),
       row(
         "1a",
         emptyToken(),
-        nonException()
+        NotAllowedSingleNonMetricIdentifierException::class
       )
     )
 
@@ -843,7 +843,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-//  @Test
+  @Test
   internal fun `should fail if encoding issue in the input`() {
     // given
     val table = table(

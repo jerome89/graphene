@@ -1,8 +1,14 @@
 package com.graphene.function.prometheus.grammar
 
+import org.antlr.v4.runtime.ANTLRErrorListener
 import org.antlr.v4.runtime.CharStream
+import org.antlr.v4.runtime.Parser
+import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.Token
+import org.antlr.v4.runtime.atn.ATNConfigSet
+import org.antlr.v4.runtime.dfa.DFA
+import java.util.BitSet
 
 class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
 
@@ -12,6 +18,29 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
   var neqRegexCount: Int = 0
 
   var tmpTokens: MutableList<Token> = mutableListOf()
+
+  var errorCount: Int = 0
+
+  override fun addErrorListener(listener: ANTLRErrorListener?) {
+    super.addErrorListener(object: ANTLRErrorListener {
+      override fun reportAttemptingFullContext(recognizer: Parser?, dfa: DFA?, startIndex: Int, stopIndex: Int, conflictingAlts: BitSet?, configs: ATNConfigSet?) {
+        println("reportAttemptingFullContext")
+      }
+
+      override fun syntaxError(recognizer: Recognizer<*, *>?, offendingSymbol: Any?, line: Int, charPositionInLine: Int, msg: String?, e: RecognitionException?) {
+        println("syntaxError")
+        errorCount++
+      }
+
+      override fun reportAmbiguity(recognizer: Parser?, dfa: DFA?, startIndex: Int, stopIndex: Int, exact: Boolean, ambigAlts: BitSet?, configs: ATNConfigSet?) {
+        println("reportAmbiguity")
+      }
+
+      override fun reportContextSensitivity(recognizer: Parser?, dfa: DFA?, startIndex: Int, stopIndex: Int, prediction: Int, configs: ATNConfigSet?) {
+        println("reportContextSensitivity")
+      }
+    })
+  }
 
   override fun nextToken(): Token {
     val nextToken = super.nextToken()
@@ -114,11 +143,15 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
       throw IllegalBracketException("left-bracket open only once.")
     }
 
-    // https://prometheus.io/docs/prometheus/latest/querying/operators/#vector-matching
-//    if (1 <= isBraceOpenCount) {
-//      if (0 == eqlCount + eqlRegexCount + neqCount + neqRegexCount) {
-//        throw NotIncludeQueryOperatorInVectorMatchingException("Please check the query operator whether omit or not.")
-//      }
-//    }
+    // It cannot be used alone unless it is a metric identifier.
+    if (2 == tmpTokens.size) {
+      when (tmpTokens[0].type) {
+        EQL_REGEX, NEQ_REGEX -> throw NotAllowedSingleNonMetricIdentifierException("")
+      }
+    }
+
+    if (0 < errorCount) {
+      throw UnknownTokenException("")
+    }
   }
 }

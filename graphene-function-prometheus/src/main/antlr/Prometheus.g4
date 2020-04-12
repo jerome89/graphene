@@ -147,6 +147,9 @@ MOD: '%';
 STRING: [A-Za-z\\"'.`]+;
 COMMENT: '#'[ A-Za-z1-9+]+;
 
+CR: '\r' -> skip;
+NL: '\n' -> skip;
+
 fragment
   DEGIT: [0-9];
   PT: '.';

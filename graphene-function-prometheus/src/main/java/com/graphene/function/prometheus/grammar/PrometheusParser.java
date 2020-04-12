@@ -24,7 +24,7 @@ public class PrometheusParser extends Parser {
 		RIGHT_BRACKET=28, COMMA=29, ASSIGN=30, COLON=31, SEMICOLON=32, BLANK=33, 
 		TIMES=34, SPACE=35, NAN=36, INF=37, EQL=38, EQL_REGEX=39, NEQ_REGEX=40, 
 		NEQ=41, LSS=42, GTR=43, GTE=44, LTE=45, ADD=46, SUB=47, MUL=48, DIV=49, 
-		POW=50, MOD=51, STRING=52, COMMENT=53, PT=54;
+		POW=50, MOD=51, STRING=52, COMMENT=53, TT=54, TTTT=55, PT=56;
 	public static final int
 		RULE_start = 0, RULE_duration = 1;
 	private static String[] makeRuleNames() {
@@ -42,7 +42,7 @@ public class PrometheusParser extends Parser {
 			null, "'('", "')'", "'{'", "'}'", "'['", "']'", "','", "'='", "':'", 
 			"';'", "'_'", "'x'", "'<space>'", null, null, null, "'=~'", "'!~'", "'!='", 
 			"'<'", "'>'", "'>='", "'<='", "'+'", "'-'", "'*'", "'/'", "'^'", "'%'", 
-			null, null, "'.'"
+			null, null, "'\r'", "'\n'", "'.'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -55,7 +55,7 @@ public class PrometheusParser extends Parser {
 			"RIGHT_BRACKET", "COMMA", "ASSIGN", "COLON", "SEMICOLON", "BLANK", "TIMES", 
 			"SPACE", "NAN", "INF", "EQL", "EQL_REGEX", "NEQ_REGEX", "NEQ", "LSS", 
 			"GTR", "GTE", "LTE", "ADD", "SUB", "MUL", "DIV", "POW", "MOD", "STRING", 
-			"COMMENT", "PT"
+			"COMMENT", "TT", "TTTT", "PT"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -202,7 +202,7 @@ public class PrometheusParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\38\r\4\2\t\2\4\3\t"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3:\r\4\2\t\2\4\3\t"+
 		"\3\3\2\3\2\3\3\3\3\3\3\3\3\3\3\2\2\4\2\4\2\2\2\n\2\6\3\2\2\2\4\b\3\2\2"+
 		"\2\6\7\5\4\3\2\7\3\3\2\2\2\b\t\7\33\2\2\t\n\7\4\2\2\n\13\7\34\2\2\13\5"+
 		"\3\2\2\2\2";
