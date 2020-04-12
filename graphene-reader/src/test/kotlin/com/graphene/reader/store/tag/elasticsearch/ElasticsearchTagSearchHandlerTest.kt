@@ -5,9 +5,9 @@ import com.graphene.reader.store.tag.elasticsearch.optimizer.ElasticsearchIntegr
 import com.graphene.reader.utils.ElasticsearchTestUtils
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import org.elasticsearch.search.SearchHits
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 internal class ElasticsearchTagSearchHandlerTest {
 
@@ -31,7 +31,7 @@ internal class ElasticsearchTagSearchHandlerTest {
       )
 
     // then
-    assertEquals( 2, result.size )
+    assertEquals(2, result.size)
     assertEquals("*", result[0])
   }
 
@@ -52,6 +52,6 @@ internal class ElasticsearchTagSearchHandlerTest {
       )
 
     // then
-    assertEquals( 0, result.size )
+    assertEquals(0, result.size)
   }
 }
