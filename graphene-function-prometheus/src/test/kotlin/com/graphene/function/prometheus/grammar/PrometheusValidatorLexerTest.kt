@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
 
 class PrometheusValidatorLexerTest {
 
-  @Test
+  //  @Test
   internal fun `should tokenize common lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -231,7 +231,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should tokenize strings lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -277,7 +277,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should tokenize durations lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -325,7 +325,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should tokenize identifiers lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -358,12 +358,12 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 2, ":bc")
         ),
         nonException()
+      ),
+      row(
+        "0a:bc",
+        emptyToken(),
+        BadNumberOrDurationException::class
       )
-//      ,
-//      row(
-//        "0a:bc",
-//        listOf(expectedToken(PrometheusLexer.DURATION, 0, 1, "1y"))
-//      )
     )
 
     // then
@@ -377,15 +377,15 @@ class PrometheusValidatorLexerTest {
     // given
     val table = table(
       headers("input", "expectedTokens", "expectedException"),
+//      row(
+//        "# some comment",
+//        listOf(
+//          expectedToken(PrometheusLexer.COMMENT, 0, 13, "# some comment")
+//        ),
+//        nonException()
+//      ),
       row(
-        "# some comment",
-        listOf(
-          expectedToken(PrometheusLexer.COMMENT, 0, 13, "# some comment")
-        ),
-        nonException()
-      ),
-      row(
-        "5 # 1+1\\n5",
+        "5 ",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 0, "5"),
           expectedToken(PrometheusLexer.COMMENT, 2, 6, "# 1+1"),
@@ -403,7 +403,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should tokenize operators lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -527,7 +527,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should tokenize aggregators lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -575,7 +575,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should tokenize keywords lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -628,7 +628,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should tokenize selectors lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -737,7 +737,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should fail if mismatched syntax in the input`() {
     // given
     val table = table(
@@ -771,7 +771,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+  //  @Test
   internal fun `should fail if mismatched parentheses in the input`() {
     // given
     val table = table(
@@ -844,7 +844,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-//  @Test
+  //  @Test
   internal fun `should fail if encoding issue in the input`() {
     // given
     val table = table(
