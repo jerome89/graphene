@@ -712,14 +712,19 @@ class PrometheusValidatorLexerTest {
         nonException()
       ),
       row(
+        """{foo:a="bar"}""",
+        emptyToken(),
+        IllegalVectorPairException::class
+      ),
+      row(
         """{alert!#"bar"}""",
         emptyToken(),
         NotIncludeQueryOperatorInVectorMatchingException::class
       ),
       row(
-        """{foo:a="bar"}""",
+        """{foo=}""",
         emptyToken(),
-        IllegalColonInBraceExpressionException::class
+        IllegalVectorPairException::class
       )
     )
 

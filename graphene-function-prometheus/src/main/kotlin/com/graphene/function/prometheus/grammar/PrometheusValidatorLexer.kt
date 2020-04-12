@@ -11,8 +11,12 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
   var neqCount: Int = 0
   var neqRegexCount: Int = 0
 
+  var tmpTokens: MutableList<Token> = mutableListOf()
+
   override fun nextToken(): Token {
     val nextToken = super.nextToken()
+
+    tmpTokens.add(nextToken)
 
     return when (nextToken.type) {
       Recognizer.EOF -> {
@@ -20,17 +24,46 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
         nextToken
       }
       STRING -> {
-        val la = _input.LA(1).toString()
-
-        if (isBraceOpen && la == "}") {
-          if (0 == eqlCount + eqlRegexCount + neqCount + neqRegexCount) {
-            throw NotIncludeQueryOperatorInVectorMatchingException("Please check the query operator whether omit or not.")
+        nextToken
+      }
+      RIGHT_BRACE -> {
+        var startBrace = false
+        var tokensInsideBrace = mutableListOf<Token>()
+        for (tmpToken in tmpTokens) {
+          if (startBrace) {
+            tokensInsideBrace.add(tmpToken)
           }
 
-          if (_token.text.indexOf(':') != -1) {
-            throw IllegalColonInBraceExpressionException("Does not allow the colon usage inside brace syntax.")
+          if (tmpToken.type == LEFT_BRACE) {
+            startBrace = true
           }
         }
+
+        var meetQueryOperator = false
+        var vectorCount = 0
+        for (tokenInsideBrace in tokensInsideBrace) {
+          when(tokenInsideBrace.type) {
+            IDENTIFIER -> {
+              vectorCount++
+            }
+            STRING -> {
+              vectorCount++
+            }
+            EQL_REGEX -> meetQueryOperator = true
+            EQL -> meetQueryOperator = true
+            NEQ -> meetQueryOperator = true
+            NEQ_REGEX -> meetQueryOperator = true
+          }
+        }
+
+        if (vectorCount % 2 != 0) {
+          throw IllegalVectorPairException("")
+        }
+
+        if (vectorCount != 0 && !meetQueryOperator) {
+          throw NotIncludeQueryOperatorInVectorMatchingException("Please check the query operator whether omit or not.")
+        }
+
         nextToken
       }
       EQL -> {
