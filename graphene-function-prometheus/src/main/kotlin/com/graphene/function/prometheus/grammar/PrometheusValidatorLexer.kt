@@ -31,6 +31,9 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
         var tokensInsideBrace = mutableListOf<Token>()
         for (tmpToken in tmpTokens) {
           if (startBrace) {
+            if (tmpToken.type == METRIC_IDENTIFIER) {
+              throw NotAllowedMetricIdentifierInsideBraceException("Not allow ${tmpToken.text} METRIC_IDENTIFIER token inside brace")
+            }
             tokensInsideBrace.add(tmpToken)
           }
 

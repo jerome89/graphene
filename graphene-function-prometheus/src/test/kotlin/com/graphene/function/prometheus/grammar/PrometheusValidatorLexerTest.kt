@@ -639,11 +639,13 @@ class PrometheusValidatorLexerTest {
 //      ),
 //      row(
 //        "{台北='a'}",
-//        fail()
+//        emptyToken(),
+//        IllegalVectorPairException::class
 //      ),
 //      row(
 //        "{0a='a'}",
-//        fail()
+//        emptyToken(),
+//        nonException()
 //      ),
       row(
         "{foo='bar'}",
@@ -714,7 +716,7 @@ class PrometheusValidatorLexerTest {
       row(
         """{foo:a="bar"}""",
         emptyToken(),
-        IllegalVectorPairException::class
+        NotAllowedMetricIdentifierInsideBraceException::class
       ),
       row(
         """{alert!#"bar"}""",
