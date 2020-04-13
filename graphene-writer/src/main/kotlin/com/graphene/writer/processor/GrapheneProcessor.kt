@@ -44,7 +44,7 @@ class GrapheneProcessor(
       return
     }
 
-    val metricBytes = grapheneMetric.toString().toByteArray()
+    val metricBytes = grapheneMetric.id.toString().toByteArray()
     if (HARD_CODING_LIMIT < metricBytes.size) {
       dropCount.incrementAndGet()
       log.debug("Graphene has a metric limit of 512 bytes. But it is ${metricBytes.size} bytes. Drop the graphene metric : $grapheneMetric.")
