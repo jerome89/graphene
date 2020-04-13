@@ -9,6 +9,10 @@ import org.apache.logging.log4j.LogManager
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
@@ -21,11 +25,17 @@ class GrapheneProcessor(
 
   val log = LogManager.getLogger(javaClass)
   var storeHandlers: MutableList<StoreHandler> = mutableListOf()
+  var dropCount: AtomicLong = AtomicLong(0)
+  lateinit var scheduler: ScheduledExecutorService
 
   @PostConstruct
   fun init() {
     storeHandlers.addAll(storeHandlerFactory.keyStoreHandlers())
     storeHandlers.addAll(storeHandlerFactory.dataStoreHandlers())
+    scheduler = Executors.newSingleThreadScheduledExecutor()
+    scheduler.scheduleWithFixedDelay({
+      log.info("Drop count : $dropCount")
+    }, 10, 10, TimeUnit.SECONDS)
   }
 
   @Async("grapheneProcessorExecutor")
@@ -36,7 +46,8 @@ class GrapheneProcessor(
 
     val metricBytes = grapheneMetric.toString().toByteArray()
     if (HARD_CODING_LIMIT < metricBytes.size) {
-      log.warn("Graphene has a metric limit of 512 bytes. But it is ${metricBytes.size} bytes. Drop the graphene metric : $grapheneMetric.")
+      dropCount.incrementAndGet()
+      log.debug("Graphene has a metric limit of 512 bytes. But it is ${metricBytes.size} bytes. Drop the graphene metric : $grapheneMetric.")
       return
     }
 
@@ -52,6 +63,7 @@ class GrapheneProcessor(
     for (storeHandler in storeHandlers) {
       storeHandler.close()
     }
+    scheduler.shutdown()
   }
 
   companion object {

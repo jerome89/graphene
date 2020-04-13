@@ -25,7 +25,7 @@ RUN git clone https://github.com/graphene-monitoring/graphene
 WORKDIR /tmp/graphene
 
 RUN git fetch && \
-    git checkout -b $GRAPHENE_VERSION $GRAPHENE_VERSION
+    git checkout feature/drop-too-long-size
 
 ##################################
 ##         Graphene build        #
