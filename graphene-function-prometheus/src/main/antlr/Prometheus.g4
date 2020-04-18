@@ -30,27 +30,26 @@ duration: LEFT_BRACE DURATION RIGHT_BRACE;
  * LEXER RULES
  *------------------------------------------------------------------*/
 
-COMMENT: '#'[ A-Za-z0-9+]+;
 
 NUMBER: DEGIT+ PT DEGIT+
       | '0x'DEGIT+        // hexadecimal
       | DEGIT+ PT
       | PT DEGIT+
       | DEGIT+ {
-        int type = _input.LA(1);
-        _input.LA(-1);
+//        int type = _input.LA(1);
+//        _input.LA(-1);
 
-        if (type == TAB || type == SEMICOLON) {
-          break;
-        }
-
-        if (type != NUMBER) {
-          if (type == DURATION_D || type == DURATION_H || type == DURATION_M || type == DURATION_S || type == DURATION_W || type == DURATION_Y) {
-            // duration
-          } else {
-            throw new BadNumberOrDurationException("bad number or duration syntax");
-          }
-        }
+//        if (type == TAB || type == SEMICOLON) {
+//          break;
+//        }
+//
+//        if (type != NUMBER) {
+//          if (type == DURATION_D || type == DURATION_H || type == DURATION_M || type == DURATION_S || type == DURATION_W || type == DURATION_Y) {
+//            // duration
+//          } else {
+//            throw new BadNumberOrDurationException("bad number or duration syntax");
+//          }
+//        }
       }
       | NAN
       | INF
@@ -81,6 +80,8 @@ IGNORING: 'ignoring';
 GROUP_LEFT: 'group_left';
 GROUP_RIGHT: 'group_right';
 BOOL: 'bool';
+
+COMMENT: '#'[ A-Za-z0-9+]+;
 
 IDENTIFIER: [a-zA-Z]+;
 METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+;
@@ -174,6 +175,7 @@ STRING: [A-Za-z\\"'.`]+;
 CR: '\r' -> skip;
 NL: '\n' -> skip;
 TAB: '\t'+ -> skip;
+WS: ' '+ -> skip;
 
 fragment
   DEGIT: [0-9];

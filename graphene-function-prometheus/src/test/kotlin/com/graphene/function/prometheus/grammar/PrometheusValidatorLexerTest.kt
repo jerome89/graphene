@@ -91,7 +91,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+//  @Test
   internal fun `should tokenize number lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -325,7 +325,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  //  @Test
+  @Test
   internal fun `should tokenize identifiers lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -372,20 +372,20 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  @Test
+//  @Test
   internal fun `should tokenize comments lex by prometheus rule for given input text`() {
     // given
     val table = table(
       headers("input", "expectedTokens", "expectedException"),
-//      row(
-//        "# some comment",
-//        listOf(
-//          expectedToken(PrometheusLexer.COMMENT, 0, 13, "# some comment")
-//        ),
-//        nonException()
-//      ),
       row(
-        "5 ",
+        "# some comment",
+        listOf(
+          expectedToken(PrometheusLexer.COMMENT, 0, 13, "# some comment")
+        ),
+        nonException()
+      ),
+      row(
+        "5 # 1+1\n5",
         listOf(
           expectedToken(PrometheusLexer.NUMBER, 0, 0, "5"),
           expectedToken(PrometheusLexer.COMMENT, 2, 6, "# 1+1"),

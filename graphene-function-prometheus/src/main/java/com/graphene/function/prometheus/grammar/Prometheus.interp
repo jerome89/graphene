@@ -2,7 +2,6 @@ token literal names:
 null
 null
 null
-null
 'AND'
 'or'
 'unless'
@@ -21,6 +20,7 @@ null
 'group_left'
 'group_right'
 'bool'
+null
 null
 null
 '('
@@ -62,11 +62,11 @@ null
 '\r'
 '\n'
 null
+null
 '.'
 
 token symbolic names:
 null
-COMMENT
 NUMBER
 DURATION
 LAND
@@ -87,6 +87,7 @@ IGNORING
 GROUP_LEFT
 GROUP_RIGHT
 BOOL
+COMMENT
 IDENTIFIER
 METRIC_IDENTIFIER
 LEFT_PAREN
@@ -128,6 +129,7 @@ STRING
 CR
 NL
 TAB
+WS
 PT
 
 rule names:
@@ -136,4 +138,4 @@ duration
 
 
 atn:
-[3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 65, 13, 4, 2, 9, 2, 4, 3, 9, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 4, 2, 4, 2, 2, 2, 10, 2, 6, 3, 2, 2, 2, 4, 8, 3, 2, 2, 2, 6, 7, 5, 4, 3, 2, 7, 3, 3, 2, 2, 2, 8, 9, 7, 28, 2, 2, 9, 10, 7, 5, 2, 2, 10, 11, 7, 29, 2, 2, 11, 5, 3, 2, 2, 2, 2]
+[3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 66, 13, 4, 2, 9, 2, 4, 3, 9, 3, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 4, 2, 4, 2, 2, 2, 10, 2, 6, 3, 2, 2, 2, 4, 8, 3, 2, 2, 2, 6, 7, 5, 4, 3, 2, 7, 3, 3, 2, 2, 2, 8, 9, 7, 28, 2, 2, 9, 10, 7, 4, 2, 2, 10, 11, 7, 29, 2, 2, 11, 5, 3, 2, 2, 2, 2]
