@@ -1,10 +1,10 @@
 package com.graphene.writer.store.key
 
-interface KeyCache<K, V> {
+interface KeyCache<K> {
 
-  fun get(key: K): V?
+  fun get(key: K): K?
 
-  fun putIfAbsent(key: K, value: V): Boolean
+  fun putIfAbsent(key: K): Boolean
 
-  fun put(key: K, value: V): Boolean
+  fun put(key: K): Boolean
 }

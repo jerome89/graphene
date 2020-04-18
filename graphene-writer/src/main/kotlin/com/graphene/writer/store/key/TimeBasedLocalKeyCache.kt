@@ -12,34 +12,35 @@ import java.util.concurrent.TimeUnit
  *
  * @author dark
  */
-class TimeBasedLocalKeyCache<K, V>(
+class TimeBasedLocalKeyCache<K>(
   private val expireInterval: Long
-) : KeyCache<K, V> {
+) : KeyCache<K> {
 
   private val internalTimeBasedCache = CacheBuilder.newBuilder()
     .expireAfterAccess(expireInterval, TimeUnit.MINUTES)
-    .build<Long, MutableMap<K, V>>()
+    .build<Long, MutableSet<K>>()
 
-  override fun get(key: K): V? {
-    return getOrCreate()[key]
+  override fun get(key: K): K? {
+    return if (getOrCreate().contains(key)) key
+    else null
   }
 
-  override fun putIfAbsent(key: K, value: V): Boolean {
+  override fun putIfAbsent(key: K): Boolean {
     return if (getOrCreate().contains(key)) false
-    else put(key, value)
+    else put(key)
   }
 
-  override fun put(key: K, value: V): Boolean {
-    getOrCreate()[key] = value
+  override fun put(key: K): Boolean {
+    getOrCreate().add(key)
     return true
   }
 
-  private fun getOrCreate(): MutableMap<K, V> {
+  private fun getOrCreate(): MutableSet<K> {
     val normalizedTimeBucket = DateTimeUtils.currentTimeMillis() / TimeUnit.MINUTES.toMillis(expireInterval) * TimeUnit.MINUTES.toMillis(expireInterval)
     var cache = internalTimeBasedCache.getIfPresent(normalizedTimeBucket)
 
     if (Objects.isNull(cache)) {
-      cache = mutableMapOf()
+      cache = mutableSetOf()
       internalTimeBasedCache.put(normalizedTimeBucket, cache)
     }
 
