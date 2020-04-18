@@ -177,13 +177,6 @@ DIV: '/';
 POW: '^';
 MOD: '%';
 
-// Duration Keyword
-DURATION_S: 's';
-DURATION_M: 'm';
-DURATION_H: 'h';
-DURATION_D: 'd';
-DURATION_W: 'w';
-DURATION_Y: 'y';
 
 //=!#$%&:;<>?@[\]^_`|~
 STRING: [A-Za-z\\"'.`:]+;

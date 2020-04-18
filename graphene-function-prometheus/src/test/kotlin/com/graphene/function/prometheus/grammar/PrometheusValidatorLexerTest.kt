@@ -997,6 +997,48 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.DURATION, 36, 38, "10m")
         ),
         nonException()
+      ),
+      row(
+        """min_over_time(rate(foo{bar="baz"}[2s])[5m:] offset 6m)[4m:3s]""",
+        listOf(
+          expectedToken(PrometheusLexer.IDENTIFIER, 0, 12, "min_over_time"),
+          expectedToken(PrometheusLexer.LEFT_PAREN, 13, 13, "("),
+          expectedToken(PrometheusLexer.IDENTIFIER, 14, 17, "rate"),
+          expectedToken(PrometheusLexer.LEFT_PAREN, 18, 18, "("),
+          expectedToken(PrometheusLexer.IDENTIFIER, 19, 21, "foo"),
+          expectedToken(PrometheusLexer.LEFT_BRACE, 22, 22, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 23, 25, "bar"),
+          expectedToken(PrometheusLexer.EQL, 26, 26, "="),
+          expectedToken(PrometheusLexer.STRING, 27, 31, """"baz""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 32, 32, "}"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 33, 33, "["),
+          expectedToken(PrometheusLexer.DURATION, 34, 35, "2s"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 36, 36, "]"),
+          expectedToken(PrometheusLexer.RIGHT_PAREN, 37, 37, ")"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 38, 38, "["),
+          expectedToken(PrometheusLexer.DURATION, 39, 40, "5m"),
+          expectedToken(PrometheusLexer.COLON, 41, 41, ":"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 42, 42, "]"),
+          expectedToken(PrometheusLexer.OFFSET, 44, 49, "offset"),
+          expectedToken(PrometheusLexer.DURATION, 51, 52, "6m"),
+          expectedToken(PrometheusLexer.RIGHT_PAREN, 53, 53, ")"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 54, 54, "["),
+          expectedToken(PrometheusLexer.DURATION, 55, 56, "4m"),
+          expectedToken(PrometheusLexer.COLON, 57, 57, ":"),
+          expectedToken(PrometheusLexer.DURATION, 58, 59, "3s"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 60, 60, "]")
+        ),
+        nonException()
+      ),
+      row(
+        """test:name[ 5m]""",
+        listOf(
+          expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 8, "test:name"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 9, 9, "["),
+          expectedToken(PrometheusLexer.DURATION, 11, 12, "5m"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 13, 13, "]")
+        ),
+        nonException()
       )
     )
 
