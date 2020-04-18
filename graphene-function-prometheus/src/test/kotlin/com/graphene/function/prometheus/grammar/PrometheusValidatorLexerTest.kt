@@ -841,6 +841,106 @@ class PrometheusValidatorLexerTest {
     }
   }
 
+  @Test
+  internal fun `should verify series descriptions`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens", "expectedException"),
+      row(
+        "{} _ 1 x .3",
+        listOf(
+          expectedToken(PrometheusLexer.LEFT_BRACE, 0, 0, "{"),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 1, 1, "}"),
+          expectedToken(PrometheusLexer.BLANK, 3, 3, "_"),
+          expectedToken(PrometheusLexer.NUMBER, 5, 5, "1"),
+          expectedToken(PrometheusLexer.TIMES, 7, 7, "x"),
+          expectedToken(PrometheusLexer.NUMBER, 9, 10, ".3")
+        ),
+        nonException()
+      ),
+      row(
+        "metric +Inf Inf NaN",
+        listOf(
+          expectedToken(PrometheusLexer.IDENTIFIER, 0, 5, "metric"),
+          expectedToken(PrometheusLexer.ADD, 7, 7, "+"),
+          expectedToken(PrometheusLexer.NUMBER, 8, 10, "Inf"),
+          expectedToken(PrometheusLexer.NUMBER, 12, 14, "Inf"),
+          expectedToken(PrometheusLexer.NUMBER, 16, 18, "NaN")
+        ),
+        nonException()
+      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
+    }
+  }
+
+  @Test
+  internal fun `should verify subqueries`() {
+    // given
+    val table = table(
+      headers("input", "expectedTokens", "expectedException"),
+      row(
+        """test_name{on!~\"bar\"}[4m:4s]""",
+        listOf(
+          expectedToken(PrometheusLexer.IDENTIFIER, 0, 8, "test_name"),
+          expectedToken(PrometheusLexer.LEFT_BRACE, 9, 9, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 10, 11, "on"),
+          expectedToken(PrometheusLexer.NEQ_REGEX, 12, 13, "!~"),
+          expectedToken(PrometheusLexer.STRING, 14, 20, """\"bar\""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 21, 21, "}"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 22, 22, "["),
+          expectedToken(PrometheusLexer.DURATION, 23, 24, "4m"),
+          expectedToken(PrometheusLexer.COLON, 25, 25, ":"),
+          expectedToken(PrometheusLexer.DURATION, 26, 27, "4s"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 28, 28, "]")
+        ),
+        nonException()
+      ),
+      row(
+        """test:name{on!~"bar"}[4m:4s]""",
+        listOf(
+          expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 8, "test:name"),
+          expectedToken(PrometheusLexer.LEFT_BRACE, 9, 9, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 10, 11, "on"),
+          expectedToken(PrometheusLexer.NEQ_REGEX, 12, 13, "!~"),
+          expectedToken(PrometheusLexer.STRING, 14, 18, """"bar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 19, 19, "}"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 20, 20, "["),
+          expectedToken(PrometheusLexer.DURATION, 21, 22, "4m"),
+          expectedToken(PrometheusLexer.COLON, 23, 23, ":"),
+          expectedToken(PrometheusLexer.DURATION, 24, 25, "4s"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 26, 26, "]")
+        ),
+        nonException()
+      ),
+      row(
+        """test:name{on!~"b:ar"}[4m:4s]""",
+        listOf(
+          expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 8, "test:name"),
+          expectedToken(PrometheusLexer.LEFT_BRACE, 9, 9, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 10, 11, "on"),
+          expectedToken(PrometheusLexer.NEQ_REGEX, 12, 13, "!~"),
+          expectedToken(PrometheusLexer.STRING, 14, 19, """"b:ar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 20, 20, "}"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 21, 21, "["),
+          expectedToken(PrometheusLexer.DURATION, 22, 23, "4m"),
+          expectedToken(PrometheusLexer.COLON, 24, 24, ":"),
+          expectedToken(PrometheusLexer.DURATION, 25, 26, "4s"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 27, 27, "]")
+        ),
+        nonException()
+      )
+    )
+
+    // then
+    table.forAll { input, expectedTokens, expectedException ->
+      assertToken(input, expectedTokens, expectedException)
+    }
+  }
+
   private fun emptyToken() = emptyList<Token>()
 
   private fun assertToken(input: String, expectedTokens: List<Token>, expectedException: KClass<out Exception>?) {

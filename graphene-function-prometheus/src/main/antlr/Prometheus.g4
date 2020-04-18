@@ -16,6 +16,8 @@ grammar Prometheus;
 
   boolean isBracketOpen = false;
   int isBracketOpenCount = 0;
+
+  boolean useAssignmentStatement = false;
 }
 
 /*------------------------------------------------------------------
@@ -55,7 +57,7 @@ NUMBER: DEGIT+ PT DEGIT+
         _input.LA(-1);
 
         char nextChar = (char) type;
-        if (type != NUMBER && type != WS && type != EOF && nextChar != ' ') {
+        if (type != NUMBER && type != EOF && nextChar != ' ') {
           if (type == DURATION_D || type == DURATION_H || type == DURATION_M || type == DURATION_S || type == DURATION_W || type == DURATION_Y) {
             // duration
           } else {
@@ -93,8 +95,18 @@ GROUP_LEFT: 'group_left';
 GROUP_RIGHT: 'group_right';
 BOOL: 'bool';
 
-IDENTIFIER: [a-zA-Z]+[0-9]*;
-METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+;
+COMMA: ',';
+ASSIGN: '=' { useAssignmentStatement = true && !isBraceOpen }?;
+COLON: ':';
+SEMICOLON: ';';
+BLANK: '_';
+TIMES: 'x';
+SPACE: '<space>';
+NAN: [nN][aA][nN] { !isBraceOpen }?;
+INF: [iI][nN][fF] { !isBraceOpen }?;
+
+IDENTIFIER: [a-zA-Z_]+[0-9]*;
+METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+ { !isBracketOpen && 0 == isBracketOpenCount }?;
 
 LEFT_PAREN: '(' {
   if (isParenOpen) {
@@ -141,22 +153,13 @@ RIGHT_BRACKET: ']' {
 
   isBracketOpen = false;
 };
-COMMA: ',';
-ASSIGN: '=' { !isBraceOpen }?;
-COLON: ':';
-SEMICOLON: ';';
-BLANK: '_';
-TIMES: 'x';
-SPACE: '<space>';
-NAN: [nN][aA][nN] { !isBraceOpen }?;
-INF: [iI][nN][fF] { !isBraceOpen }?;
 
 // Query Operator
 EQL: '=='
   | '=';
-EQL_REGEX: '=~';
-NEQ_REGEX: '!~';
-NEQ: '!=';
+EQL_REGEX: '=~' { useAssignmentStatement = true }?;
+NEQ_REGEX: '!~' { useAssignmentStatement = true }?;
+NEQ: '!=' { useAssignmentStatement = true }?;
 
 LSS: '<';
 GTR: '>';
@@ -180,7 +183,7 @@ DURATION_W: 'w';
 DURATION_Y: 'y';
 
 //=!#$%&:;<>?@[\]^_`|~
-STRING: [A-Za-z\\"'.`]+;
+STRING: [A-Za-z\\"'.`:]+;
 
 CR: '\r' -> skip;
 NL: '\n' -> skip;
