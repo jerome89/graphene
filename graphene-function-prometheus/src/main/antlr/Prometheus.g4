@@ -30,12 +30,21 @@ duration: LEFT_BRACE DURATION RIGHT_BRACE;
  * LEXER RULES
  *------------------------------------------------------------------*/
 
-
 NUMBER: DEGIT+ PT DEGIT+
       | '0x'DEGIT+        // hexadecimal
       | DEGIT+ PT
       | PT DEGIT+
-      | DEGIT+ {
+      | DEGIT+
+      | NAN
+      | INF
+      ;
+
+IDENTIFIER: [a-zA-Z]+[0-9]*;
+METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+;
+
+COMMENT: '#'[ A-Za-z0-9+]+;
+
+//{
 //        int type = _input.LA(1);
 //        _input.LA(-1);
 
@@ -50,10 +59,7 @@ NUMBER: DEGIT+ PT DEGIT+
 //            throw new BadNumberOrDurationException("bad number or duration syntax");
 //          }
 //        }
-      }
-      | NAN
-      | INF
-      ;
+//      }
 
 DURATION: [1-9]+[smhdwy];
 
@@ -80,11 +86,6 @@ IGNORING: 'ignoring';
 GROUP_LEFT: 'group_left';
 GROUP_RIGHT: 'group_right';
 BOOL: 'bool';
-
-COMMENT: '#'[ A-Za-z0-9+]+;
-
-IDENTIFIER: [a-zA-Z]+;
-METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+;
 
 LEFT_PAREN: '(' {
   if (isParenOpen) {
@@ -138,7 +139,7 @@ SEMICOLON: ';';
 BLANK: '_';
 TIMES: 'x';
 SPACE: '<space>';
-NAN: [nN][aA][nN] { !isBraceOpen }?;
+NAN: [nN][aA][nN];
 INF: [iI][nN][fF];
 
 // Query Operator

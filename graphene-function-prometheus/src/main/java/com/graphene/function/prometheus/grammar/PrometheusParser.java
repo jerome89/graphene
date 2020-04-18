@@ -17,16 +17,16 @@ public class PrometheusParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		NUMBER=1, DURATION=2, LAND=3, LOR=4, LUNLESS=5, SUM=6, AVG=7, MAX=8, MIN=9, 
-		COUNT=10, STDVAR=11, STDDEV=12, OFFSET=13, BY=14, WITHOUT=15, ON=16, IGNORING=17, 
-		GROUP_LEFT=18, GROUP_RIGHT=19, BOOL=20, COMMENT=21, IDENTIFIER=22, METRIC_IDENTIFIER=23, 
-		LEFT_PAREN=24, RIGHT_PAREN=25, LEFT_BRACE=26, RIGHT_BRACE=27, LEFT_BRACKET=28, 
-		RIGHT_BRACKET=29, COMMA=30, ASSIGN=31, COLON=32, SEMICOLON=33, BLANK=34, 
-		TIMES=35, SPACE=36, NAN=37, INF=38, EQL=39, EQL_REGEX=40, NEQ_REGEX=41, 
-		NEQ=42, LSS=43, GTR=44, GTE=45, LTE=46, ADD=47, SUB=48, MUL=49, DIV=50, 
-		POW=51, MOD=52, DURATION_S=53, DURATION_M=54, DURATION_H=55, DURATION_D=56, 
-		DURATION_W=57, DURATION_Y=58, STRING=59, CR=60, NL=61, TAB=62, WS=63, 
-		PT=64;
+		NUMBER=1, IDENTIFIER=2, METRIC_IDENTIFIER=3, COMMENT=4, DURATION=5, LAND=6, 
+		LOR=7, LUNLESS=8, SUM=9, AVG=10, MAX=11, MIN=12, COUNT=13, STDVAR=14, 
+		STDDEV=15, OFFSET=16, BY=17, WITHOUT=18, ON=19, IGNORING=20, GROUP_LEFT=21, 
+		GROUP_RIGHT=22, BOOL=23, LEFT_PAREN=24, RIGHT_PAREN=25, LEFT_BRACE=26, 
+		RIGHT_BRACE=27, LEFT_BRACKET=28, RIGHT_BRACKET=29, COMMA=30, ASSIGN=31, 
+		COLON=32, SEMICOLON=33, BLANK=34, TIMES=35, SPACE=36, NAN=37, INF=38, 
+		EQL=39, EQL_REGEX=40, NEQ_REGEX=41, NEQ=42, LSS=43, GTR=44, GTE=45, LTE=46, 
+		ADD=47, SUB=48, MUL=49, DIV=50, POW=51, MOD=52, DURATION_S=53, DURATION_M=54, 
+		DURATION_H=55, DURATION_D=56, DURATION_W=57, DURATION_Y=58, STRING=59, 
+		CR=60, NL=61, TAB=62, WS=63, PT=64;
 	public static final int
 		RULE_start = 0, RULE_duration = 1;
 	private static String[] makeRuleNames() {
@@ -38,10 +38,10 @@ public class PrometheusParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, "'AND'", "'or'", "'unless'", "'sum'", "'AVG'", "'MAX'", 
-			"'min'", "'count'", "'stdvar'", "'stddev'", "'offset'", "'by'", "'without'", 
-			"'on'", "'ignoring'", "'group_left'", "'group_right'", "'bool'", null, 
-			null, null, "'('", "')'", "'{'", "'}'", "'['", "']'", "','", "'='", "':'", 
+			null, null, null, null, null, null, "'AND'", "'or'", "'unless'", "'sum'", 
+			"'AVG'", "'MAX'", "'min'", "'count'", "'stdvar'", "'stddev'", "'offset'", 
+			"'by'", "'without'", "'on'", "'ignoring'", "'group_left'", "'group_right'", 
+			"'bool'", "'('", "')'", "'{'", "'}'", "'['", "']'", "','", "'='", "':'", 
 			"';'", "'_'", "'x'", "'<space>'", null, null, null, "'=~'", "'!~'", "'!='", 
 			"'<'", "'>'", "'>='", "'<='", "'+'", "'-'", "'*'", "'/'", "'^'", "'%'", 
 			"'s'", "'m'", "'h'", "'d'", "'w'", "'y'", null, "'\r'", "'\n'", null, 
@@ -51,10 +51,10 @@ public class PrometheusParser extends Parser {
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "NUMBER", "DURATION", "LAND", "LOR", "LUNLESS", "SUM", "AVG", "MAX", 
-			"MIN", "COUNT", "STDVAR", "STDDEV", "OFFSET", "BY", "WITHOUT", "ON", 
-			"IGNORING", "GROUP_LEFT", "GROUP_RIGHT", "BOOL", "COMMENT", "IDENTIFIER", 
-			"METRIC_IDENTIFIER", "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE", 
+			null, "NUMBER", "IDENTIFIER", "METRIC_IDENTIFIER", "COMMENT", "DURATION", 
+			"LAND", "LOR", "LUNLESS", "SUM", "AVG", "MAX", "MIN", "COUNT", "STDVAR", 
+			"STDDEV", "OFFSET", "BY", "WITHOUT", "ON", "IGNORING", "GROUP_LEFT", 
+			"GROUP_RIGHT", "BOOL", "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE", 
 			"LEFT_BRACKET", "RIGHT_BRACKET", "COMMA", "ASSIGN", "COLON", "SEMICOLON", 
 			"BLANK", "TIMES", "SPACE", "NAN", "INF", "EQL", "EQL_REGEX", "NEQ_REGEX", 
 			"NEQ", "LSS", "GTR", "GTE", "LTE", "ADD", "SUB", "MUL", "DIV", "POW", 
@@ -208,7 +208,7 @@ public class PrometheusParser extends Parser {
 	public static final String _serializedATN =
 		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3B\r\4\2\t\2\4\3\t"+
 		"\3\3\2\3\2\3\3\3\3\3\3\3\3\3\3\2\2\4\2\4\2\2\2\n\2\6\3\2\2\2\4\b\3\2\2"+
-		"\2\6\7\5\4\3\2\7\3\3\2\2\2\b\t\7\34\2\2\t\n\7\4\2\2\n\13\7\35\2\2\13\5"+
+		"\2\6\7\5\4\3\2\7\3\3\2\2\2\b\t\7\34\2\2\t\n\7\7\2\2\n\13\7\35\2\2\13\5"+
 		"\3\2\2\2\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());

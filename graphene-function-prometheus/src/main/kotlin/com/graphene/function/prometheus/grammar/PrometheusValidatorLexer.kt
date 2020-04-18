@@ -5,8 +5,6 @@ import org.antlr.v4.runtime.CharStream
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.Token
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import org.slf4j.LoggerFactory
 
 class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
