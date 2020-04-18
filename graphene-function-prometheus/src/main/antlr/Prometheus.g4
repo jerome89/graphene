@@ -21,6 +21,9 @@ grammar Prometheus;
   int bracketCloseCount = 0;
 
   boolean useAssignmentStatement = false;
+
+  int colonCount = 0;
+  int durationCount = 0;
 }
 
 /*------------------------------------------------------------------
@@ -75,6 +78,7 @@ NUMBER: DEGIT+ PT DEGIT+
           if (includeDurationKeyword) {
             Token o = _factory.create(_tokenFactorySourcePair, DURATION, _text, _channel, _tokenStartCharIndex, getCharIndex(), _tokenStartLine, _tokenStartCharPositionInLine);
             emit(o);
+            durationCount++;
             _input.seek(getCharIndex() + 1);
           } else {
             throw new BadNumberOrDurationException("bad number or duration syntax");
@@ -85,7 +89,9 @@ NUMBER: DEGIT+ PT DEGIT+
       | INF
       ;
 
-DURATION: [1-9]+[smhdwy];
+DURATION: [1-9]+[smhdwy] {
+  durationCount++;
+};
 
 // Condition
 LAND: 'AND';
@@ -113,7 +119,12 @@ BOOL: 'bool';
 
 COMMA: ',';
 ASSIGN: '=' { useAssignmentStatement = true && !isBraceOpen }?;
-COLON: ':';
+COLON: ':' {
+  if (durationCount == 0) {
+    throw new UnexpectedColonException("The DURATION must be the front of the colon inside the bracket.");
+  }
+  colonCount++;
+};
 SEMICOLON: ';';
 BLANK: '_';
 TIMES: 'x';
@@ -153,8 +164,13 @@ LEFT_BRACKET: '[' {
   bracketOpenCount++;
 };
 RIGHT_BRACKET: ']' {
+  if (1 < colonCount) {
+    throw new UnexpectedColonException("The DURATION is not possible greater than 1 inside the bracket.");
+  }
+
   isBracketOpen = false;
   bracketCloseCount++;
+  colonCount = 0;
 };
 
 // Query Operator
@@ -177,9 +193,11 @@ DIV: '/';
 POW: '^';
 MOD: '%';
 
-
-//=!#$%&:;<>?@[\]^_`|~
-STRING: [A-Za-z\\"'.`:]+;
+STRING: [A-Za-z\\"'.`:]+ {
+  if (isBracketOpen) {
+    throw new NotAllowedStringInsideBracketException("The DURATION is not possible greater than 1 inside the bracket.");
+  }
+};
 
 CR: '\r' -> skip;
 NL: '\n' -> skip;

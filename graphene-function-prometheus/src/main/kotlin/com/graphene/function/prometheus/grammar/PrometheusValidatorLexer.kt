@@ -70,7 +70,7 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
         }
 
         if (vectorCount % 2 != 0) {
-          throw IllegalVectorPairException("")
+          throw IllegalVectorPairException("Vectors in brace are IDENTIFIER or STRING. Currently this pair is not included properly.")
         }
 
         if (vectorCount != 0 && !meetQueryOperator) {

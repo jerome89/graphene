@@ -1039,6 +1039,26 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.RIGHT_BRACKET, 13, 13, "]")
         ),
         nonException()
+      ),
+      row(
+        """test:name{o:n!~"bar"}[4m:4s]""",
+        emptyToken(),
+        IllegalVectorPairException::class
+      ),
+      row(
+        """test:name{on!~"bar"}[4m:4s:4h]""",
+        emptyToken(),
+        UnexpectedColonException::class
+      ),
+      row(
+        """test:name{on!~"bar"}[4m::]""",
+        emptyToken(),
+        NotAllowedStringInsideBracketException::class
+      ),
+      row(
+        """test:name{on!~"bar"}[:4s]""",
+        emptyToken(),
+        UnexpectedColonException::class
       )
     )
 
