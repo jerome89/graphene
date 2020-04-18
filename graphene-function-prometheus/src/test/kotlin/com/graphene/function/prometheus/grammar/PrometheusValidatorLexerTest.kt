@@ -932,6 +932,52 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.RIGHT_BRACKET, 27, 27, "]")
         ),
         nonException()
+      ),
+      row(
+        """test:name{on!~"b:ar"}[4m:]""",
+        listOf(
+          expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 8, "test:name"),
+          expectedToken(PrometheusLexer.LEFT_BRACE, 9, 9, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 10, 11, "on"),
+          expectedToken(PrometheusLexer.NEQ_REGEX, 12, 13, "!~"),
+          expectedToken(PrometheusLexer.STRING, 14, 19, """"b:ar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 20, 20, "}"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 21, 21, "["),
+          expectedToken(PrometheusLexer.DURATION, 22, 23, "4m"),
+          expectedToken(PrometheusLexer.COLON, 24, 24, ":"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 25, 25, "]")
+        ),
+        nonException()
+      ),
+      row(
+        """min_over_time(rate(foo{bar="baz"}[2s])[5m:])[4m:3s]""",
+        listOf(
+          expectedToken(PrometheusLexer.IDENTIFIER, 0, 12, "min_over_time"),
+          expectedToken(PrometheusLexer.LEFT_PAREN, 13, 13, "("),
+          expectedToken(PrometheusLexer.IDENTIFIER, 14, 17, "rate"),
+          expectedToken(PrometheusLexer.LEFT_PAREN, 18, 18, "("),
+          expectedToken(PrometheusLexer.IDENTIFIER, 19, 21, """foo"""),
+          expectedToken(PrometheusLexer.LEFT_BRACE, 22, 22, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 23, 25, "bar"),
+          expectedToken(PrometheusLexer.EQL, 26, 26, "="),
+          expectedToken(PrometheusLexer.STRING, 27, 31, """"baz""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 32, 32, "}"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 33, 33, "["),
+          expectedToken(PrometheusLexer.DURATION, 34, 35, "2s"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 36, 36, "]"),
+          expectedToken(PrometheusLexer.RIGHT_PAREN, 37, 37, ")"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 38, 38, "["),
+          expectedToken(PrometheusLexer.DURATION, 39, 40, "5m"),
+          expectedToken(PrometheusLexer.COLON, 41, 41, ":"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 42, 42, "]"),
+          expectedToken(PrometheusLexer.RIGHT_PAREN, 43, 43, ")"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 44, 44, "["),
+          expectedToken(PrometheusLexer.DURATION, 45, 46, "4m"),
+          expectedToken(PrometheusLexer.COLON, 47, 47, ":"),
+          expectedToken(PrometheusLexer.DURATION, 48, 49, "3s"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 50, 50, "]")
+        ),
+        nonException()
       )
     )
 

@@ -112,13 +112,16 @@ public class PrometheusLexer extends Lexer {
 
 
 	  boolean isParenOpen = false;
-	  int isParenOpenCount = 0;
+	  int parenOpenCount = 0;
+	  int parenCloseCount = 0;
 
 	  boolean isBraceOpen = false;
-	  int isBraceOpenCount = 0;
+	  int braceOpenCount = 0;
+	  int braceCloseCount = 0;
 
 	  boolean isBracketOpen = false;
-	  int isBracketOpenCount = 0;
+	  int bracketOpenCount = 0;
+	  int bracketCloseCount = 0;
 
 	  boolean useAssignmentStatement = false;
 
@@ -219,12 +222,8 @@ public class PrometheusLexer extends Lexer {
 		switch (actionIndex) {
 		case 2:
 
-			  if (isParenOpen) {
-			    throw new IllegalParenException("This is not allowed action. Please check the duplicated left paren.");
-			  }
-
 			  isParenOpen = true;
-			  isParenOpenCount++;
+			  parenOpenCount++;
 
 			break;
 		}
@@ -233,11 +232,8 @@ public class PrometheusLexer extends Lexer {
 		switch (actionIndex) {
 		case 3:
 
-			  if (!isParenOpen) {
-			    throw new IllegalParenException("This is not allowed action. Please check the left paren omitted.");
-			  }
-
 			  isParenOpen = false;
+			  parenCloseCount++;
 
 			break;
 		}
@@ -251,7 +247,7 @@ public class PrometheusLexer extends Lexer {
 			  }
 
 			  isBraceOpen = true;
-			  isBraceOpenCount++;
+			  braceOpenCount++;
 
 			break;
 		}
@@ -260,11 +256,8 @@ public class PrometheusLexer extends Lexer {
 		switch (actionIndex) {
 		case 5:
 
-			  if (!isBraceOpen) {
-			    throw new IllegalBraceException("This is not allowed action. Please check the left brace omitted.");
-			  }
-
 			  isBraceOpen = false;
+			  braceCloseCount++;
 
 			break;
 		}
@@ -278,7 +271,7 @@ public class PrometheusLexer extends Lexer {
 			  }
 
 			  isBracketOpen = true;
-			  isBracketOpenCount++;
+			  bracketOpenCount++;
 
 			break;
 		}
@@ -287,11 +280,8 @@ public class PrometheusLexer extends Lexer {
 		switch (actionIndex) {
 		case 7:
 
-			  if (!isBracketOpen) {
-			    throw new IllegalBracketException("This is not allowed action. Please check the left bracket omitted.");
-			  }
-
 			  isBracketOpen = false;
+			  bracketCloseCount++;
 
 			break;
 		}
@@ -349,7 +339,7 @@ public class PrometheusLexer extends Lexer {
 	private boolean METRIC_IDENTIFIER_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 4:
-			return  !isBracketOpen && 0 == isBracketOpenCount ;
+			return  !isBracketOpen && 0 == bracketOpenCount ;
 		}
 		return true;
 	}

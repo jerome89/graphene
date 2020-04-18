@@ -100,28 +100,16 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
   }
 
   private fun validate() {
-    if (isBraceOpen) {
-      throw IllegalBraceException("left-brace does not close. This case is an illegal query.")
-    }
-
-    if (1 < isBraceOpenCount) {
-      throw IllegalBraceException("left-brace open only once.")
-    }
-
-    if (isParenOpen) {
+    if (parenOpenCount != parenCloseCount) {
       throw IllegalParenException("left-paren does not close. This case is an illegal query.")
     }
 
-    if (1 < isParenOpenCount) {
-      throw IllegalBraceException("left-paren open only once.")
+    if (braceOpenCount != braceCloseCount) {
+      throw IllegalBraceException("left-brace does not close. This case is an illegal query.")
     }
 
-    if (isBracketOpen) {
+    if (bracketOpenCount != bracketCloseCount) {
       throw IllegalBracketException("left-bracket does not close. This case is an illegal query.")
-    }
-
-    if (1 < isBracketOpenCount) {
-      throw IllegalBracketException("left-bracket open only once.")
     }
 
     // It cannot be used alone unless it is a metric identifier.

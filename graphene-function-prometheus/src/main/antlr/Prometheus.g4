@@ -9,13 +9,16 @@ grammar Prometheus;
 
 @lexer::members {
   boolean isParenOpen = false;
-  int isParenOpenCount = 0;
+  int parenOpenCount = 0;
+  int parenCloseCount = 0;
 
   boolean isBraceOpen = false;
-  int isBraceOpenCount = 0;
+  int braceOpenCount = 0;
+  int braceCloseCount = 0;
 
   boolean isBracketOpen = false;
-  int isBracketOpenCount = 0;
+  int bracketOpenCount = 0;
+  int bracketCloseCount = 0;
 
   boolean useAssignmentStatement = false;
 }
@@ -106,22 +109,15 @@ NAN: [nN][aA][nN] { !isBraceOpen }?;
 INF: [iI][nN][fF] { !isBraceOpen }?;
 
 IDENTIFIER: [a-zA-Z_]+[0-9]*;
-METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+ { !isBracketOpen && 0 == isBracketOpenCount }?;
+METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+ { !isBracketOpen && 0 == bracketOpenCount }?;
 
 LEFT_PAREN: '(' {
-  if (isParenOpen) {
-    throw new IllegalParenException("This is not allowed action. Please check the duplicated left paren.");
-  }
-
   isParenOpen = true;
-  isParenOpenCount++;
+  parenOpenCount++;
 };
 RIGHT_PAREN: ')' {
-  if (!isParenOpen) {
-    throw new IllegalParenException("This is not allowed action. Please check the left paren omitted.");
-  }
-
   isParenOpen = false;
+  parenCloseCount++;
 };
 LEFT_BRACE: '{' {
   if (isBraceOpen) {
@@ -129,14 +125,11 @@ LEFT_BRACE: '{' {
   }
 
   isBraceOpen = true;
-  isBraceOpenCount++;
+  braceOpenCount++;
 };
 RIGHT_BRACE: '}' {
-  if (!isBraceOpen) {
-    throw new IllegalBraceException("This is not allowed action. Please check the left brace omitted.");
-  }
-
   isBraceOpen = false;
+  braceCloseCount++;
 };
 LEFT_BRACKET: '[' {
   if (isBracketOpen) {
@@ -144,14 +137,11 @@ LEFT_BRACKET: '[' {
   }
 
   isBracketOpen = true;
-  isBracketOpenCount++;
+  bracketOpenCount++;
 };
 RIGHT_BRACKET: ']' {
-  if (!isBracketOpen) {
-    throw new IllegalBracketException("This is not allowed action. Please check the left bracket omitted.");
-  }
-
   isBracketOpen = false;
+  bracketCloseCount++;
 };
 
 // Query Operator
