@@ -978,6 +978,25 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.RIGHT_BRACKET, 50, 50, "]")
         ),
         nonException()
+      ),
+      row(
+        """test:name{on!~"b:ar"}[4m:4s] offset 10m""",
+        listOf(
+          expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 8, "test:name"),
+          expectedToken(PrometheusLexer.LEFT_BRACE, 9, 9, "{"),
+          expectedToken(PrometheusLexer.IDENTIFIER, 10, 11, "on"),
+          expectedToken(PrometheusLexer.NEQ_REGEX, 12, 13, "!~"),
+          expectedToken(PrometheusLexer.STRING, 14, 19, """"b:ar""""),
+          expectedToken(PrometheusLexer.RIGHT_BRACE, 20, 20, "}"),
+          expectedToken(PrometheusLexer.LEFT_BRACKET, 21, 21, "["),
+          expectedToken(PrometheusLexer.DURATION, 22, 23, "4m"),
+          expectedToken(PrometheusLexer.COLON, 24, 24, ":"),
+          expectedToken(PrometheusLexer.DURATION, 25, 26, "4s"),
+          expectedToken(PrometheusLexer.RIGHT_BRACKET, 27, 27, "]"),
+          expectedToken(PrometheusLexer.OFFSET, 29, 34, "offset"),
+          expectedToken(PrometheusLexer.DURATION, 36, 38, "10m")
+        ),
+        nonException()
       )
     )
 

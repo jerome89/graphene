@@ -207,9 +207,22 @@ public class PrometheusLexer extends Lexer {
 			        _input.LA(-1);
 
 			        char nextChar = (char) type;
-			        if (type != NUMBER && type != EOF && nextChar != ' ') {
-			          if (type == DURATION_D || type == DURATION_H || type == DURATION_M || type == DURATION_S || type == DURATION_W || type == DURATION_Y) {
-			            // duration
+			        boolean isNumber = 48 <= type && 58 > type;
+			        if (!isNumber && type != EOF && nextChar != ' ') {
+			          char[] chars = "smhdwy".toCharArray();
+
+			          boolean includeDurationKeyword = false;
+			          for (char aChar : chars) {
+			            if (Character.toLowerCase(nextChar) == aChar) {
+			              includeDurationKeyword = true;
+			              break;
+			            }
+			          }
+
+			          if (includeDurationKeyword) {
+			            Token o = _factory.create(_tokenFactorySourcePair, DURATION, _text, _channel, _tokenStartCharIndex, getCharIndex(), _tokenStartLine, _tokenStartCharPositionInLine);
+			            emit(o);
+			            _input.seek(getCharIndex() + 1);
 			          } else {
 			            throw new BadNumberOrDurationException("bad number or duration syntax");
 			          }
