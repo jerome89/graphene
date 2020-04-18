@@ -358,13 +358,12 @@ class PrometheusValidatorLexerTest {
           expectedToken(PrometheusLexer.METRIC_IDENTIFIER, 0, 2, ":bc")
         ),
         nonException()
+      ),
+      row(
+        "0a:bc",
+        emptyToken(),
+        BadNumberOrDurationException::class
       )
-//      ,
-//      row(
-//        "0a:bc",
-//        emptyToken(),
-//        BadNumberOrDurationException::class
-//      )
     )
 
     // then
@@ -402,7 +401,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  //  @Test
+  @Test
   internal fun `should tokenize operators lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -526,7 +525,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  //  @Test
+  @Test
   internal fun `should tokenize aggregators lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -574,7 +573,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  //  @Test
+  @Test
   internal fun `should tokenize keywords lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -627,7 +626,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  //  @Test
+  @Test
   internal fun `should tokenize selectors lex by prometheus rule for given input text`() {
     // given
     val table = table(
@@ -642,11 +641,11 @@ class PrometheusValidatorLexerTest {
         emptyToken(),
         IllegalVectorPairException::class
       ),
-//      row(
-//        "{0a='a'}",
-//        emptyToken(),
-//        IllegalVectorPairException::class
-//      ),
+      row(
+        "{0a='a'}",
+        emptyToken(),
+        UnexpectedCharInsideBraceException::class
+      ),
       row(
         "{foo='bar'}",
         listOf(
@@ -736,7 +735,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  //  @Test
+  @Test
   internal fun `should fail if mismatched syntax in the input`() {
     // given
     val table = table(
@@ -755,13 +754,12 @@ class PrometheusValidatorLexerTest {
         "!(",
         emptyToken(),
         UnknownTokenException::class
+      ),
+      row(
+        "1a",
+        emptyToken(),
+        BadNumberOrDurationException::class
       )
-//      ,
-//      row(
-//        "1a",
-//        emptyToken(),
-//        NotAllowedSingleNonMetricIdentifierException::class
-//      )
     )
 
     // then
@@ -770,7 +768,7 @@ class PrometheusValidatorLexerTest {
     }
   }
 
-  //  @Test
+  @Test
   internal fun `should fail if mismatched parentheses in the input`() {
     // given
     val table = table(
@@ -834,29 +832,6 @@ class PrometheusValidatorLexerTest {
         "]",
         emptyToken(),
         IllegalBracketException::class
-      )
-    )
-
-    // then
-    table.forAll { input, expectedTokens, expectedException ->
-      assertToken(input, expectedTokens, expectedException)
-    }
-  }
-
-  //  @Test
-  internal fun `should fail if encoding issue in the input`() {
-    // given
-    val table = table(
-      headers("input", "expectedTokens", "expectedException"),
-      row(
-        """\"\xff\"""",
-        emptyToken(),
-        nonException()
-      ),
-      row(
-        """\xff""",
-        emptyToken(),
-        nonException()
       )
     )
 

@@ -132,7 +132,7 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
     }
 
     if (0 < antlrErrorListener.errorCount) {
-      throw UnknownTokenException("Detect antlr error during parsing")
+      throw UnknownTokenException("Detect antlr error during parsing $_input")
     }
   }
 

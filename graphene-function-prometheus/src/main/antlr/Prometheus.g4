@@ -30,36 +30,42 @@ duration: LEFT_BRACE DURATION RIGHT_BRACE;
  * LEXER RULES
  *------------------------------------------------------------------*/
 
+COMMENT: '#' {
+  int i = 1;
+  int type = _input.LA(i);
+  while(type != EOF) {
+    i++;
+    type = _input.LA(i);
+  }
+  Token o = _factory.create(_tokenFactorySourcePair, COMMENT, _text, _channel, _tokenStartCharIndex, i - 1, _tokenStartLine, _tokenStartCharPositionInLine);
+  emit(o);
+  _input.seek(i);
+};
+
 NUMBER: DEGIT+ PT DEGIT+
       | '0x'DEGIT+        // hexadecimal
       | DEGIT+ PT
       | PT DEGIT+
-      | DEGIT+
+      | DEGIT+ {
+        if (isBraceOpen && !isBracketOpen) {
+          throw new UnexpectedCharInsideBraceException("Numbers are only available for duration");
+        }
+
+        int type = _input.LA(1);
+        _input.LA(-1);
+
+        char nextChar = (char) type;
+        if (type != NUMBER && type != WS && type != EOF && nextChar != ' ') {
+          if (type == DURATION_D || type == DURATION_H || type == DURATION_M || type == DURATION_S || type == DURATION_W || type == DURATION_Y) {
+            // duration
+          } else {
+            throw new BadNumberOrDurationException("bad number or duration syntax");
+          }
+        }
+      }
       | NAN
       | INF
       ;
-
-IDENTIFIER: [a-zA-Z]+[0-9]*;
-METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+;
-
-COMMENT: '#'[ A-Za-z0-9+]+;
-
-//{
-//        int type = _input.LA(1);
-//        _input.LA(-1);
-
-//        if (type == TAB || type == SEMICOLON) {
-//          break;
-//        }
-//
-//        if (type != NUMBER) {
-//          if (type == DURATION_D || type == DURATION_H || type == DURATION_M || type == DURATION_S || type == DURATION_W || type == DURATION_Y) {
-//            // duration
-//          } else {
-//            throw new BadNumberOrDurationException("bad number or duration syntax");
-//          }
-//        }
-//      }
 
 DURATION: [1-9]+[smhdwy];
 
@@ -86,6 +92,9 @@ IGNORING: 'ignoring';
 GROUP_LEFT: 'group_left';
 GROUP_RIGHT: 'group_right';
 BOOL: 'bool';
+
+IDENTIFIER: [a-zA-Z]+[0-9]*;
+METRIC_IDENTIFIER: [a-zA-Z]*':'[a-zA-Z0-9]+;
 
 LEFT_PAREN: '(' {
   if (isParenOpen) {
@@ -139,8 +148,8 @@ SEMICOLON: ';';
 BLANK: '_';
 TIMES: 'x';
 SPACE: '<space>';
-NAN: [nN][aA][nN];
-INF: [iI][nN][fF];
+NAN: [nN][aA][nN] { !isBraceOpen }?;
+INF: [iI][nN][fF] { !isBraceOpen }?;
 
 // Query Operator
 EQL: '=='
