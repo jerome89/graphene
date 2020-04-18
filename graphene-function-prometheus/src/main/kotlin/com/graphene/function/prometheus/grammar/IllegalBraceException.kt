@@ -1,3 +1,3 @@
-package com.graphene.function.prometheus.grammar;
+package com.graphene.function.prometheus.grammar
 
 class IllegalBraceException(message: String) : RuntimeException(message)

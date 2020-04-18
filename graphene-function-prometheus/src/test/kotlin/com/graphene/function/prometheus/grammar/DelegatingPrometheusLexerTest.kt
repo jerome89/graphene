@@ -7,14 +7,14 @@ import io.kotlintest.tables.row
 import io.kotlintest.tables.table
 import io.mockk.every
 import io.mockk.mockk
-import org.antlr.v4.runtime.*
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.lang.Exception
 import java.util.Objects
 import kotlin.reflect.KClass
+import org.antlr.v4.runtime.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
-class PrometheusValidatorLexerTest {
+class DelegatingPrometheusLexerTest {
 
   @Test
   internal fun `should tokenize common lex by prometheus rule for given input text`() {
@@ -1071,7 +1071,7 @@ class PrometheusValidatorLexerTest {
   private fun emptyToken() = emptyList<Token>()
 
   private fun assertToken(input: String, expectedTokens: List<Token>, expectedException: KClass<out Exception>?) {
-    val prometheusLexer = PrometheusValidatorLexer(CharStreams.fromString(input))
+    val prometheusLexer = DelegatingPrometheusLexer(CharStreams.fromString(input))
 
     return if (Objects.nonNull(expectedException)) {
       val assertThrows = assertThrows<Throwable> {
@@ -1120,5 +1120,4 @@ class PrometheusValidatorLexerTest {
       every { it.text } answers { text }
     }
   }
-
 }

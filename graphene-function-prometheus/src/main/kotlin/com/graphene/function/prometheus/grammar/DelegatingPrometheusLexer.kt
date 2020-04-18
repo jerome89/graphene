@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.Token
 import org.slf4j.LoggerFactory
 
-class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
+class DelegatingPrometheusLexer(input: CharStream) : PrometheusLexer(input) {
 
   var eqlCount: Int = 0
   var eqlRegexCount: Int = 0
@@ -55,7 +55,7 @@ class PrometheusValidatorLexer(input: CharStream) : PrometheusLexer(input) {
         var meetQueryOperator = false
         var vectorCount = 0
         for (tokenInsideBrace in tokensInsideBrace) {
-          when(tokenInsideBrace.type) {
+          when (tokenInsideBrace.type) {
             IDENTIFIER -> {
               vectorCount++
             }
