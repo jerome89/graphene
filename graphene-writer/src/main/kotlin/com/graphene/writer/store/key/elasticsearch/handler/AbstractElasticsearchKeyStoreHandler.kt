@@ -6,7 +6,7 @@ import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.KeyStoreHandler
 import com.graphene.writer.store.KeyStoreHandlerProperty
 import com.graphene.writer.store.key.KeyCache
-import com.graphene.writer.store.key.TimeBasedLocalKeyCache
+import com.graphene.writer.store.key.SimpleLocalKeyCache
 import com.graphene.writer.store.key.elasticsearch.ElasticsearchClient
 import com.graphene.writer.store.key.elasticsearch.ElasticsearchClientFactory
 import com.graphene.writer.store.key.elasticsearch.GrapheneIndexRequest
@@ -42,7 +42,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   private var flushInterval: Long = 0
 
   private val metrics = LinkedBlockingDeque<GrapheneMetric>()
-  private val keyCache: KeyCache<String, GrapheneMetric> = TimeBasedLocalKeyCache(5) // Default 5 Min
+  private val keyCache: KeyCache<String> = SimpleLocalKeyCache(5) // Default 5 Min
 
   init {
     val property = Jsons.from(keyStoreHandlerProperty.handler["property"], ElasticsearchKeyStoreHandlerProperty::class.java)
@@ -94,7 +94,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
 
   private fun addToBatch(metric: GrapheneMetric) {
     val index = elasticsearchClient.getIndexWithDate(index, tenant, metric.timestampMillis())
-    if (keyCache.putIfAbsent("${index}_${metric.id}", metric)) {
+    if (keyCache.putIfAbsent("${index}_${metric.id}")) {
       multiGetRequestContainer.add(index, type, metric)
     }
   }

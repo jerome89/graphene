@@ -11,11 +11,11 @@ internal class TimeBasedLocalKeyCacheTest {
   @Test
   internal fun `should expire cache entry`() {
     // given
-    val timeBasedCache = TimeBasedLocalKeyCache<String, Long>(1)
+    val timeBasedCache = TimeBasedLocalKeyCache<String>(1)
 
     // when
     DateTimeUtils.setCurrentMillisFixed(com.graphene.common.utils.DateTimeUtils.from("2019-01-01 10:00:00"))
-    timeBasedCache.put(KEY, VALUE)
+    timeBasedCache.put(KEY)
 
     // then
     DateTimeUtils.setCurrentMillisFixed(com.graphene.common.utils.DateTimeUtils.from("2019-01-01 10:01:01"))
@@ -25,19 +25,18 @@ internal class TimeBasedLocalKeyCacheTest {
   @Test
   internal fun `shouldn't expire cache entry not yet expire interval`() {
     // given
-    val timeBasedCache = TimeBasedLocalKeyCache<String, Long>(1)
+    val timeBasedCache = TimeBasedLocalKeyCache<String>(1)
 
     // when
     DateTimeUtils.setCurrentMillisFixed(com.graphene.common.utils.DateTimeUtils.from("2019-01-01 10:00:00"))
-    timeBasedCache.put(KEY, VALUE)
+    timeBasedCache.put(KEY)
 
     // then
     DateTimeUtils.setCurrentMillisFixed(com.graphene.common.utils.DateTimeUtils.from("2019-01-01 10:00:59"))
-    assertEquals(timeBasedCache.get(KEY), VALUE)
+    assertEquals(timeBasedCache.get(KEY), KEY)
   }
 
   companion object {
     const val KEY = "key1"
-    const val VALUE = 1L
   }
 }
