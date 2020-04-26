@@ -1,6 +1,6 @@
 CREATE KEYSPACE metric WITH replication = {'class': 'NetworkTopologyStrategy', 'ap-northeast-2': '1'} AND durable_writes = true;
 
-CREATE TABLE metric.metric (
+CREATE TABLE metric.metric_60s (
   tenant text,
   path text,
   time bigint,

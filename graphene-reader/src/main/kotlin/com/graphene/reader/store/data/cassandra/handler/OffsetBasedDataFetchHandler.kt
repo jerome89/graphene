@@ -38,27 +38,27 @@ class OffsetBasedDataFetchHandler(
   dataFetchHandlerProperty: DataFetchHandlerProperty
 ) : DataFetchHandler {
 
-  val query: String = """
+  private val query: String
+  private var rollup: Int = 60
+  private var cluster: Cluster = cassandraFactory.createCluster(dataFetchHandlerProperty.property)
+  private var session: Session
+  private var statement: PreparedStatement
+  private var maxPoints: Int = Int.MAX_VALUE
+  private var bucketSize: Int = 604800
+
+  init {
+    this.rollup = dataFetchHandlerProperty.rollup
+    this.query = """
     SELECT offset, data
-        FROM ${dataFetchHandlerProperty.keyspace}.${dataFetchHandlerProperty.columnFamily}_${dataFetchHandlerProperty.bucketSize}
+        FROM ${dataFetchHandlerProperty.keyspace}_${dataFetchHandlerProperty.bucketSize}.${dataFetchHandlerProperty.columnFamily}_${rollup}s
         WHERE path = ?
               AND tenant = ?
               AND startTime = ?
               AND offset >= ?
               AND offset <= ?
         ORDER BY offset;"""
-
-  private var cluster: Cluster = cassandraFactory.createCluster(dataFetchHandlerProperty.property)
-  private var session: Session
-  private var statement: PreparedStatement
-  private var rollup: Int = 60
-  private var maxPoints: Int = Int.MAX_VALUE
-  private var bucketSize: Int = 604800
-
-  init {
     this.session = cluster.connect()
     this.statement = session.prepare(query)
-    this.rollup = dataFetchHandlerProperty.rollup
     this.maxPoints = dataFetchHandlerProperty.maxPoints
     this.bucketSize = dataFetchHandlerProperty.bucketSize
   }
@@ -138,7 +138,7 @@ class OffsetBasedDataFetchHandler(
     val from = seriesRange.from
     val to = seriesRange.to
     val rollup = seriesRange.rollup
-    var startTime = from - from % bucketSize
+    var startTime = from - from % (bucketSize * rollup)
     val queryOffsetRange = Maps.newTreeMap<Long, OffsetRange>()
     while (startTime <= to) {
       val offsetRange = OffsetRange()
@@ -147,13 +147,13 @@ class OffsetBasedDataFetchHandler(
       } else {
         offsetRange.startOffset = 0
       }
-      if (startTime + bucketSize < to) {
-        offsetRange.endOffset = ((bucketSize / rollup) - 1).toShort()
+      if (startTime + (bucketSize * rollup) < to) {
+        offsetRange.endOffset = (((bucketSize * rollup) / rollup) - 1).toShort()
       } else {
         offsetRange.endOffset = ((to - startTime) / rollup).toShort()
       }
       queryOffsetRange[startTime] = offsetRange
-      startTime += bucketSize
+      startTime += (bucketSize * rollup)
     }
     return queryOffsetRange
   }

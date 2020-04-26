@@ -13,7 +13,6 @@ class InputGraphiteCarbonProperty {
 
   var bind: String? = null
   var port: Int = 0
-  var rollup: Int = 60
   var route: Route? = null
 
   @PostConstruct
@@ -25,7 +24,6 @@ class InputGraphiteCarbonProperty {
     return "InputGraphiteCarbonProperty{" +
       "bind='" + bind + '\''.toString() +
       ", port=" + port +
-      ", rollups=" + this.rollup +
       '}'.toString()
   }
 

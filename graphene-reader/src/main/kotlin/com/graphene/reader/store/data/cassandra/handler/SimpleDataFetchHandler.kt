@@ -36,25 +36,25 @@ class SimpleDataFetchHandler(
   dataFetchHandlerProperty: DataFetchHandlerProperty
 ) : DataFetchHandler {
 
-  private val query: String = """
+  private val query: String
+  private var rollup: Int = 60
+  private var cluster: Cluster = cassandraFactory.createCluster(dataFetchHandlerProperty.property)
+  private var session: Session
+  private var statement: PreparedStatement
+  private var maxPoints: Int = Int.MAX_VALUE
+
+  init {
+    this.rollup = dataFetchHandlerProperty.rollup
+    this.query = """
     SELECT time, data
-    FROM ${dataFetchHandlerProperty.keyspace}.${dataFetchHandlerProperty.columnFamily}
+    FROM ${dataFetchHandlerProperty.keyspace}.${dataFetchHandlerProperty.columnFamily}_${rollup}s
     WHERE path = ?
           AND tenant = ?
           AND time >= ?
           AND time <= ?
     ORDER BY time;"""
-
-  private var cluster: Cluster = cassandraFactory.createCluster(dataFetchHandlerProperty.property)
-  private var session: Session
-  private var statement: PreparedStatement
-  private var rollup: Int = 60
-  private var maxPoints: Int = Int.MAX_VALUE
-
-  init {
     this.session = cluster.connect()
     this.statement = session.prepare(query)
-    this.rollup = dataFetchHandlerProperty.rollup
     this.maxPoints = dataFetchHandlerProperty.maxPoints
   }
 

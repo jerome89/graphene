@@ -29,14 +29,11 @@ class CarbonServerHandler(
 ) : ChannelInboundHandlerAdapter() {
 
   private val logger = LogManager.getLogger(CarbonServerHandler::class.java)
-
-  private var rollup: Int = 60
   private lateinit var graphiteConverter: GraphiteMetricConverter
   private lateinit var graphiteWriter: GraphiteWriter
 
   @PostConstruct
   fun init() {
-    this.rollup = inputGraphiteCarbonProperty.rollup
     this.graphiteConverter = GraphiteMetricConverter()
     if (Objects.nonNull(inputGraphiteCarbonProperty.route)) {
       this.graphiteWriter = GraphiteWriter()
@@ -52,13 +49,9 @@ class CarbonServerHandler(
     val byteBuf = msg as ByteBuf
 
     try {
-      val metric = Metric(byteBuf.toString(CharsetUtil.UTF_8).trim { it <= ' ' }, rollup)
-      if (System.currentTimeMillis() / 1000L - metric.timestamp > 3600) {
-        logger.warn("Metric is from distant past (older than 1 hour): $metric")
-      }
-
-      if (CharMatcher.ascii().matchesAllOf(metric.path) && CharMatcher.ascii().matchesAllOf(metric.tenant)) {
-        val grapheneMetrics = graphiteConverter.convert(GraphiteMetric(metric.path, metric.value, normalizeTimestamp(metric.timestamp)))
+      val metric = Metric(byteBuf.toString(CharsetUtil.UTF_8).trim { it <= ' ' })
+      if (CharMatcher.ascii().matchesAllOf(metric.tenant)) {
+        val grapheneMetrics = graphiteConverter.convert(GraphiteMetric(metric.path, metric.value, metric.timestamp))
         for (grapheneMetric in grapheneMetrics) {
           grapheneProcessor.process(grapheneMetric)
 
@@ -74,10 +67,6 @@ class CarbonServerHandler(
     }
 
     byteBuf.release()
-  }
-
-  fun normalizeTimestamp(timestamp: Long): Long {
-    return timestamp / rollup * rollup
   }
 
   @PreDestroy

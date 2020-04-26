@@ -28,22 +28,25 @@ class SimpleDataStoreHandler(
   dataStoreHandlerProperty: DataStoreHandlerProperty
 ) : DataStoreHandler {
 
+  private val query: String
+  private var rollup: Int = 60
   private val logger = LogManager.getLogger(SimpleDataStoreHandler::class.java)
   private val ttl = dataStoreHandlerProperty.ttl
-  private val query: String = """
-    UPDATE ${dataStoreHandlerProperty.keyspace}.${dataStoreHandlerProperty.columnFamily}
-    USING TTL ?
-    SET data = ?
-    WHERE tenant = ?
-          AND path = ?
-          AND time = ?;"""
-
   private var cluster: Cluster = cassandraFactory.createCluster(dataStoreHandlerProperty.property)
   private var session: Session
   private var statement: PreparedStatement
   private var executor: Executor
 
   init {
+    this.rollup = dataStoreHandlerProperty.rollup
+    validateRollup(rollup)
+    this.query = """
+    UPDATE ${dataStoreHandlerProperty.keyspace}.${dataStoreHandlerProperty.columnFamily}_${rollup}s
+    USING TTL ?
+    SET data = ?
+    WHERE tenant = ?
+          AND path = ?
+          AND time = ?;"""
     this.session = cluster.connect()
     this.statement = session.prepare(query)
     this.executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())
@@ -72,8 +75,13 @@ class SimpleDataStoreHandler(
       grapheneMetric.value,
       grapheneMetric.getTenant(),
       grapheneMetric.id,
-      grapheneMetric.timestampSeconds
+      normalize(grapheneMetric.timestampSeconds)
     )
+  }
+
+  private fun normalize(timestamp: Long): Long {
+    val remainder = timestamp % rollup
+    return timestamp - remainder
   }
 
   override fun close() {
@@ -97,6 +105,17 @@ class SimpleDataStoreHandler(
       } catch (ignored: InterruptedException) {
       }
     }
+  }
+
+  private fun validateRollup(rollup: Int) {
+    if (rollup <= 60 && 60 % rollup != 0) {
+      throw Exception("Rollup is $rollup <= 60!. It should divide 60.")
+    } else if (rollup > 60 && rollup % 60 != 0) {
+      throw Exception("Rollup is $rollup > 60!. It should be divided by 60.")
+    } else if (rollup <= 0) {
+      throw Exception("Rollup is $rollup <= 0!. It should be greater than 0.")
+    }
+    logger.info("Rollup: $rollup")
   }
 
   private fun getInFlightQueries(state: Session.State): Int {
