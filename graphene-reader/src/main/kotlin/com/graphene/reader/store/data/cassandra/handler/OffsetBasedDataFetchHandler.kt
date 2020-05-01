@@ -17,6 +17,7 @@ import com.graphene.common.beans.Path
 import com.graphene.common.beans.SeriesRange
 import com.graphene.common.store.data.cassandra.CassandraFactory
 import com.graphene.reader.beans.TimeSeries
+import com.graphene.reader.error.exception.UnsupportedRollupException
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.metric.DataFetchHandler
 import com.graphene.reader.store.data.DataFetchHandlerProperty
@@ -38,7 +39,7 @@ class OffsetBasedDataFetchHandler(
   dataFetchHandlerProperty: DataFetchHandlerProperty
 ) : DataFetchHandler {
 
-  private val query: String
+  val query: String
   private var rollup: Int = 60
   private var cluster: Cluster = cassandraFactory.createCluster(dataFetchHandlerProperty.property)
   private var session: Session
@@ -48,6 +49,7 @@ class OffsetBasedDataFetchHandler(
 
   init {
     this.rollup = dataFetchHandlerProperty.rollup
+    validateRollup(rollup)
     this.query = """
     SELECT offset, data
         FROM ${dataFetchHandlerProperty.keyspace}_${dataFetchHandlerProperty.bucketSize}.${dataFetchHandlerProperty.columnFamily}_${rollup}s
@@ -160,6 +162,13 @@ class OffsetBasedDataFetchHandler(
 
   override fun getRollup(): Int {
     return rollup
+  }
+
+  private fun validateRollup(rollup: Int) {
+    if (rollup <= 0) {
+      throw UnsupportedRollupException("Rollup is $rollup <= 0!. It should be greater than 0.")
+    }
+    logger.info("Rollup: $rollup")
   }
 
   @PreDestroy

@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.common.store.data.cassandra.CassandraFactory
+import com.graphene.writer.error.exception.UnsupportedRollupException
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.DataStoreHandler
 import com.graphene.writer.store.DataStoreHandlerProperty
@@ -34,7 +35,7 @@ class OffsetBasedDataStoreHandler(
   // bucketSize: range of short data type 0 ~ 32767
   // rollup should divide 60 or divided by 60
   var rollup: Int = 60
-  private var query: String
+  var query: String
   private var cluster: Cluster = cassandraFactory.createCluster(dataStoreHandlerProperty.property)
   private var session: Session
   private var statement: PreparedStatement
@@ -84,12 +85,12 @@ class OffsetBasedDataStoreHandler(
     )
   }
 
-  private fun getStartTime(timestamp: Long): Long {
+  fun getStartTime(timestamp: Long): Long {
     val remainder = timestamp % (bucketSize * rollup)
     return timestamp - remainder
   }
 
-  private fun getOffset(timestamp: Long): Short {
+  fun getOffset(timestamp: Long): Short {
     val remainder = timestamp % (bucketSize * rollup)
     return (remainder / rollup).toShort()
   }
@@ -118,12 +119,8 @@ class OffsetBasedDataStoreHandler(
   }
 
   private fun validateRollup(rollup: Int) {
-    if (rollup <= 60 && 60 % rollup != 0) {
-      throw Exception("Rollup is $rollup <= 60!. It should divide 60.")
-    } else if (rollup > 60 && rollup % 60 != 0) {
-      throw Exception("Rollup is $rollup > 60!. It should be divided by 60.")
-    } else if (rollup <= 0) {
-      throw Exception("Rollup is $rollup <= 0!. It should be greater than 0.")
+    if (rollup <= 0) {
+      throw UnsupportedRollupException("Rollup is $rollup <= 0!. It should be greater than 0.")
     }
     logger.info("Rollup: $rollup")
   }

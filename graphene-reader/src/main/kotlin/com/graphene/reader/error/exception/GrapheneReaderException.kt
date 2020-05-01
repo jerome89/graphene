@@ -8,4 +8,6 @@ class UnsupportedKeySearchHandlerException(message: String) : GrapheneReaderExce
 
 class UnsupportedDataFetchHandlerException(message: String) : GrapheneReaderException(message)
 
+class UnsupportedRollupException(message: String) : GrapheneReaderException(message)
+
 class IllegalArgumentException(message: String) : GrapheneReaderException(message)

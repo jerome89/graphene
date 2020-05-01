@@ -15,6 +15,7 @@ import com.graphene.common.beans.Path
 import com.graphene.common.beans.SeriesRange
 import com.graphene.common.store.data.cassandra.CassandraFactory
 import com.graphene.reader.beans.TimeSeries
+import com.graphene.reader.error.exception.UnsupportedRollupException
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.metric.DataFetchHandler
 import com.graphene.reader.store.data.DataFetchHandlerProperty
@@ -45,6 +46,7 @@ class SimpleDataFetchHandler(
 
   init {
     this.rollup = dataFetchHandlerProperty.rollup
+    validateRollup(rollup)
     this.query = """
     SELECT time, data
     FROM ${dataFetchHandlerProperty.keyspace}.${dataFetchHandlerProperty.columnFamily}_${rollup}s
@@ -127,6 +129,13 @@ class SimpleDataFetchHandler(
 
   override fun getRollup(): Int {
     return rollup
+  }
+
+  private fun validateRollup(rollup: Int) {
+    if (rollup <= 0) {
+      throw UnsupportedRollupException("Rollup is $rollup <= 0!. It should be greater than 0.")
+    }
+    OffsetBasedDataFetchHandler.logger.info("Rollup: $rollup")
   }
 
   @PreDestroy

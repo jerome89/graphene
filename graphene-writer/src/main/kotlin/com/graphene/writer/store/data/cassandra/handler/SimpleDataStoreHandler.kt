@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.common.store.data.cassandra.CassandraFactory
+import com.graphene.writer.error.exception.UnsupportedRollupException
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.DataStoreHandler
 import com.graphene.writer.store.DataStoreHandlerProperty
@@ -28,7 +29,7 @@ class SimpleDataStoreHandler(
   dataStoreHandlerProperty: DataStoreHandlerProperty
 ) : DataStoreHandler {
 
-  private val query: String
+  val query: String
   private var rollup: Int = 60
   private val logger = LogManager.getLogger(SimpleDataStoreHandler::class.java)
   private val ttl = dataStoreHandlerProperty.ttl
@@ -108,12 +109,8 @@ class SimpleDataStoreHandler(
   }
 
   private fun validateRollup(rollup: Int) {
-    if (rollup <= 60 && 60 % rollup != 0) {
-      throw Exception("Rollup is $rollup <= 60!. It should divide 60.")
-    } else if (rollup > 60 && rollup % 60 != 0) {
-      throw Exception("Rollup is $rollup > 60!. It should be divided by 60.")
-    } else if (rollup <= 0) {
-      throw Exception("Rollup is $rollup <= 0!. It should be greater than 0.")
+    if (rollup <= 0) {
+      throw UnsupportedRollupException("Rollup is $rollup <= 0!. It should be greater than 0.")
     }
     logger.info("Rollup: $rollup")
   }

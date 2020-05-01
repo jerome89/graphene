@@ -23,9 +23,10 @@ internal class OffsetBasedDataFetchHandlerTest {
     val cassandraDataHandlerProperty = CassandraDataHandlerProperty()
     dataFetchHandlerProperty = DataFetchHandlerProperty(
       tenant = "",
-      keyspace = "",
-      columnFamily = "",
-      bucketSize = 300,
+      keyspace = "metric_offset",
+      columnFamily = "metric",
+      rollup = 60,
+      bucketSize = 5,
       property = cassandraDataHandlerProperty
     )
     offsetBasedDataFetchHandler = OffsetBasedDataFetchHandler(cassandraFactory, dataFetchHandlerProperty)
@@ -41,7 +42,7 @@ internal class OffsetBasedDataFetchHandlerTest {
     )
 
     // when
-    val seriesRange = SeriesRange(120, 780, 60)
+    val seriesRange = SeriesRange(120, 780, offsetBasedDataFetchHandler.rollup)
     val queryOffsetRanges = offsetBasedDataFetchHandler.createQueryOffsetRanges(seriesRange)
 
     // then
@@ -78,5 +79,21 @@ internal class OffsetBasedDataFetchHandlerTest {
     for (i in 0 until targetValues.size - 1) {
       assertEquals(timeSeries.values[i], targetValues[i])
     }
+  }
+
+  @Test
+  internal fun `should query to proper keyspace, table with rollup = 60 and bucketSize = 300`() {
+    // given
+    val query = """
+    SELECT offset, data
+        FROM metric_offset_5.metric_60s
+        WHERE path = ?
+              AND tenant = ?
+              AND startTime = ?
+              AND offset >= ?
+              AND offset <= ?
+        ORDER BY offset;""".trimIndent()
+    // when & then
+    assertEquals(query, offsetBasedDataFetchHandler.query.trimIndent())
   }
 }
