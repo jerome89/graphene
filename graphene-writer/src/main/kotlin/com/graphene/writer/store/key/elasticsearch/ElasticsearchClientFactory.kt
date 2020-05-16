@@ -16,8 +16,8 @@ class ElasticsearchClientFactory {
     elasticsearchClients = mutableListOf()
   }
 
-  fun createElasticsearchClient(rotationProperty: RotationProperty, cluster: List<String>, port: Int, protocol: String): ElasticsearchClient {
-    val elasticsearchClientImpl = ElasticsearchClientTemplate(httpHosts(cluster, port, protocol), rotationProperty)
+  fun createElasticsearchClient(rotationProperty: RotationProperty, cluster: List<String>, port: Int, userName: String?, password: String?, protocol: String): ElasticsearchClient {
+    val elasticsearchClientImpl = ElasticsearchClientTemplate(httpHosts(cluster, port, protocol), userName, password, rotationProperty)
 
     elasticsearchClients.add(elasticsearchClientImpl)
 

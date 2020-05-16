@@ -14,6 +14,8 @@ class ElasticsearchKeyStoreHandlerProperty(
   var type: String = "path",
   var cluster: String = "127.0.0.1",
   var port: Int = 9200,
+  var userName: String? = "",
+  var userPassword: String? = "",
   var protocol: String = "http",
   var bulk: IndexBulkConfiguration = IndexBulkConfiguration()
 ) {

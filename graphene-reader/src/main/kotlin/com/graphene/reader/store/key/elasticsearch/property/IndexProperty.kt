@@ -16,6 +16,9 @@ interface IndexProperty {
   fun type(): String?
   fun cluster(): List<String>
   fun port(): Int
+  fun userName(): String?
+  fun userPassword(): String?
+  fun protocol(): String
   fun scroll(): Int
   fun timeout(): Int
   fun maxPaths(): Int
