@@ -22,7 +22,10 @@ graphene:
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
-            port: 9300
+            port: 9200
+            userName: ""
+            userPassword: ""
+            protocol: "http"
             index: "simple-key-path"
             type: "path"
             scroll: 10000
@@ -37,7 +40,10 @@ graphene:
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
-            port: 9300
+            port: 9200
+            userName: ""
+            userPassword: ""
+            protocol: "http"
             index: "index-based-key-path"
             type: "path"
             scroll: 10000
@@ -52,7 +58,10 @@ graphene:
             clusterName: "metric"
             cluster:
               - "127.0.0.1"
-            port: 9300
+            port: 9200
+            userName: ""
+            userPassword: ""
+            protocol: "http"
             index: "tag-based-key-path"
             type: "path"
             scroll: 10000

@@ -13,6 +13,9 @@ class IndexBasedKeySearchHandlerProperty : IndexProperty {
   var type: String? = null
   var cluster: List<String> = ArrayList()
   var port: Int = 0
+  var userName: String? = ""
+  var userPassword: String? = ""
+  var protocol: String = "http"
   var scroll: Int = 0
   var timeout: Int = 0
   var maxPaths: Int = 0
@@ -31,6 +34,12 @@ class IndexBasedKeySearchHandlerProperty : IndexProperty {
 
   override fun port(): Int = port
 
+  override fun userName(): String? = userName
+
+  override fun userPassword(): String? = userPassword
+
+  override fun protocol(): String = protocol
+
   override fun scroll(): Int = scroll
 
   override fun timeout(): Int = timeout
@@ -46,6 +55,8 @@ class IndexBasedKeySearchHandlerProperty : IndexProperty {
       ", tenant=$tenant" +
       ", cluster=$cluster" +
       ", port=$port" +
+      ", userName=$userName" +
+      ", protocol=$protocol" +
       ", scroll=$scroll" +
       ", timeout=$timeout" +
       ", maxPaths=$maxPaths" +

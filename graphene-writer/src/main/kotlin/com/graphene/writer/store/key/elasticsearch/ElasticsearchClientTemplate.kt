@@ -3,6 +3,9 @@ package com.graphene.writer.store.key.elasticsearch
 import com.graphene.common.key.RotationProperty
 import com.graphene.common.key.RotationStrategy
 import org.apache.http.HttpHost
+import org.apache.http.auth.AuthScope
+import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.apache.logging.log4j.LogManager
 import org.elasticsearch.action.ActionListener
@@ -25,6 +28,8 @@ import org.elasticsearch.common.xcontent.XContentType
 
 class ElasticsearchClientTemplate(
   httpHosts: Array<HttpHost>,
+  userName: String?,
+  userPassword: String?,
   rotationProperty: RotationProperty
 ) : ElasticsearchClient, RotatedIndexAware {
 
@@ -47,6 +52,14 @@ class ElasticsearchClientTemplate(
         )
       }
       .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS)
+
+    if (!userName.isNullOrBlank()) {
+      restClientBuilder.setHttpClientConfigCallback {
+        val basicCredentialsProvider = BasicCredentialsProvider()
+        basicCredentialsProvider.setCredentials(AuthScope.ANY, UsernamePasswordCredentials(userName, userPassword))
+        it.setDefaultCredentialsProvider(basicCredentialsProvider)
+      }
+    }
 
     restHighLevelClient = RestHighLevelClient(restClientBuilder)
 

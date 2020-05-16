@@ -66,7 +66,7 @@ abstract class AbstractElasticsearchKeyStoreHandler(
   }
 
   private fun elasticsearchClient(keyStoreHandlerProperty: KeyStoreHandlerProperty, elasticsearchClientFactory: ElasticsearchClientFactory, property: ElasticsearchKeyStoreHandlerProperty): ElasticsearchClient {
-    return elasticsearchClientFactory.createElasticsearchClient(keyStoreHandlerProperty.rotation, listOf(property.cluster), property.port, property.protocol)
+    return elasticsearchClientFactory.createElasticsearchClient(keyStoreHandlerProperty.rotation, listOf(property.cluster), property.port, property.userName, property.userPassword, property.protocol)
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
