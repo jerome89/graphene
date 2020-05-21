@@ -20,8 +20,7 @@ RUN wget https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VER
 ##################################
 WORKDIR /tmp
 
-RUN git clone https://github.com/graphene-monitoring/graphene && \
-    git checkout feature/drop-too-long-size
+RUN git clone https://github.com/graphene-monitoring/graphene
 
 WORKDIR /tmp/graphene
 

@@ -52,20 +52,20 @@ class CassandraDataStoreHandler(
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
-    session.execute(boundStatement(grapheneMetric))
+    val future = session.executeAsync(boundStatement(grapheneMetric))
 
-//    Futures.addCallback(
-//      future,
-//      object : FutureCallback<ResultSet> {
-//        override fun onSuccess(result: ResultSet?) {
-//          // nothing
-//        }
-//
-//        override fun onFailure(t: Throwable) {
-//          logger.error(t)
-//        }
-//      },
-//      executor)
+    Futures.addCallback(
+      future,
+      object : FutureCallback<ResultSet> {
+        override fun onSuccess(result: ResultSet?) {
+          // nothing
+        }
+
+        override fun onFailure(t: Throwable) {
+          logger.error(t)
+        }
+      },
+      executor)
   }
 
   private fun boundStatement(grapheneMetric: GrapheneMetric): BoundStatement {
