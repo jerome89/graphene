@@ -31,11 +31,11 @@ class CassandraDataStoreHandler(
   private val logger = LogManager.getLogger(CassandraDataStoreHandler::class.java)
   private val retention: Int = inputGraphiteCarbonProperty.baseRollup!!.retention
   private val query: String = """
-    UPDATE ${handlerProperty.keyspace}.${handlerProperty.columnFamily} 
-    USING TTL ? 
-    SET data = ? 
-    WHERE tenant = ?  
-          AND path = ? 
+    UPDATE ${handlerProperty.keyspace}.${handlerProperty.columnFamily}
+    USING TTL ?
+    SET data = ?
+    WHERE tenant = ?
+          AND path = ?
           AND time = ?;"""
 
   private lateinit var cluster: Cluster
@@ -52,20 +52,20 @@ class CassandraDataStoreHandler(
   }
 
   override fun handle(grapheneMetric: GrapheneMetric) {
-    val future = session.executeAsync(boundStatement(grapheneMetric))
+    session.execute(boundStatement(grapheneMetric))
 
-    Futures.addCallback(
-      future,
-      object : FutureCallback<ResultSet> {
-        override fun onSuccess(result: ResultSet?) {
-          // nothing
-        }
-
-        override fun onFailure(t: Throwable) {
-          logger.error(t)
-        }
-      },
-      executor)
+//    Futures.addCallback(
+//      future,
+//      object : FutureCallback<ResultSet> {
+//        override fun onSuccess(result: ResultSet?) {
+//          // nothing
+//        }
+//
+//        override fun onFailure(t: Throwable) {
+//          logger.error(t)
+//        }
+//      },
+//      executor)
   }
 
   private fun boundStatement(grapheneMetric: GrapheneMetric): BoundStatement {

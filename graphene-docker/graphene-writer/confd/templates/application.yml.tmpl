@@ -68,7 +68,7 @@ graphene:
             connectTimeout: 10
             maxRequests: "{{getv "/data/cassandra/max/connections" "128"}}"
             loadBalancingPolicyName: 'TokenDcAwareRoundRobinPolicy'
-            protocolVersion: "V2"
+            protocolVersion: "V3"
     stats:
       interval: 60
       tenant: "NONE"
