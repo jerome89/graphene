@@ -45,7 +45,7 @@ class OffsetBasedDataFetchHandler(
   private var session: Session
   private var statement: PreparedStatement
   private var maxPoints: Int = Int.MAX_VALUE
-  private var bucketSize: Int = 604800
+  private var bucketSize: Long = 30000L
 
   init {
     this.rollup = dataFetchHandlerProperty.rollup
@@ -62,7 +62,7 @@ class OffsetBasedDataFetchHandler(
     this.session = cluster.connect()
     this.statement = session.prepare(query)
     this.maxPoints = dataFetchHandlerProperty.maxPoints
-    this.bucketSize = dataFetchHandlerProperty.bucketSize
+    this.bucketSize = dataFetchHandlerProperty.bucketSize.toLong()
   }
 
   private fun executeAsync(path: String, tenant: String, startTime: Long, startOffset: Short, endOffset: Short): ResultSetFuture {
@@ -139,8 +139,8 @@ class OffsetBasedDataFetchHandler(
   fun createQueryOffsetRanges(seriesRange: SeriesRange): Map<Long, OffsetRange> {
     val from = seriesRange.from
     val to = seriesRange.to
-    val rollup = seriesRange.rollup
-    var startTime = from - from % (bucketSize * rollup)
+    val rollup = seriesRange.rollup.toLong()
+    var startTime: Long = from - from % (bucketSize * rollup)
     val queryOffsetRange = Maps.newTreeMap<Long, OffsetRange>()
     while (startTime <= to) {
       val offsetRange = OffsetRange()

@@ -129,7 +129,7 @@ data class DataStoreHandlerProperty(
   var rollup: Int = 60,
   var keyspace: String,
   var columnFamily: String,
-  var bucketSize: Int,
+  var bucketSize: Short,
   var property: CassandraDataHandlerProperty
 )
 

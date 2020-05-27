@@ -60,7 +60,7 @@ data class DataFetchHandlerProperty(
   var columnFamily: String,
   var rollup: Int = 60,
   var maxPoints: Int = Int.MAX_VALUE,
-  var bucketSize: Int,
+  var bucketSize: Short,
   var property: CassandraDataHandlerProperty
 )
 

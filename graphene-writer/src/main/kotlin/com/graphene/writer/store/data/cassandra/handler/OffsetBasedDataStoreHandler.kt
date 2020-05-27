@@ -31,7 +31,7 @@ class OffsetBasedDataStoreHandler(
 
   private val logger = LogManager.getLogger(OffsetBasedDataStoreHandler::class.java)
   private val ttl = dataStoreHandlerProperty.ttl
-  private val bucketSize = dataStoreHandlerProperty.bucketSize
+  private val bucketSize = dataStoreHandlerProperty.bucketSize.toLong()
   // bucketSize: range of short data type 0 ~ 32767
   // rollup should divide 60 or divided by 60
   var rollup: Int = 60
