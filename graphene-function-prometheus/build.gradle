@@ -1,0 +1,26 @@
+plugins {
+  id("org.jetbrains.intellij") version "0.4.1"  
+}
+
+apply plugin: 'org.jetbrains.intellij'
+
+bootJar.enabled = false
+jar.enabled = true
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  // https://github.com/antlr/intellij-plugin-v4/issues/316
+  antlr "org.antlr:antlr4:4.7.2"
+  implementation 'org.antlr:antlr4-runtime:4.7'
+}
+
+generateGrammarSource {
+  outputDirectory = file("src/main/java/com/graphene/function/prometheus/grammar")
+  arguments << "-package" << "com.graphene.function.prometheus.grammar"
+  arguments << "-visitor"
+}
+
+compileJava.dependsOn generateGrammarSource
