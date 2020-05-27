@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors
 import com.graphene.common.store.data.cassandra.CassandraFactory
+import com.graphene.writer.error.exception.UnsupportedRollupException
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.DataStoreHandler
 import com.graphene.writer.store.DataStoreHandlerProperty
@@ -28,22 +29,25 @@ class SimpleDataStoreHandler(
   dataStoreHandlerProperty: DataStoreHandlerProperty
 ) : DataStoreHandler {
 
+  val query: String
+  private var rollup: Int = 60
   private val logger = LogManager.getLogger(SimpleDataStoreHandler::class.java)
   private val ttl = dataStoreHandlerProperty.ttl
-  private val query: String = """
-    UPDATE ${dataStoreHandlerProperty.keyspace}.${dataStoreHandlerProperty.columnFamily}
-    USING TTL ?
-    SET data = ?
-    WHERE tenant = ?
-          AND path = ?
-          AND time = ?;"""
-
   private var cluster: Cluster = cassandraFactory.createCluster(dataStoreHandlerProperty.property)
   private var session: Session
   private var statement: PreparedStatement
   private var executor: Executor
 
   init {
+    this.rollup = dataStoreHandlerProperty.rollup
+    validateRollup(rollup)
+    this.query = """
+    UPDATE ${dataStoreHandlerProperty.keyspace}.${dataStoreHandlerProperty.columnFamily}_${rollup}s
+    USING TTL ?
+    SET data = ?
+    WHERE tenant = ?
+          AND path = ?
+          AND time = ?;"""
     this.session = cluster.connect()
     this.statement = session.prepare(query)
     this.executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())
@@ -72,8 +76,13 @@ class SimpleDataStoreHandler(
       grapheneMetric.value,
       grapheneMetric.getTenant(),
       grapheneMetric.id,
-      grapheneMetric.timestampSeconds
+      normalize(grapheneMetric.timestampSeconds)
     )
+  }
+
+  private fun normalize(timestamp: Long): Long {
+    val remainder = timestamp % rollup
+    return timestamp - remainder
   }
 
   override fun close() {
@@ -97,6 +106,13 @@ class SimpleDataStoreHandler(
       } catch (ignored: InterruptedException) {
       }
     }
+  }
+
+  private fun validateRollup(rollup: Int) {
+    if (rollup <= 0) {
+      throw UnsupportedRollupException("Rollup is $rollup <= 0!. It should be greater than 0.")
+    }
+    logger.info("Rollup: $rollup")
   }
 
   private fun getInFlightQueries(state: Session.State): Int {

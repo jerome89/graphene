@@ -97,7 +97,7 @@ graphene:
             maxPoints: 60000000
             keyspace: "metric_offset"
             columnFamily: "metric"
-            bucketSize: 604800
+            bucketSize: 30000
             rollup: 60
             property:
               cluster:

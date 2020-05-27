@@ -23,7 +23,7 @@ class Metric {
   val timestamp: Long
     get() = key!!.timestamp
 
-  constructor(input: String, rollup: Int) {
+  constructor(input: String) {
     val splitInput = input.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     // We were interning tenant and path here - we are going to store them all (or almost so) constantly anyhow in multiple places
     // In fact this also work for a moderate metrics stream. Once we start receiving 10s of millions different metrics, it tends to degrade quite a bit
@@ -31,12 +31,8 @@ class Metric {
     this.key = MetricKey(
       if (splitInput.size >= 4) splitInput[3].intern() else MetricRule.defaultTenant(),
       splitInput[0],
-      normalizeTimestamp(java.lang.Long.parseLong(splitInput[2]), rollup))
+      java.lang.Long.parseLong(splitInput[2]))
     this.value = java.lang.Double.parseDouble(splitInput[1])
-  }
-
-  private fun normalizeTimestamp(timestamp: Long, rollup: Int): Long {
-    return timestamp / rollup * rollup
   }
 
   override fun toString(): String {

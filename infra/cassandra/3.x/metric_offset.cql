@@ -1,7 +1,7 @@
-CREATE KEYSPACE metric WITH replication = {'class': 'NetworkTopologyStrategy', 'ap-northeast-2': '3'} AND durable_writes = true;
+CREATE KEYSPACE metric_offset_30000 WITH replication = {'class': 'NetworkTopologyStrategy', 'ap-northeast-2': '3'} AND durable_writes = true;
 
-# 1 week bucketSize = 604800, 2 weeks = 1209600, 3 weeks = 1814400
-CREATE TABLE metric_offset.metric_604800 (
+'bucketSize * rollup = range of data can be stored. here bucketSize = 30000 and rollup = 60s'
+CREATE TABLE metric_offset_30000.metric_60s (
   tenant text,
   path text,
   startTime bigint,

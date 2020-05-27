@@ -17,6 +17,7 @@ import com.graphene.common.beans.Path
 import com.graphene.common.beans.SeriesRange
 import com.graphene.common.store.data.cassandra.CassandraFactory
 import com.graphene.reader.beans.TimeSeries
+import com.graphene.reader.error.exception.UnsupportedRollupException
 import com.graphene.reader.exceptions.TooMuchDataExpectedException
 import com.graphene.reader.service.metric.DataFetchHandler
 import com.graphene.reader.store.data.DataFetchHandlerProperty
@@ -38,29 +39,30 @@ class OffsetBasedDataFetchHandler(
   dataFetchHandlerProperty: DataFetchHandlerProperty
 ) : DataFetchHandler {
 
-  val query: String = """
+  val query: String
+  private var rollup: Int = 60
+  private var cluster: Cluster = cassandraFactory.createCluster(dataFetchHandlerProperty.property)
+  private var session: Session
+  private var statement: PreparedStatement
+  private var maxPoints: Int = Int.MAX_VALUE
+  private var bucketSize: Long = 30000L
+
+  init {
+    this.rollup = dataFetchHandlerProperty.rollup
+    validateRollup(rollup)
+    this.query = """
     SELECT offset, data
-        FROM ${dataFetchHandlerProperty.keyspace}.${dataFetchHandlerProperty.columnFamily}_${dataFetchHandlerProperty.bucketSize}
+        FROM ${dataFetchHandlerProperty.keyspace}_${dataFetchHandlerProperty.bucketSize}.${dataFetchHandlerProperty.columnFamily}_${rollup}s
         WHERE path = ?
               AND tenant = ?
               AND startTime = ?
               AND offset >= ?
               AND offset <= ?
         ORDER BY offset;"""
-
-  private var cluster: Cluster = cassandraFactory.createCluster(dataFetchHandlerProperty.property)
-  private var session: Session
-  private var statement: PreparedStatement
-  private var rollup: Int = 60
-  private var maxPoints: Int = Int.MAX_VALUE
-  private var bucketSize: Int = 604800
-
-  init {
     this.session = cluster.connect()
     this.statement = session.prepare(query)
-    this.rollup = dataFetchHandlerProperty.rollup
     this.maxPoints = dataFetchHandlerProperty.maxPoints
-    this.bucketSize = dataFetchHandlerProperty.bucketSize
+    this.bucketSize = dataFetchHandlerProperty.bucketSize.toLong()
   }
 
   private fun executeAsync(path: String, tenant: String, startTime: Long, startOffset: Short, endOffset: Short): ResultSetFuture {
@@ -137,8 +139,8 @@ class OffsetBasedDataFetchHandler(
   fun createQueryOffsetRanges(seriesRange: SeriesRange): Map<Long, OffsetRange> {
     val from = seriesRange.from
     val to = seriesRange.to
-    val rollup = seriesRange.rollup
-    var startTime = from - from % bucketSize
+    val rollup = seriesRange.rollup.toLong()
+    var startTime: Long = from - from % (bucketSize * rollup)
     val queryOffsetRange = Maps.newTreeMap<Long, OffsetRange>()
     while (startTime <= to) {
       val offsetRange = OffsetRange()
@@ -147,19 +149,26 @@ class OffsetBasedDataFetchHandler(
       } else {
         offsetRange.startOffset = 0
       }
-      if (startTime + bucketSize < to) {
-        offsetRange.endOffset = ((bucketSize / rollup) - 1).toShort()
+      if (startTime + (bucketSize * rollup) < to) {
+        offsetRange.endOffset = (((bucketSize * rollup) / rollup) - 1).toShort()
       } else {
         offsetRange.endOffset = ((to - startTime) / rollup).toShort()
       }
       queryOffsetRange[startTime] = offsetRange
-      startTime += bucketSize
+      startTime += (bucketSize * rollup)
     }
     return queryOffsetRange
   }
 
   override fun getRollup(): Int {
     return rollup
+  }
+
+  private fun validateRollup(rollup: Int) {
+    if (rollup <= 0) {
+      throw UnsupportedRollupException("Rollup is $rollup <= 0!. It should be greater than 0.")
+    }
+    logger.info("Rollup: $rollup")
   }
 
   @PreDestroy

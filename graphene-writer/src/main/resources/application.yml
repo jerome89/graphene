@@ -15,7 +15,6 @@ graphene:
         carbon:
           bind: "0.0.0.0"
           port: 2003
-          rollup: 60
   #        route:
   #          host: 127.0.0.1
   #          port: 2003
@@ -100,7 +99,7 @@ graphene:
           tag-based-key-store-handler:
             tenant: none
             rotation:
-              strategy: "timeBasedRotation"
+              strategy: "noOpRotation"
               period: "1w"
             handler:
               type: "TagBasedKeyStoreHandler"
@@ -123,6 +122,7 @@ graphene:
             type: "SimpleDataStoreHandler"
             tenant: NONE
             ttl: 604800
+            rollup: 60
             keyspace: "metric"
             columnFamily: "metric"
             bucketSize: 0
@@ -144,9 +144,10 @@ graphene:
             type: "OffsetBasedDataStoreHandler"
             tenant: NONE
             ttl: 604800
+            rollup: 60
             keyspace: "metric_offset"
             columnFamily: "metric"
-            bucketSize: 604800
+            bucketSize: 30000
             property:
               cluster:
                 - "127.0.0.1"

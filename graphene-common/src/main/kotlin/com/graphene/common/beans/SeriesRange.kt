@@ -9,6 +9,6 @@ class SeriesRange(from: Long, to: Long, val rollup: Int) {
   }
 
   init {
-    this.expectedCount = (this.to - this.from).toInt() / rollup + 1
+    this.expectedCount = ((this.to - this.from) / rollup + 1).toInt()
   }
 }

@@ -8,4 +8,6 @@ class UnsupportedKeyStoreHandlerException(message: String) : GrapheneWriterExcep
 
 class UnsupportedDataStoreHandlerException(message: String) : GrapheneWriterException(message)
 
+class UnsupportedRollupException(message: String) : GrapheneWriterException(message)
+
 class IllegalArgumentException(message: String) : GrapheneWriterException(message)

@@ -126,9 +126,10 @@ data class DataStoreHandlerProperty(
   var type: String,
   var tenant: String = GrapheneRules.DEFAULT_TENANT,
   var ttl: Int = 0,
+  var rollup: Int = 60,
   var keyspace: String,
   var columnFamily: String,
-  var bucketSize: Int,
+  var bucketSize: Short,
   var property: CassandraDataHandlerProperty
 )
 
