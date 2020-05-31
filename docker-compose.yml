@@ -5,6 +5,7 @@ services:
     image: wurstmeister/zookeeper:3.4.6
     expose:
       - "2181"
+    container_name: zookeeper
   kafka:
     image: wurstmeister/kafka:2.12-2.5.0
     depends_on:
@@ -17,6 +18,7 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "graphene-prometheus:1:1,graphene-influxdb:1:1,graphene-custom:1:1"
+    container_name: kafka
   cassandra:
     image: launcher.gcr.io/google/cassandra2
     ports:
@@ -51,3 +53,9 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin123
     container_name: grafana
+  telegraf:
+    image: telegraf:1.14.3
+    network_mode: "host"
+    volumes:
+      - ./infra/telegraf/conf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    container_name: telegraf
