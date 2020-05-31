@@ -16,7 +16,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "graphene-test.prometheus:1:1,graphene-test.influxdb:1:1,graphene-test.custom:1:1"
+      KAFKA_CREATE_TOPICS: "graphene-prometheus:1:1,graphene-influxdb:1:1,graphene-custom:1:1"
   cassandra:
     image: launcher.gcr.io/google/cassandra2
     ports:

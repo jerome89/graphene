@@ -22,5 +22,5 @@ class CustomInputKafkaProperty : InputKafkaProperty()
 class PrometheusInputKafkaProperty : InputKafkaProperty()
 
 @ConfigurationProperties(prefix = "graphene.writer.input.kafka.influx-db")
-@ConditionalOnProperty(prefix = "graphene.writer.input.kafka.influxDb", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "graphene.writer.input.kafka.influx-db", name = ["enabled"], havingValue = "true")
 class InfluxDbInputKafkaProperty : InputKafkaProperty()

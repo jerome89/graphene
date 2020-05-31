@@ -20,30 +20,30 @@ graphene:
   #          port: 2003
       kafka:
         custom:
-          enabled: true
+          enabled: false
           bootstrapServer: "localhost:9092"
           consumerGroupId: "custom-graphene-writer"
           pollIntervalMs: 5000
           maxPollRecords: 1000
-          topics: "graphene-test.custom"
+          topics: "graphene-custom"
           keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
           valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
         prometheus:
-          enabled: false
+          enabled: true
           bootstrapServer: "localhost:9092"
           consumerGroupId: "prometheus-graphene-writer"
           pollIntervalMs: 5000
           maxPollRecords: 1000
-          topics: "graphene-test.prometheus"
+          topics: "graphene-prometheus"
           keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
           valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
         influx-db:
-          enabled: true
+          enabled: false
           bootstrapServer: "localhost:9092"
           consumerGroupId: "influxdb-graphene-writer"
           pollIntervalMs: 5000
           maxPollRecords: 1000
-          topics: "graphene-test.influxdb"
+          topics: "graphene-influxdb"
           keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
           valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.InfluxDbDeserializer"
     store:
