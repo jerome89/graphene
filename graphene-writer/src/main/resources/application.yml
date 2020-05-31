@@ -29,7 +29,7 @@ graphene:
           keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
           valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
         prometheus:
-          enabled: true
+          enabled: false
           bootstrapServer: "localhost:9092"
           consumerGroupId: "prometheus-graphene-writer"
           pollIntervalMs: 5000
@@ -38,7 +38,7 @@ graphene:
           keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
           valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
         influx-db:
-          enabled: false
+          enabled: true
           bootstrapServer: "localhost:9092"
           consumerGroupId: "influxdb-graphene-writer"
           pollIntervalMs: 5000

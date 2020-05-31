@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 
 @Configuration
-class MetricKafkaInputConfiguration(
+class InputKafkaConfiguration(
   val customInputKafkaProperty: CustomInputKafkaProperty,
   val prometheusInputKafkaProperty: PrometheusInputKafkaProperty,
   val influxDbInputKafkaProperty: InfluxDbInputKafkaProperty

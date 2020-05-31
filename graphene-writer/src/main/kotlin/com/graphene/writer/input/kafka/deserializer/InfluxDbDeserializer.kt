@@ -6,9 +6,9 @@ import com.graphene.writer.input.influxdb.InfluxDbMetricConverter
 import org.apache.kafka.common.serialization.Deserializer
 import java.util.Objects
 
-class InfluxDbDeserializer(
+class InfluxDbDeserializer : Deserializer<List<GrapheneMetric>> {
+
   private val influxDbMetricConverter: MetricConverter<String> = InfluxDbMetricConverter()
-) : Deserializer<List<GrapheneMetric>> {
 
   override fun deserialize(topic: String?, data: ByteArray?): List<GrapheneMetric> {
     if (Objects.isNull(data)) {
