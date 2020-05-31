@@ -23,6 +23,7 @@ graphene:
           enabled: false
           bootstrapServer: "localhost:9092"
           consumerGroupId: "custom-graphene-writer"
+          autoOffsetReset: "latest"
           pollIntervalMs: 5000
           maxPollRecords: 1000
           topics: "graphene-custom"
@@ -32,6 +33,7 @@ graphene:
           enabled: false
           bootstrapServer: "localhost:9092"
           consumerGroupId: "prometheus-graphene-writer"
+          autoOffsetReset: "latest"
           pollIntervalMs: 5000
           maxPollRecords: 1000
           topics: "graphene-prometheus"
@@ -41,6 +43,7 @@ graphene:
           enabled: true
           bootstrapServer: "localhost:9092"
           consumerGroupId: "influxdb-graphene-writer"
+          autoOffsetReset: "latest"
           pollIntervalMs: 5000
           maxPollRecords: 1000
           topics: "graphene-influxdb"

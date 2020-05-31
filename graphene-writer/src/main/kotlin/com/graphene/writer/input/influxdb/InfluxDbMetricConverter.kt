@@ -110,7 +110,12 @@ class InfluxDbMetricConverter : MetricConverter<String> {
             }
           }
           ConvertStage.TIMESTAMP -> {
-            val timestampSecond = TimeUnit.NANOSECONDS.toSeconds(metric.replace("\n", "").substring(index.index).toLong())
+            val timestampSecond = if (metric.endsWith("\n")) {
+              TimeUnit.NANOSECONDS.toSeconds(metric.replace("\n", "").substring(index.index).toLong())
+            } else {
+              TimeUnit.NANOSECONDS.toSeconds(metric.substring(index.index).toLong())
+            }
+
             for (grapheneMetric in grapheneMetrics) {
               grapheneMetric.timestampSeconds = timestampSecond
             }
