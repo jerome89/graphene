@@ -19,5 +19,4 @@ class InfluxDbInputKafka(
   override fun handle(grapheneMetrics: List<GrapheneMetric>?) {
     doHandle(grapheneMetrics)
   }
-
 }

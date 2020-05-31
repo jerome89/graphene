@@ -3,8 +3,8 @@ package com.graphene.writer.input.kafka.deserializer
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.input.MetricConverter
 import com.graphene.writer.input.influxdb.InfluxDbMetricConverter
-import org.apache.kafka.common.serialization.Deserializer
 import java.util.Objects
+import org.apache.kafka.common.serialization.Deserializer
 
 class InfluxDbDeserializer : Deserializer<List<GrapheneMetric>> {
 

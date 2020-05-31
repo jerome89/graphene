@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 @ConditionalOnProperty(prefix = "graphene.writer.input.kafka.prometheus", name = ["enabled"], havingValue = "true")
 class PrometheusInputKafka(
   grapheneProcessor: GrapheneProcessor
-): AbstractInputKafka(grapheneProcessor) {
+) : AbstractInputKafka(grapheneProcessor) {
 
   @KafkaListener(
     topics = ["#{'\${graphene.writer.input.kafka.prometheus.topics}'.split(',')}"],

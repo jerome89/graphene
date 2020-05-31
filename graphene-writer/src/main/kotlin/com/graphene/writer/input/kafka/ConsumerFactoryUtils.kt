@@ -35,5 +35,4 @@ object ConsumerFactoryUtils {
   private fun valueDeserializer(deserializerClass: String): Deserializer<GrapheneMetric> {
     return Class.forName(deserializerClass).constructors.first().newInstance() as Deserializer<GrapheneMetric>
   }
-
 }
