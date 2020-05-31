@@ -39,7 +39,7 @@ graphene:
             maxPoints: 60000000
             keyspace: "{{getv "/data/cassandra/keyspace" "metric_offset"}}"
             columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
-            bucketSize: {{getv "/data/cassandra/offset/bucketsize" "604800"}}
+            bucketSize: {{getv "/data/cassandra/offset/bucketsize" "30000"}}
             rollup: 60
             property:
               cluster: "{{getv "/data/cassandra/cluster" "cassandra"}}"

@@ -7,9 +7,9 @@ logging:
 
 graphene:
   writer:
-    blacklist:
-      'test':
-        - '^xxx_sum.*\.system\..*'
+#    blacklist:
+#      'test':
+#        - '^xxx_sum.*\.system\..*'
     input:
       graphite:
         carbon:
@@ -121,7 +121,7 @@ graphene:
           tag-based-key-store-handler:
             tenant: none
             rotation:
-              strategy: "noOpRotation"
+              strategy: "timeBasedRotation"
               period: "1w"
             handler:
               type: "TagBasedKeyStoreHandler"

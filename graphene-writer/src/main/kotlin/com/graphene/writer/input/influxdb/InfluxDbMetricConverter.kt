@@ -72,7 +72,7 @@ class InfluxDbMetricConverter : MetricConverter<String> {
           }
           ConvertStage.FIELD_VALUE -> {
             if (char == ',') {
-              var id = "${meta["@measurement"]}.$tmpKey;"
+              var id = key(meta, tmpKey)
 
               for (tag in tags) {
                 id += withAndOperator(tag, tags)
@@ -91,7 +91,7 @@ class InfluxDbMetricConverter : MetricConverter<String> {
             }
 
             if (char == ' ') {
-              var id = "${meta["@measurement"]}.$tmpKey;"
+              var id = key(meta, tmpKey)
 
               for (tag in tags) {
                 id += withAndOperator(tag, tags)
@@ -133,6 +133,9 @@ class InfluxDbMetricConverter : MetricConverter<String> {
       throw UnexpectedConverterException("Fail to convert InfluxDB metric : $metric", e)
     }
   }
+
+  private fun key(meta: MutableMap<String, String>, tmpKey: String?) =
+    "${meta["@measurement"]}_$tmpKey;"
 
   private fun withAndOperator(tag: MutableMap.MutableEntry<String, String>, tags: TreeMap<String, String>): String {
     return if (tag.key == tags.lastKey()) {
