@@ -20,7 +20,7 @@ services:
       KAFKA_CREATE_TOPICS: "graphene-prometheus:1:1,graphene-influxdb:1:1,graphene-custom:1:1"
     container_name: kafka
   cassandra:
-    image: launcher.gcr.io/google/cassandra2
+    image: cassandra:3.11.6
     ports:
       - 7000:7000
       - 7199:7199
@@ -31,6 +31,14 @@ services:
     environment:
       CASSANDRA_CLUSTER_NAME: metric
     container_name: cassandra
+  cassandra-load-keyspace:
+    container_name: cassandra-load-keyspace
+    image: cassandra:3.11.6
+    depends_on:
+      - cassandra
+    volumes:
+      - ./infra/cassandra/3.x/metric_offset.cql:/metric_offset.cql
+    command: /bin/bash -c "sleep 60 && echo loading cassandra keyspace && cqlsh cassandra -f /metric_offset.cql"
   elasticsearch:
     image: elasticsearch:6.7.1
     volumes:
