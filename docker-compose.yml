@@ -69,3 +69,18 @@ services:
     volumes:
       - ./infra/telegraf/conf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
     container_name: telegraf
+  graphene-writer:
+    image: dark0096/graphene-writer:1.9.0
+    network_mode: "host"
+    environment:
+      GRAPHENE_DATA_CASSANDRA_CLUSTER: '127.0.0.1'
+      GRAPHENE_INDEX_ELASTICSEARCH_CLUSTER: '127.0.0.1'
+      GRAPHENE_CARBON_HOST: 'graphene-writer'
+      GRAPHENE_HEAP_OPTS: '-Xmx1G -Xms1G'
+      GRAPHENE_INPUT_KAFKA_INFLUXDB_ENABLED: 'true'
+      GRAPHENE_INPUT_KAFKA_INFLUXDB_BOOTSTRAP_SERVER: '127.0.0.1:9092'
+      GRAPHENE_INPUT_KAFKA_INFLUXDB_CONSUMER_GROUP_ID: 'graphene-writer1'
+      GRAPHENE_INPUT_KAFKA_INFLUXDB_TOPICS: 'graphene-influxdb'
+      GRAPHENE_INPUT_KAFKA_INFLUXDB_KEY_DESERIALIZER_CLASS: 'org.apache.kafka.common.serialization.StringDeserializer'
+      GRAPHENE_INPUT_KAFKA_INFLUXDB_VALUE_DESERIALIZER_CLASS: 'com.graphene.writer.input.kafka.deserializer.InfluxDbDeserializer'
+    container_name: graphene-writer

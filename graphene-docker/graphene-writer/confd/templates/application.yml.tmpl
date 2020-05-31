@@ -9,10 +9,11 @@ graphene:
   writer:
     input:
       kafka:
+        {{if exists "/input/kafka/custom/enabled"}}
         {{if eq (getv "/input/kafka/custom/enabled") "true"}}
         custom:
           enabled: {{getv "/input/kafka/custom/enabled" "false"}}
-          bootstrapServer: "{{getv "/input/kafka/custom/bootstrap/server" "localhost:9092"}}"
+          bootstrapServer: "{{getv "/input/kafka/custom/bootstrap/server" "127.0.0.1:9092"}}"
           consumerGroupId: "{{getv "/input/kafka/custom/consumer/group/id" "graphene-writer"}}"
           autoOffsetReset: "{{getv "/input/kafka/custom/consumer/auto/offset/reset" "latest"}}"
           pollIntervalMs: {{getv "/input/kafka/custom/poll/interval/ms" "500"}}
@@ -21,10 +22,12 @@ graphene:
           keyDeserializerClass: "{{getv "/input/kafka/custom/key/deserializer/class" "org.apache.kafka.common.serialization.StringDeserializer"}}"
           valueDeserializerClass: "{{getv "/input/kafka/custom/value/deserializer/class" "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"}}"
         {{end}}
+        {{end}}
+        {{if exists "/input/kafka/prometheus/enabled"}}
         {{if eq (getv "/input/kafka/prometheus/enabled") "true"}}
         prometheus:
           enabled: {{getv "/input/kafka/prometheus/enabled" "false"}}
-          bootstrapServer: "{{getv "/input/kafka/prometheus/bootstrap/server" "localhost:9092"}}"
+          bootstrapServer: "{{getv "/input/kafka/prometheus/bootstrap/server" "127.0.0.1:9092"}}"
           consumerGroupId: "{{getv "/input/kafka/prometheus/consumer/group/id" "graphene-writer"}}"
           autoOffsetReset: "{{getv "/input/kafka/prometheus/consumer/auto/offset/reset" "latest"}}"
           pollIntervalMs: {{getv "/input/kafka/prometheus/poll/interval/ms" "500"}}
@@ -33,10 +36,12 @@ graphene:
           keyDeserializerClass: "{{getv "/input/kafka/prometheus/key/deserializer/class" "org.apache.kafka.common.serialization.StringDeserializer"}}"
           valueDeserializerClass: "{{getv "/input/kafka/prometheus/value/deserializer/class" "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"}}"
         {{end}}
+        {{end}}
+        {{if exists "/input/kafka/influxdb/enabled"}}
         {{if eq (getv "/input/kafka/influxdb/enabled") "true"}}
         influx-db:
           enabled: {{getv "/input/kafka/influxdb/enabled" "false"}}
-          bootstrapServer: "{{getv "/input/kafka/influxdb/bootstrap/server" "localhost:9092"}}"
+          bootstrapServer: "{{getv "/input/kafka/influxdb/bootstrap/server" "127.0.0.1:9092"}}"
           consumerGroupId: "{{getv "/input/kafka/influxdb/consumer/group/id" "graphene-writer"}}"
           autoOffsetReset: "{{getv "/input/kafka/influxdb/consumer/auto/offset/reset" "latest"}}"
           pollIntervalMs: {{getv "/input/kafka/influxdb/poll/interval/ms" "500"}}
@@ -44,6 +49,7 @@ graphene:
           topics: "{{getv "/input/kafka/influxdb/topics" "graphene"}}"
           keyDeserializerClass: "{{getv "/input/kafka/influxdb/key/deserializer/class" "org.apache.kafka.common.serialization.StringDeserializer"}}"
           valueDeserializerClass: "{{getv "/input/kafka/influxdb/value/deserializer/class" "com.graphene.writer.input.kafka.deserializer.InfluxDbDeserializer"}}"
+        {{end}}
         {{end}}
       graphite.carbon:
         bind: "0.0.0.0"
@@ -105,7 +111,7 @@ graphene:
             ttl: {{getv "/data/cassandra/ttl" "604800"}}
             keyspace: "{{getv "/data/cassandra/columnFamily" "metric_offset"}}"
             columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
-            bucketSize: {{getv "/data/cassandra/offset/bucketsize" "604800"}}
+            bucketSize: {{getv "/data/cassandra/offset/bucketsize" "30000"}}
             property:
               cluster: "{{getv "/data/cassandra/cluster" "127.0.0.1"}}"
               port: 9042
