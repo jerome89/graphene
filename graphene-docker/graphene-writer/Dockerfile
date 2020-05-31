@@ -4,7 +4,7 @@ FROM gradle:5.5.1-jdk8
 #         Program version       #
 #################################
 ENV GRAPHENE_TYPE=graphene-writer
-ENV GRAPHENE_BRANCH=1.9.0
+ENV GRAPHENE_BRANCH=origin/feature/multiple-kafka-input
 ENV GRAPHENE_VERSION=1.9.0
 ENV CONFD_VERSION=0.16.0
 
