@@ -110,7 +110,7 @@ class InfluxDbMetricConverter : MetricConverter<String> {
             }
           }
           ConvertStage.TIMESTAMP -> {
-            val timestampSecond = TimeUnit.NANOSECONDS.toSeconds(metric.substring(index.index).toLong())
+            val timestampSecond = TimeUnit.NANOSECONDS.toSeconds(metric.replace("\n", "").substring(index.index).toLong())
             for (grapheneMetric in grapheneMetrics) {
               grapheneMetric.timestampSeconds = timestampSecond
             }
@@ -123,9 +123,9 @@ class InfluxDbMetricConverter : MetricConverter<String> {
         }
       }
 
-      throw NotFinishedConvertException("Fail to convert InfluxDB metric")
+      throw NotFinishedConvertException("Fail to convert InfluxDB metric : $metric")
     } catch (e: Exception) {
-      throw UnexpectedConverterException("Fail to convert InfluxDB metric", e)
+      throw UnexpectedConverterException("Fail to convert InfluxDB metric : $metric", e)
     }
   }
 

@@ -92,4 +92,27 @@ internal class InfluxDbMetricConverterTest {
     // timestamp
     assertEquals(1576383340, grapheneMetric.timestampSeconds)
   }
+
+  @Test
+  internal fun `should convert to graphene metric format#3`() {
+    // given
+    val influxDbMetricConverter = InfluxDbMetricConverter()
+
+    // when
+    val grapheneMetric = influxDbMetricConverter.convert("cpu,cpu=cpu1,host=server1 usage_user=8.4 1576318510000000000\n")[0]
+
+    // then influx db format to graphene metric
+
+    // measurement
+    assertEquals("cpu", grapheneMetric.meta["@measurement"])
+
+    // tag
+    assertEquals(mapOf(Pair("cpu", "cpu1"), Pair("host", "server1")), grapheneMetric.tags)
+
+    // field
+    assertEquals(8.4, grapheneMetric.value)
+
+    // timestamp
+    assertEquals(1576318510, grapheneMetric.timestampSeconds)
+  }
 }
