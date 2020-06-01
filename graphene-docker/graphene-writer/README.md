@@ -76,12 +76,37 @@ This environment means that you can implement the custom deserializer and then a
 
 ## Store ( Data )
 
+### Simple Data Store Handler
+
 |                 Environment                  | Default Value |           Description           |
 |----------------------------------------------|---------------|---------------------------------|
-| GRAPHENE_DATA_CASSANDRA_CLUSTER              | 127.0.0.1     | Cassandra cluster endpoint      |
-| GRAPHENE_DATA_CASSANDRA_USERNAME             | cassandra     | Cassandra username              |
-| GRAPHENE_DATA_CASSANDRA_USERPASSWORD         | cassandra     | Cassandra user password         |
-| GRAPHENE_DATA_CASSANDRA_KEYSPACE             | metric        | Cassandra keyspace              |
-| GRAPHENE_DATA_CASSANDRA_COLUMNFAMILY         | metric        | Cassandra columnfamily          |
+| GRAPHENE_DATA_HANDLER_SIMPLE_ENABLED         | false         |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_TTL             | 604800        |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_KEYSPACE        | metric_offset |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_COLUMNFAMILY    | metric        |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_CLUSTER         | 127.0.0.1     |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_USERNAME        | cassandra     |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_USERPASSWORD    | cassandra     |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_MAX_CONNECTIONS | 2048          |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_MAX_REQUESTS    | 128           |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_CONSISTENCYLEVEL| ONE           |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_PROTOCOLVERSION | V4            |                                 |
+
+### Offset Based Data Store Handler
+
+|                 Environment                  | Default Value |           Description           |
+|----------------------------------------------|---------------|---------------------------------|
+| GRAPHENE_DATA_HANDLER_OFFSET_ENABLED         | false         |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_TTL             | 604800        |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_KEYSPACE        | metric_offset |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_COLUMNFAMILY    | metric        |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_BUCKETSIZE      | 30000         |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_CLUSTER         | 127.0.0.1     |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_USERNAME        | cassandra     |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_USERPASSWORD    | cassandra     |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_MAX_CONNECTIONS | 2048          |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_MAX_REQUESTS    | 128           |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_CONSISTENCYLEVEL| ONE           |                                 |
+| GRAPHENE_DATA_HANDLER_OFFSET_PROTOCOLVERSION | V4            |                                 |
 
 ## Stats
