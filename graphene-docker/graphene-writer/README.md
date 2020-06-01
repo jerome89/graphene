@@ -82,7 +82,7 @@ This environment means that you can implement the custom deserializer and then a
 |----------------------------------------------|---------------|---------------------------------|
 | GRAPHENE_DATA_HANDLER_SIMPLE_ENABLED         | false         |                                 |
 | GRAPHENE_DATA_HANDLER_SIMPLE_TTL             | 604800        |                                 |
-| GRAPHENE_DATA_HANDLER_SIMPLE_KEYSPACE        | metric_offset |                                 |
+| GRAPHENE_DATA_HANDLER_SIMPLE_KEYSPACE        | metric        |                                 |
 | GRAPHENE_DATA_HANDLER_SIMPLE_COLUMNFAMILY    | metric        |                                 |
 | GRAPHENE_DATA_HANDLER_SIMPLE_CLUSTER         | 127.0.0.1     |                                 |
 | GRAPHENE_DATA_HANDLER_SIMPLE_USERNAME        | cassandra     |                                 |
@@ -110,3 +110,35 @@ This environment means that you can implement the custom deserializer and then a
 | GRAPHENE_DATA_HANDLER_OFFSET_PROTOCOLVERSION | V4            |                                 |
 
 ## Stats
+
+
+# Graphene Reader Config
+
+## Data Fetch Handler
+
+### Offset Based Data Fetch Handler
+
+|                 Environment                  | Default Value |           Description           |
+|----------------------------------------------|---------------|---------------------------------|
+| GRAPHENE_DATA_FETCH_OFFSET_ENABLED           | false         |                                 |
+| GRAPHENE_DATA_FETCH_OFFSET_KEYSPACE          | metric_offset |                                 |
+| GRAPHENE_DATA_FETCH_OFFSET_COLUMNFAMILY      | metric        |                                 |
+| GRAPHENE_DATA_FETCH_OFFSET_BUCKETSIZE        | 30000         |                                 |
+| GRAPHENE_DATA_FETCH_OFFSET_CLUSTER           | 127.0.0.1     |                                 |
+| GRAPHENE_DATA_FETCH_OFFSET_USERNAME          | cassandra     |                                 |
+| GRAPHENE_DATA_FETCH_OFFSET_USERPASSWORD      | cassandra     |                                 |
+| GRAPHENE_DATA_FETCH_OFFSET_CONSISTENCYLEVEL  | ONE           |                                 |
+| GRAPHENE_DATA_FETCH_OFFSET_PROTOCOLVERSION   | V4            |                                 |
+
+### Simple Data Fetch Handler
+
+|                 Environment                  | Default Value |           Description           |
+|----------------------------------------------|---------------|---------------------------------|
+| GRAPHENE_SIMPLE_OFFSET_ENABLED               | false         |                                 |
+| GRAPHENE_SIMPLE_OFFSET_KEYSPACE              | metric        |                                 |
+| GRAPHENE_SIMPLE_OFFSET_COLUMNFAMILY          | metric        |                                 |
+| GRAPHENE_SIMPLE_OFFSET_CLUSTER               | 127.0.0.1     |                                 |
+| GRAPHENE_SIMPLE_OFFSET_USERNAME              | cassandra     |                                 |
+| GRAPHENE_SIMPLE_OFFSET_USERPASSWORD          | cassandra     |                                 |
+| GRAPHENE_SIMPLE_OFFSET_CONSISTENCYLEVEL      | ONE           |                                 |
+| GRAPHENE_SIMPLE_OFFSET_PROTOCOLVERSION       | V4            |                                 |
