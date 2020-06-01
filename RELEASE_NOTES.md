@@ -1,3 +1,14 @@
+# 1.9.0
+
+## Feature
+- support Prometheus Lexer. [#62](https://github.com/graphene-monitoring/graphene/pull/62)
+- Support basic auth for Elasticsearch client [#64](https://github.com/graphene-monitoring/graphene/pull/64)
+
+## Improvement
+- improve local key cache [#60](https://github.com/graphene-monitoring/graphene/pull/60)
+- include all option on tag value whenever result set is not empty [#59](https://github.com/graphene-monitoring/graphene/pull/59)
+- configurable resolution(rollup) [#63](https://github.com/graphene-monitoring/graphene/pull/63)
+
 # 1.8.0
 
 ## Feature
