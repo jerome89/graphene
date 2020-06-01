@@ -34,7 +34,7 @@ internal class SimpleDataStoreHandlerTest {
     )
 
     val query = """
-          UPDATE metric.metric_10s
+          UPDATE metric.metric
           USING TTL ?
           SET data = ?
           WHERE tenant = ?
