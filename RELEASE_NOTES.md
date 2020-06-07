@@ -3,6 +3,7 @@
 ## Feature
 - support Prometheus Lexer. [#62](https://github.com/graphene-monitoring/graphene/pull/62)
 - Support basic auth for Elasticsearch client [#64](https://github.com/graphene-monitoring/graphene/pull/64)
+- Drop metric if metric id is greater than 512 bytes. It is es key hard limit. [#64](https://github.com/graphene-monitoring/graphene/pull/67)
 
 ## Improvement
 - improve local key cache [#60](https://github.com/graphene-monitoring/graphene/pull/60)
