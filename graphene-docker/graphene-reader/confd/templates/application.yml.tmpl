@@ -33,48 +33,56 @@ graphene:
             maxPaths: 50000
       data:
         handlers:
+          {{if exists "/data/fetch/offset/enabled"}}
+          {{if eq (getv "/data/fetch/offset/enabled") "true"}}
           offset-based-data-fetch-handler:
-            enabled: true
+            enabled: {{getv "/data/fetch/offset/enabled"}}
             tenant: NONE
             maxPoints: 60000000
-            keyspace: "{{getv "/data/cassandra/keyspace" "metric_offset"}}"
-            columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
-            bucketSize: {{getv "/data/cassandra/offset/bucketsize" "604800"}}
+            keyspace: "{{getv "/data/fetch/offset/keyspace" "metric_offset"}}"
+            columnFamily: "{{getv "/data/fetch/offset/columnFamily" "metric"}}"
+            bucketSize: {{getv "/data/fetch/offset/offset/bucketsize" "30000"}}
             rollup: 60
             property:
-              cluster: "{{getv "/data/cassandra/cluster" "cassandra"}}"
+              cluster: "{{getv "/data/fetch/offset/cluster" "cassandra"}}"
               port: 9042
-              userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
-              userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
+              userName: "{{getv "/data/fetch/offset/userName" "cassandra"}}"
+              userPassword: "{{getv "/data/fetch/offset/userPassword" "cassandra"}}"
               maxConnections: 2048
               readTimeout: 10
               connectTimeout: 10
               maxRequests: 128
               maxQueueSize: 4194304
               loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
-              consistencyLevel: "{{getv "/data/cassandra/consistencylevel" "ONE"}}"
-              protocolVersion: "V4"
+              consistencyLevel: "{{getv "/data/fetch/offset/consistencylevel" "ONE"}}"
+              protocolVersion: "{{getv "/data/fetch/offset/protocolversion" "V4"}}"
+          {{end}}
+          {{end}}
+          {{if exists "/data/fetch/simple/enabled"}}
+          {{if eq (getv "/data/fetch/simple/enabled") "true"}}
           simple-data-fetch-handler:
-            enabled: false
+            enabled: {{getv "/data/fetch/simple/enabled"}}
             tenant: NONE
             maxPoints: 60000000
-            keyspace: "{{getv "/data/cassandra/keyspace" "metric"}}"
-            columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
+            keyspace: "{{getv "/data/fetch/simple/keyspace" "metric"}}"
+            columnFamily: "{{getv "/data/fetch/simple/columnFamily" "metric"}}"
             bucketSize: 0
             rollup: 60
             property:
-              cluster: "{{getv "/data/cassandra/cluster" "cassandra"}}"
+              cluster: "{{getv "/data/fetch/simple/cluster" "cassandra"}}"
               port: 9042
-              userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
-              userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
+              userName: "{{getv "/data/fetch/simple/userName" "cassandra"}}"
+              userPassword: "{{getv "/data/fetch/simple/userPassword" "cassandra"}}"
               maxConnections: 2048
               readTimeout: 10
               connectTimeout: 10
               maxRequests: 128
               maxQueueSize: 4194304
               loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
-              consistencyLevel: "{{getv "/data/cassandra/consistencylevel" "ONE"}}"
-              protocolVersion: "V4"
+              consistencyLevel: "{{getv "/data/fetch/simple/consistencylevel" "ONE"}}"
+              protocolVersion: "{{getv "/data/fetch/simple/protocolversion" "V4"}}"
+          {{end}}
+          {{end}}
     throttling:
       # enable throttling
       throttlingEnabled: true

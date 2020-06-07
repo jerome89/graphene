@@ -72,7 +72,7 @@ class InfluxDbMetricConverter : MetricConverter<String> {
           }
           ConvertStage.FIELD_VALUE -> {
             if (char == ',') {
-              var id = "${meta["@measurement"]}.$tmpKey;"
+              var id = key(meta, tmpKey)
 
               for (tag in tags) {
                 id += withAndOperator(tag, tags)
@@ -91,7 +91,7 @@ class InfluxDbMetricConverter : MetricConverter<String> {
             }
 
             if (char == ' ') {
-              var id = "${meta["@measurement"]}.$tmpKey;"
+              var id = key(meta, tmpKey)
 
               for (tag in tags) {
                 id += withAndOperator(tag, tags)
@@ -110,7 +110,12 @@ class InfluxDbMetricConverter : MetricConverter<String> {
             }
           }
           ConvertStage.TIMESTAMP -> {
-            val timestampSecond = TimeUnit.NANOSECONDS.toSeconds(metric.substring(index.index).toLong())
+            val timestampSecond = if (metric.endsWith("\n")) {
+              TimeUnit.NANOSECONDS.toSeconds(metric.replace("\n", "").substring(index.index).toLong())
+            } else {
+              TimeUnit.NANOSECONDS.toSeconds(metric.substring(index.index).toLong())
+            }
+
             for (grapheneMetric in grapheneMetrics) {
               grapheneMetric.timestampSeconds = timestampSecond
             }
@@ -123,11 +128,14 @@ class InfluxDbMetricConverter : MetricConverter<String> {
         }
       }
 
-      throw NotFinishedConvertException("Fail to convert InfluxDB metric")
+      throw NotFinishedConvertException("Fail to convert InfluxDB metric : $metric")
     } catch (e: Exception) {
-      throw UnexpectedConverterException("Fail to convert InfluxDB metric", e)
+      throw UnexpectedConverterException("Fail to convert InfluxDB metric : $metric", e)
     }
   }
+
+  private fun key(meta: MutableMap<String, String>, tmpKey: String?) =
+    "${meta["@measurement"]}_$tmpKey;"
 
   private fun withAndOperator(tag: MutableMap.MutableEntry<String, String>, tags: TreeMap<String, String>): String {
     return if (tag.key == tags.lastKey()) {

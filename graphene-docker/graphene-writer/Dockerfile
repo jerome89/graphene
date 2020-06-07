@@ -4,7 +4,8 @@ FROM gradle:5.5.1-jdk8
 #         Program version       #
 #################################
 ENV GRAPHENE_TYPE=graphene-writer
-ENV GRAPHENE_VERSION=1.8.0
+ENV GRAPHENE_BRANCH=origin/feature/multiple-kafka-input
+ENV GRAPHENE_VERSION=1.9.0
 ENV CONFD_VERSION=0.16.0
 
 #################################
@@ -25,14 +26,14 @@ RUN git clone https://github.com/graphene-monitoring/graphene
 WORKDIR /tmp/graphene
 
 RUN git fetch && \
-    git checkout -b $GRAPHENE_VERSION $GRAPHENE_VERSION
+    git checkout -b $GRAPHENE_BRANCH $GRAPHENE_BRANCH
 
 ##################################
 ##         Graphene build        #
 ##################################
 WORKDIR /tmp/graphene/${GRAPHENE_TYPE}
 
-RUN gradle bootjar
+RUN ../gradlew bootjar
 ##################################
 ##  Config & Entrypoint script   #
 ##################################

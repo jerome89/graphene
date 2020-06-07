@@ -7,9 +7,9 @@ logging:
 
 graphene:
   writer:
-    blacklist:
-      'test':
-        - '^xxx_sum.*\.system\..*'
+#    blacklist:
+#      'test':
+#        - '^xxx_sum.*\.system\..*'
     input:
       graphite:
         carbon:
@@ -19,14 +19,36 @@ graphene:
   #          host: 127.0.0.1
   #          port: 2003
       kafka:
-        enabled: false
-        bootstrapServer: "localhost:9092"
-        consumerGroupId: "graphene-writer"
-        pollIntervalMs: 5000
-        maxPollRecords: 1000
-        topics: "graphene-test"
-        keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
-        valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
+        custom:
+          enabled: false
+          bootstrapServer: "localhost:9092"
+          consumerGroupId: "custom-graphene-writer"
+          autoOffsetReset: "latest"
+          pollIntervalMs: 5000
+          maxPollRecords: 1000
+          topics: "graphene-custom"
+          keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
+          valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
+        prometheus:
+          enabled: false
+          bootstrapServer: "localhost:9092"
+          consumerGroupId: "prometheus-graphene-writer"
+          autoOffsetReset: "latest"
+          pollIntervalMs: 5000
+          maxPollRecords: 1000
+          topics: "graphene-prometheus"
+          keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
+          valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"
+        influx-db:
+          enabled: true
+          bootstrapServer: "localhost:9092"
+          consumerGroupId: "influxdb-graphene-writer"
+          autoOffsetReset: "latest"
+          pollIntervalMs: 5000
+          maxPollRecords: 1000
+          topics: "graphene-influxdb"
+          keyDeserializerClass: "org.apache.kafka.common.serialization.StringDeserializer"
+          valueDeserializerClass: "com.graphene.writer.input.kafka.deserializer.InfluxDbDeserializer"
     store:
       key:
         handlers:
@@ -99,7 +121,7 @@ graphene:
           tag-based-key-store-handler:
             tenant: none
             rotation:
-              strategy: "noOpRotation"
+              strategy: "timeBasedRotation"
               period: "1w"
             handler:
               type: "TagBasedKeyStoreHandler"
@@ -118,28 +140,28 @@ graphene:
                   interval: 500
       data:
         handlers:
-          simple-data-store-handler:
-            type: "SimpleDataStoreHandler"
-            tenant: NONE
-            ttl: 604800
-            rollup: 60
-            keyspace: "metric"
-            columnFamily: "metric"
-            bucketSize: 0
-            property:
-              cluster:
-                - "127.0.0.1"
-              port: 9042
-              userName: "cassandra"
-              userPassword: "cassandra"
-              maxConnections: 2048
-              readTimeout: 10
-              connectTimeout: 10
-              maxRequests: 128
-              maxQueueSize: 4194304 # 4 * 1024 * 1024
-              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
-              consistencyLevel: "ONE"
-              protocolVersion: "V4"
+#          simple-data-store-handler:
+#            type: "SimpleDataStoreHandler"
+#            tenant: NONE
+#            ttl: 604800
+#            rollup: 60
+#            keyspace: "metric"
+#            columnFamily: "metric"
+#            bucketSize: 0
+#            property:
+#              cluster:
+#                - "127.0.0.1"
+#              port: 9042
+#              userName: "cassandra"
+#              userPassword: "cassandra"
+#              maxConnections: 2048
+#              readTimeout: 10
+#              connectTimeout: 10
+#              maxRequests: 128
+#              maxQueueSize: 4194304 # 4 * 1024 * 1024
+#              loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
+#              consistencyLevel: "ONE"
+#              protocolVersion: "V4"
           offset-based-data-store-handler:
             type: "OffsetBasedDataStoreHandler"
             tenant: NONE

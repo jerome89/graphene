@@ -43,6 +43,10 @@ subprojects {
         ktlint
     }
 
+    jacoco {
+      toolVersion = "0.8.2"
+    }
+
     dependencies {
         ktlint "com.pinterest:ktlint:0.35.0"
         // additional 3rd party ruleset(s) can be specified here

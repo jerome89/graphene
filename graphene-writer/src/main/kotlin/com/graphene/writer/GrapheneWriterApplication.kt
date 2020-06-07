@@ -5,7 +5,9 @@ import com.graphene.writer.config.GrapheneWriterProperty
 import com.graphene.writer.config.StatsProperty
 import com.graphene.writer.input.graphite.property.InputGraphiteCarbonProperty
 import com.graphene.writer.input.graphite.property.InputGraphiteProperty
-import com.graphene.writer.input.kafka.config.InputKafkaProperty
+import com.graphene.writer.input.kafka.config.CustomInputKafkaProperty
+import com.graphene.writer.input.kafka.config.InfluxDbInputKafkaProperty
+import com.graphene.writer.input.kafka.config.PrometheusInputKafkaProperty
 import com.graphene.writer.store.DataStoreHandlersProperty
 import com.graphene.writer.store.KeyStoreHandlersProperty
 import org.springframework.boot.SpringApplication
@@ -30,7 +32,9 @@ import org.springframework.scheduling.annotation.EnableAsync
   InputGraphiteProperty::class,
   KeyStoreHandlersProperty::class,
   DataStoreHandlersProperty::class,
-  InputKafkaProperty::class
+  PrometheusInputKafkaProperty::class,
+  InfluxDbInputKafkaProperty::class,
+  CustomInputKafkaProperty::class
 )
 class GrapheneWriterApplication
 

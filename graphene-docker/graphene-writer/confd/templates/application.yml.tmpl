@@ -7,19 +7,50 @@ logging:
 
 graphene:
   writer:
-    blacklist:
-      'test':
-        - '^xxx_sum.*\.system\..*'
     input:
       kafka:
-        enabled: {{getv "/input/kafka/enabled" "false"}}
-        bootstrapServer: "{{getv "/input/kafka/bootstrap/server" "localhost:9092"}}"
-        consumerGroupId: "{{getv "/input/kafka/consumer/group/id" "graphene-writer"}}"
-        pollIntervalMs: {{getv "/input/kafka/poll/interval/ms" "500"}}
-        maxPollRecords: {{getv "/input/kafka/max/poll/records" "1000"}}
-        topics: "{{getv "/input/kafka/topics" "graphene"}}"
-        keyDeserializerClass: "{{getv "/input/kafka/key/deserializer/class" "org.apache.kafka.common.serialization.StringDeserializer"}}"
-        valueDeserializerClass: "{{getv "/input/kafka/value/deserializer/class" "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"}}"
+        {{if exists "/input/kafka/custom/enabled"}}
+        {{if eq (getv "/input/kafka/custom/enabled") "true"}}
+        custom:
+          enabled: {{getv "/input/kafka/custom/enabled" "false"}}
+          bootstrapServer: "{{getv "/input/kafka/custom/bootstrap/server" "127.0.0.1:9092"}}"
+          consumerGroupId: "{{getv "/input/kafka/custom/consumer/group/id" "graphene-writer"}}"
+          autoOffsetReset: "{{getv "/input/kafka/custom/consumer/auto/offset/reset" "latest"}}"
+          pollIntervalMs: {{getv "/input/kafka/custom/poll/interval/ms" "500"}}
+          maxPollRecords: {{getv "/input/kafka/custom/max/poll/records" "1000"}}
+          topics: "{{getv "/input/kafka/custom/topics" "graphene"}}"
+          keyDeserializerClass: "{{getv "/input/kafka/custom/key/deserializer/class" "org.apache.kafka.common.serialization.StringDeserializer"}}"
+          valueDeserializerClass: "{{getv "/input/kafka/custom/value/deserializer/class" "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"}}"
+        {{end}}
+        {{end}}
+        {{if exists "/input/kafka/prometheus/enabled"}}
+        {{if eq (getv "/input/kafka/prometheus/enabled") "true"}}
+        prometheus:
+          enabled: {{getv "/input/kafka/prometheus/enabled" "false"}}
+          bootstrapServer: "{{getv "/input/kafka/prometheus/bootstrap/server" "127.0.0.1:9092"}}"
+          consumerGroupId: "{{getv "/input/kafka/prometheus/consumer/group/id" "graphene-writer"}}"
+          autoOffsetReset: "{{getv "/input/kafka/prometheus/consumer/auto/offset/reset" "latest"}}"
+          pollIntervalMs: {{getv "/input/kafka/prometheus/poll/interval/ms" "500"}}
+          maxPollRecords: {{getv "/input/kafka/prometheus/max/poll/records" "1000"}}
+          topics: "{{getv "/input/kafka/prometheus/topics" "graphene"}}"
+          keyDeserializerClass: "{{getv "/input/kafka/prometheus/key/deserializer/class" "org.apache.kafka.common.serialization.StringDeserializer"}}"
+          valueDeserializerClass: "{{getv "/input/kafka/prometheus/value/deserializer/class" "com.graphene.writer.input.kafka.deserializer.PrometheusDeserializer"}}"
+        {{end}}
+        {{end}}
+        {{if exists "/input/kafka/influxdb/enabled"}}
+        {{if eq (getv "/input/kafka/influxdb/enabled") "true"}}
+        influx-db:
+          enabled: {{getv "/input/kafka/influxdb/enabled" "false"}}
+          bootstrapServer: "{{getv "/input/kafka/influxdb/bootstrap/server" "127.0.0.1:9092"}}"
+          consumerGroupId: "{{getv "/input/kafka/influxdb/consumer/group/id" "graphene-writer"}}"
+          autoOffsetReset: "{{getv "/input/kafka/influxdb/consumer/auto/offset/reset" "latest"}}"
+          pollIntervalMs: {{getv "/input/kafka/influxdb/poll/interval/ms" "500"}}
+          maxPollRecords: {{getv "/input/kafka/influxdb/max/poll/records" "1000"}}
+          topics: "{{getv "/input/kafka/influxdb/topics" "graphene"}}"
+          keyDeserializerClass: "{{getv "/input/kafka/influxdb/key/deserializer/class" "org.apache.kafka.common.serialization.StringDeserializer"}}"
+          valueDeserializerClass: "{{getv "/input/kafka/influxdb/value/deserializer/class" "com.graphene.writer.input.kafka.deserializer.InfluxDbDeserializer"}}"
+        {{end}}
+        {{end}}
       graphite.carbon:
         bind: "0.0.0.0"
         port: 2003
@@ -54,46 +85,54 @@ graphene:
                   interval: 500
       data:
         handlers:
+          {{if exists "/data/handler/simple/enabled"}}
+          {{if eq (getv "/data/handler/simple/enabled") "true"}}
           simple-data-store-handler:
             type: "SimpleDataStoreHandler"
             tenant: NONE
-            ttl: {{getv "/data/cassandra/ttl" "604800"}}
-            keyspace: "{{getv "/data/cassandra/keyspace" "metric"}}"
-            columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
+            ttl: {{getv "/data/handler/simple/ttl" "604800"}}
+            keyspace: "{{getv "/data/handler/simple/keyspace" "metric"}}"
+            columnFamily: "{{getv "/data/handler/simple/columnFamily" "metric"}}"
             bucketSize: 0
             property:
-              cluster: "{{getv "/data/cassandra/cluster" "127.0.0.1"}}"
+              cluster: "{{getv "/data/handler/simple/cluster" "127.0.0.1"}}"
               port: 9042
-              userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
-              userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
-              maxConnections: {{getv "/data/cassandra/max/connections" "2048"}}
+              userName: "{{getv "/data/handler/simple/userName" "cassandra"}}"
+              userPassword: "{{getv "/data/handler/simple/userPassword" "cassandra"}}"
+              maxConnections: {{getv "/data/handler/simple/max/connections" "2048"}}
               readTimeout: 10
               connectTimeout: 10
-              maxRequests: {{getv "/data/cassandra/max/connections" "128"}}
+              maxRequests: {{getv "/data/handler/simple/max/connections" "128"}}
               maxQueueSize: 4194304
               loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
-              consistencyLevel: "{{getv "/data/cassandra/consistencylevel" "ONE"}}"
-              protocolVersion: "V4"
+              consistencyLevel: "{{getv "/data/handler/simple/consistencylevel" "ONE"}}"
+              protocolVersion: "{{getv "/data/handler/simple/protocolversion" "V4"}}"
+          {{end}}
+          {{end}}
+          {{if exists "/data/handler/offset/enabled"}}
+          {{if eq (getv "/data/handler/offset/enabled") "true"}}
           offset-based-data-store-handler:
             type: "OffsetBasedDataStoreHandler"
             tenant: NONE
-            ttl: {{getv "/data/cassandra/ttl" "604800"}}
-            keyspace: "{{getv "/data/cassandra/columnFamily" "metric_offset"}}"
-            columnFamily: "{{getv "/data/cassandra/columnFamily" "metric"}}"
-            bucketSize: {{getv "/data/cassandra/offset/bucketsize" "604800"}}
+            ttl: {{getv "/data/handler/offset/ttl" "604800"}}
+            keyspace: "{{getv "/data/handler/offset/keyspace" "metric_offset"}}"
+            columnFamily: "{{getv "/data/handler/offset/columnFamily" "metric"}}"
+            bucketSize: {{getv "/data/handler/offset/bucketsize" "30000"}}
             property:
-              cluster: "{{getv "/data/cassandra/cluster" "127.0.0.1"}}"
+              cluster: "{{getv "/data/handler/offset/cluster" "127.0.0.1"}}"
               port: 9042
-              userName: "{{getv "/data/cassandra/userName" "cassandra"}}"
-              userPassword: "{{getv "/data/cassandra/userPassword" "cassandra"}}"
-              maxConnections: {{getv "/data/cassandra/max/connections" "2048"}}
+              userName: "{{getv "/data/handler/offset/userName" "cassandra"}}"
+              userPassword: "{{getv "/data/handler/offset/userPassword" "cassandra"}}"
+              maxConnections: {{getv "/data/handler/offset/max/connections" "2048"}}
               readTimeout: 10
               connectTimeout: 10
-              maxRequests: {{getv "/data/cassandra/max/connections" "128"}}
+              maxRequests: {{getv "/data/handler/offset/max/requests" "128"}}
               maxQueueSize: 4194304
               loadBalancingPolicyName: "TokenDcAwareRoundRobinPolicy"
-              consistencyLevel: "{{getv "/data/cassandra/consistencylevel" "ONE"}}"
-              protocolVersion: "V4"
+              consistencyLevel: "{{getv "/data/handler/offset/consistencylevel" "ONE"}}"
+              protocolVersion: "{{getv "/data/handler/offset/protocolversion" "V4"}}"
+          {{end}}
+          {{end}}
     stats:
       interval: 60
       tenant: "NONE"

@@ -42,7 +42,7 @@ class SimpleDataStoreHandler(
     this.rollup = dataStoreHandlerProperty.rollup
     validateRollup(rollup)
     this.query = """
-    UPDATE ${dataStoreHandlerProperty.keyspace}.${dataStoreHandlerProperty.columnFamily}_${rollup}s
+    UPDATE ${dataStoreHandlerProperty.keyspace}.${dataStoreHandlerProperty.columnFamily}
     USING TTL ?
     SET data = ?
     WHERE tenant = ?
