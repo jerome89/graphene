@@ -5,16 +5,16 @@ import com.graphene.writer.event.GrapheneDataStoreEvent
 import com.graphene.writer.input.GrapheneMetric
 import com.graphene.writer.store.StoreHandler
 import com.graphene.writer.store.StoreHandlerFactory
-import org.apache.logging.log4j.LogManager
-import org.springframework.context.ApplicationEventPublisher
-import org.springframework.scheduling.annotation.Async
-import org.springframework.stereotype.Component
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
+import org.apache.logging.log4j.LogManager
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.scheduling.annotation.Async
+import org.springframework.stereotype.Component
 
 @Component
 class GrapheneProcessor(
