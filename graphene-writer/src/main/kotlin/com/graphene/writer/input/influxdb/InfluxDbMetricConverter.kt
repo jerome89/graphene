@@ -19,7 +19,8 @@ import java.util.concurrent.TimeUnit
  */
 class InfluxDbMetricConverter : MetricConverter<String> {
 
-  override fun convert(metric: String): List<GrapheneMetric> {
+  override fun convert(metricStr: String): List<GrapheneMetric> {
+    val metric = metricStr.replace("\\ ", "_")
     try {
       var stage = ConvertStage.MEASUREMENT
 
@@ -36,14 +37,14 @@ class InfluxDbMetricConverter : MetricConverter<String> {
         when (stage) {
           ConvertStage.MEASUREMENT -> {
             if (char == ',') {
-              meta["@measurement"] = tmpRegistry.toString()
+              meta["@measurement"] = tmpRegistry.toString().replace(".", "_")
               tmpRegistry.clear()
               stage = ConvertStage.TAG_KEY
             }
           }
           ConvertStage.TAG_KEY -> {
             if (char == '=') {
-              tmpKey = tmpRegistry.toString()
+              tmpKey = tmpRegistry.toString().replace(".", "_")
               tmpRegistry.clear()
               stage = ConvertStage.TAG_VALUE
             }
