@@ -117,4 +117,28 @@ internal class InfluxDbMetricConverterTest {
     // timestamp
     grapheneMetric.timestampSeconds shouldBe 1576318510
   }
+
+  @Test
+  internal fun `should convert to graphene metric format#4`() {
+    // given
+    val influxDbMetricConverter = InfluxDbMetricConverter()
+
+    // when
+    val grapheneMetric = influxDbMetricConverter.convert("BrokerTopicMetrics,host=server1 ProduceMessageConversionsPerSec.EventType=\"requests\" 1576318510000000000")[0]
+
+    // then influx db format to graphene metric
+
+    // measurement
+    grapheneMetric.meta["@measurement"] shouldBe "BrokerTopicMetrics"
+    grapheneMetric.metricKey() shouldBe "BrokerTopicMetrics_ProduceMessageConversionsPerSec_EventType"
+
+    // tag
+    grapheneMetric.tags shouldBe mapOf(Pair("host", "server1"))
+
+    // field
+    grapheneMetric.value shouldBe 0.0
+
+    // timestamp
+    grapheneMetric.timestampSeconds shouldBe 1576318510
+  }
 }
