@@ -57,7 +57,7 @@ def migrate_docs(es, docs, bulk_size):
       if tag not in tag_list and not tag.startswith('@'):
         tag_list.append(tag)
     update_doc = {'_op_type': 'update', 'doc': {}, '_index': doc_index, '_id': doc_id, '_type': doc_type}
-    update_doc['doc']['@tag_list'] = tag_list
+    update_doc['doc']['@tags'] = tag_list
     bulk.append(update_doc)
     count = count + 1
   if len(bulk) > 0:
