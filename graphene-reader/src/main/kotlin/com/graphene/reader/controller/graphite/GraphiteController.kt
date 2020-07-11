@@ -71,6 +71,11 @@ class GraphiteController(
     )
   }
 
+  @RequestMapping("/version", method = [RequestMethod.GET])
+  fun getVersion(): String {
+    return "1.1.5"
+  }
+
   private fun getPathsAsHierarchyMetricPath(metricsFindRequest: MetricsFindRequest): Collection<HierarchyMetricPaths.HierarchyMetricPath> {
     return keySearchHandler.getHierarchyMetricPaths(
       MetricRule.defaultTenant(),

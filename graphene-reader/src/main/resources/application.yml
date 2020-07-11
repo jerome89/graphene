@@ -98,7 +98,7 @@ graphene:
             keyspace: "metric_offset"
             columnFamily: "metric"
             bucketSize: 30000
-            rollup: 60
+            rollup: 86400
             property:
               cluster:
                 - "127.0.0.1"
